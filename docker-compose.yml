@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # 1. Tu Aplicación Frontend (Usará el Dockerfile de Vue/Vite)
+  frontend_app:
+    # Construye la imagen usando el Dockerfile que está en este mismo directorio.
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    image: riwi_frontend_app:latest 
+    container_name: vue_project_container
+    # La imagen final de Nginx sirve la app en el puerto 80 interno
+    restart: always 
+
+  # 2. Proxy Inverso Nginx (Punto de Entrada HTTP/HTTPS)
+  nginx_proxy:
+    image: nginx:latest
+    container_name: nginx_container
+    volumes:
+      # Monta tu archivo de configuración de Nginx (nginx.conf)
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro 
+      # Monta la carpeta donde Certbot guarda los certificados SSL
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    ports:
+      - "80:80"   # Mapea el puerto 80 del host (HTTP) al 80 del contenedor
+      - "443:443" # Mapea el puerto 443 del host (HTTPS) al 443 del contenedor
+    # Asegura que la app frontend esté corriendo antes de iniciar el proxy
+    depends_on:
+      - frontend_app 
+    restart: always
