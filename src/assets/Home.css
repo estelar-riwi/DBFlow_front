@@ -405,8 +405,8 @@ canvas {
     padding: 15px 36px 24px 30px;
     border-radius: 18px;
     background: 
-      url("https://grainy-gradients.vercel.app/noise.png"),
-      linear-gradient(135deg, #232323 0%, #191919 100%);
+    url("https://grainy-gradients.vercel.app/noise.png"),
+    linear-gradient(135deg, #232323 0%, #191919 100%);
     background-blend-mode: overlay;
     /* Ningún borde visible */
     box-shadow: 0 6px 24px 0 rgba(0,0,0,0.22);

@@ -1,0 +1,35 @@
+# --- Etapa 1: Build (Compilación de la aplicación Vue/Vite) ---
+# Usa una imagen de Node para ejecutar 'npm install' y 'npm run build'
+FROM node:18-alpine AS build
+
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copia los archivos de definición de dependencias para aprovechar el caché
+COPY package*.json ./
+
+# Instala las dependencias
+RUN npm install
+
+# Copia todos los archivos de la aplicación
+COPY . .
+
+# Ejecuta el comando de construcción de Vite. 
+# Esto genera los archivos estáticos en la carpeta 'dist' por defecto.
+RUN npm run build
+
+# --- Etapa 2: Runtime (Servir con Nginx) ---
+# Usa una imagen de Nginx muy ligera para servir los archivos estáticos
+FROM nginx:alpine AS final
+# EXPOSE 80 # Nginx ya expone el puerto 80 por defecto
+
+# Copia los archivos estáticos generados desde la etapa de compilación
+# El output de 'npm run build' (carpeta 'dist') se copia al directorio de servicio de Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copia la configuración de Nginx para el contenedor (si la necesitas)
+# Si no hay un archivo nginx.conf específico para el frontend, Nginx usará la config por defecto
+# que funciona bien para servir archivos estáticos. 
+
+# Comando de ejecución por defecto (iniciar Nginx)
+CMD ["nginx", "-g", "daemon off;"]
