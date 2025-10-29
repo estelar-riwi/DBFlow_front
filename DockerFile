@@ -1,0 +1,27 @@
+# --- Stage 1: Build ---
+# Usamos la imagen del SDK de .NET 8.0 (puedes cambiar la versión) para compilar el proyecto
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copia los archivos .csproj y restaura las dependencias primero
+# Esto aprovecha la caché de Docker. Si no cambian los .csproj, no se vuelven a descargar las dependencias.
+COPY *.csproj .
+RUN dotnet restore
+
+# Copia el resto del código fuente y compila la aplicación
+COPY . .
+RUN dotnet publish -c Release -o /app/publish
+
+# --- Stage 2: Final ---
+# Usamos la imagen de runtime de ASP.NET, que es mucho más ligera
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# El puerto por defecto que expone la imagen de ASP.NET es 8080
+# Si tu app corre en otro puerto, puedes cambiarlo con la variable de entorno ASPNETCORE_URLS
+EXPOSE 8080
+
+# Comando para iniciar la aplicación
+# Asegúrate de cambiar "TuProyecto.dll" por el nombre real de la DLL de tu proyecto
+ENTRYPOINT ["dotnet", "TuProyecto.dll"]

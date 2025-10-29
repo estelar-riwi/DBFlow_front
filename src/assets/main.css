@@ -1,0 +1,52 @@
+/* Importamos la fuente que usará la cabecera y botones */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+/* ... (tu body y #app styles) ... */
+#app {
+  width: 100%;
+  min-height: 100vh;
+}
+body {
+  margin: 0;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/*
+  Estilos de Botones Globales
+*/
+.btn-primary {
+  background-color: white;
+  color: black;
+  border: 1px solid white;
+  padding: 12px 24px;   /* <-- CAMBIO: Un poco más de padding */
+  border-radius: 99px;  /* <-- CAMBIO: Totalmente redondeado */
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-primary:hover {
+  background-color: #ccc;
+  border-color: #ccc;
+}
+
+/* ... (tu .btn-secondary styles) ... */
+.btn-secondary {
+  background-color: #1a1a1a;
+  color: white;
+  border: 1px solid #333;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  background-color: #222;
+  border-color: #555;
+}
+
