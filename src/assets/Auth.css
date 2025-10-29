@@ -1,0 +1,120 @@
+/* Estilos necesarios para las páginas de Login y Register */
+
+/* --- Contenedor Principal (Fondo Oscuro) --- */
+.auth-page-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #000; /* Fondo principal oscuro */
+}
+
+/* --- Tarjeta de Autenticación (Estilo Oscuro) --- */
+.auth-card {
+    /* Modelo de Caja */
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    
+    /* Apariencia: Similares a las tarjetas de Features/Pricing */
+    background: 
+      url("https://grainy-gradients.vercel.app/noise.png"),
+      linear-gradient(135deg, #181818 0%, #111111 100%);
+    background-blend-mode: overlay;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    color: white;
+}
+
+/* --- Logo y Marca (Reutilizando estilos de Home.css) --- */
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+/* Reutilizamos el .logo-icon de Home.css para mantener la consistencia */
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background-color: white;
+    border-radius: 50%;
+    position: relative;
+}
+/* El::after requiere que copies ese estilo de Home.css a tu archivo global o aquí si no lo tienes globalmente */
+
+
+/* --- Títulos y Subtítulos --- */
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+}
+
+.auth-subtitle {
+    font-size: 1rem;
+    color: #aaa;
+    margin-bottom: 30px;
+}
+
+/* --- Formulario y Campos --- */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #ccc;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background-color: #0d0d0d;
+    color: white;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    box-sizing: border-box; /* Crucial para que el padding no desborde el ancho */
+}
+
+.auth-form input:focus {
+    border-color: #555;
+    outline: none;
+}
+
+/* --- Botón de Ancho Completo --- */
+.btn-full-width {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* --- Texto de Pie de Página --- */
+.auth-footer-text {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-top: 20px;
+}
+
+.link-secondary {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.link-secondary:hover {
+    color: #797979;
+}

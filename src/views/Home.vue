@@ -1,20 +1,29 @@
 <template>
   <div>
-    <header class="main-header">
+    <header 
+      class="main-header"
+      :class="{ 'header-hidden': !showHeader }"
+    >
       <div class="logo">
         <div class="logo-icon"></div>
         <strong>DBFlow</strong>
       </div>
 
       <nav class="main-nav">
-        <a href="#">Features</a>
-        <a href="#">Pricing</a>
-        <a href="#">About</a>
-        <a href="#">Testimonials</a>
+        <a href="#features-section" :class="{ 'active': activeSection === 'features-section' }">Features</a>
+        <a href="#pricing-section" :class="{ 'active': activeSection === 'pricing-section' }">Pricing</a>
+        <a href="#faq-section" :class="{ 'active': activeSection === 'faq-section' }">About</a>
+        <a href="#footer-section" :class="{ 'active': activeSection === 'footer-section' }">Testimonials</a>
       </nav>
       <div class="auth-buttons">
-        <a href="#" class="btn-signin">Sign In</a>
-        <button class="btn-primary">Get Started</button>
+        
+        <router-link to="/login" custom v-slot="{ navigate }">
+          <a @click="navigate" role="link" class="btn-signin">Sign In</a>
+        </router-link>
+
+        <router-link to="/register" custom v-slot="{ navigate }">
+          <a @click="navigate" role="link" class="btn-primary">Get Started</a>
+        </router-link>
       </div>
     </header>
 
@@ -52,8 +61,179 @@
         </div>
       </div>
     </section>
+    
+    <section class="features-section" id="features-section" ref="featuresSection">
+      <h2 class="section-title">Funcionalidades Esenciales</h2>
+      <p class="section-subtitle">
+          La automatización que tu gestión de bases de datos necesita para pasar al siguiente nivel.
+      </p>
+      <div class="features-grid">
+        
+        <div class="feature-card">
+            <h4>Monitoreo y Analíticas</h4>
+            <h3>Insights Instantáneos</h3>
+            <p>Optimiza con métricas de rendimiento y consumo de recursos de tus DBs en tiempo real.</p>
+        </div>
+
+        <div class="feature-card">
+            <h4>Administración de Equipos</h4>
+            <h3>Colaboración Fluida</h3>
+            <p>Gestiona y escala todas tus bases de datos (MySQL, Mongo, etc.) de manera centralizada.</p>
+        </div>
+
+        <div class="feature-card">
+            <h4>Disponibilidad Máxima</h4>
+            <h3>99.9%</h3>
+            <p>Garantía de alta disponibilidad para mantener tus aplicaciones siempre operativas.</p>
+        </div>
+
+        <div class="feature-card">
+            <h4>Seguridad Aislada</h4>
+            <h3>Blindaje Empresarial</h3>
+            <p>Cifrado de extremo a extremo, aislamiento total y seguridad garantizada por **JWT**.</p>
+        </div>
+        
+        <div class="feature-card">
+            <h4>Escalabilidad y Acceso</h4>
+            <h3>Despliegue Global</h3>
+            <p>Infraestructura global para que accedas a tu panel **DBflow** desde cualquier lugar.</p>
+        </div>
+      </div>
+    </section>
+    
+    <section class="pricing-section" id="pricing-section" ref="pricingSection">
+      <h2 class="section-title">Precios Simples y Transparentes</h2>
+      <p class="section-subtitle">
+          Elige el plan perfecto para escalar tus bases de datos en la nube. Sin cargos ocultos, solo gestión pura.
+      </p>
+      <div class="pricing-cards">
+        
+        <div class="pricing-card">
+            <h3>Plan Gratuito</h3>
+            <h1>$0<span>/siempre</span></h1>
+            <p>Perfecto para proyectos personales y pruebas iniciales.</p>
+            <ul>
+                <li>Hasta **2 Bases de Datos por Motor**</li>
+                <li>Motores: MySQL, Mongo, Postgre, etc.</li>
+                <li>Generación automática de Credenciales</li>
+                <li>Autenticación segura JWT</li>
+                <li>Soporte vía correo (Estándar)</li>
+            </ul>
+            <button class="btn-primary">Registrarse Gratis →</button>
+        </div>
+
+        <div class="pricing-card popular">
+            <div class="tag">Más Popular</div>
+            <h3>Plan Intermedio</h3>
+            <h1>$5.000<span>/mes COP</span></h1>
+            <p>Ideal para pequeños equipos y aplicaciones en crecimiento.</p>
+            <ul>
+                <li>Hasta **5 Bases de Datos por Motor**</li>
+                <li>**Webhooks** para notificaciones y errores</li>
+                <li>Integración directa con **Mercado Pago**</li>
+                <li>Gestión centralizada de facturación</li>
+                <li>Rotación de credenciales bajo demanda</li>
+            </ul>
+            <button class="btn-primary">Suscribirse (Mercado Pago) →</button>
+        </div>
+
+        <div class="pricing-card">
+            <h3>Plan Avanzado</h3>
+            <h1>$10.000<span>/mes COP</span></h1>
+            <p>La solución completa para desarrolladores y proyectos de alta demanda.</p>
+            <ul>
+                <li>Hasta **10 Bases de Datos por Motor**</li>
+                <li>Acceso a todos los **Webhooks**</li>
+                <li>Soporte prioritario y SLA</li>
+                <li>Auditoría completa de eventos (Logs)</li>
+                <li>Todos los beneficios del Plan Intermedio</li>
+            </ul>
+            <button class="btn-outline">Actualizar Plan →</button>
+        </div>
+        
+      </div>
+    </section>
+
+    <section class="faq-section" id="faq-section" ref="faqSection">
+      <h2 class="section-title">Preguntas Frecuentes</h2>
+      <p class="section-subtitle">
+          Todo lo que necesitas saber sobre DBflow. ¿No encuentras lo que buscas? Contacta a nuestro equipo de soporte.
+      </p>
+      <div class="faq-list">
+        
+        <details>
+            <summary>¿Qué es DBflow y qué motores de bases de datos soporta?</summary>
+            <p>DBflow es una plataforma cloud para la gestión automatizada de bases de datos que te permite crear, administrar y escalar instancias de motores populares como MySQL, PostgreSQL, MongoDB, SQL Server, Redis y Cassandra de manera centralizada.</p>
+        </details>
+        
+        <details>
+            <summary>¿Puedo probar DBflow antes de comprometerme con un plan de pago?</summary>
+            <p>¡Sí! Al registrarte, accedes automáticamente al Plan Gratuito, que te permite crear y mantener activas hasta dos bases de datos por cada motor (hasta 12 DBs en total) sin costo ni tarjeta de crédito.</p>
+        </details>
+        
+        <details>
+            <summary>¿Qué tan segura es mi información y cómo se aíslan mis bases de datos en DBflow?</summary>
+            <p>Garantizamos seguridad blindada y aislamiento de datos entre clientes. Usamos cifrado de extremo a extremo, JWT (JSON Web Token) para la autenticación y generamos credenciales únicas y aisladas para cada instancia de base de datos que creas.</p>
+        </details>
+        
+        <details>
+            <summary>¿Puedo cambiar o cancelar mi plan de membresía en cualquier momento?</summary>
+            <p>Absolutamente. Puedes actualizar o cancelar tu suscripción en cualquier momento desde el panel de control. Todos los pagos y la gestión de membresías se procesan de forma segura a través de Mercado Pago.</p>
+        </details>
+        
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <h2>¿Listo para Transformar tu Gestión de DBs?</h2>
+      
+      <p>Únete a cientos de desarrolladores y empresas que ya usan CCD para automatizar la creación y escalabilidad de sus bases de datos en la nube.</p>
+      
+      <div class="cta-buttons">
+          <button class="btn-primary">Comienza con el Plan Gratuito</button>
+          
+          <button class="btn-outline">Ver Planes y Precios</button>
+      </div>
+    </section>
+
+    <footer class="main-footer" id="footer-section" ref="footerSection">
+      <div class="footer-top-content">
+          
+          <div class="footer-brand">
+              <strong>DBFlow</strong>
+              
+              <p>Potenciando negocios con soluciones de automatización de bases de datos de vanguardia.</p>
+              
+              <p class="tagline">Toma el control de tu éxito con DBflow.</p>
+          </div>
+          
+          <div class="footer-links">
+              
+              <div>
+                  <h4>Product</h4>
+                  <a href="#features-section">Features</a>
+                  <a href="#pricing-section">Pricing</a>
+                  <a href="#security-section">Security</a>
+                  <a href="#integrations-section">Integrations</a>
+              </div>
+              
+              <div>
+                  <h4>Company</h4>
+                  <a href="#">About</a>
+                  <a href="#">Blog</a>
+                  <a href="#">Careers</a>
+                  <a href="#">Contact</a>
+              </div>
+          </div>
+      </div>
+      
+      <p class="copyright">
+          © 2025 DBflow. All rights reserved.
+      </p>
+    </footer>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
@@ -236,6 +416,83 @@ function animateLoop() {
   animationId = requestAnimationFrame(animateLoop)
 }
 
+
+// --- LÓGICA DEL HEADER INTELIGENTE (SMART HEADER) ---
+const showHeader = ref(true) // Estado de visibilidad
+let lastScrollY = 0 // Última posición de scroll
+const SCROLL_DOWN_THRESHOLD = 50 // Umbral para empezar a ocultar
+const SCROLL_UP_THRESHOLD = 200 // Umbral para re-mostrar al subir (evita el temblor al inicio)
+
+function handleScroll() {
+  const currentScrollY = window.scrollY
+  const isScrollingDown = currentScrollY > lastScrollY
+  
+  if (isScrollingDown && currentScrollY > SCROLL_DOWN_THRESHOLD) {
+    // Si baja y no está cerca de la parte superior, oculta el header
+    showHeader.value = false
+  } else if (!isScrollingDown || currentScrollY < SCROLL_UP_THRESHOLD) {
+    // Si sube O está cerca de la parte superior, muestra el header
+    showHeader.value = true
+  }
+
+  lastScrollY = currentScrollY
+}
+// ----------------------------------------------------
+
+
+// --- LÓGICA DE SCROLL SPY (NUEVO) ---
+const activeSection = ref(null) // Estado reactivo para la sección activa
+
+// Refs para las secciones (para Observer)
+const featuresSection = ref(null)
+const pricingSection = ref(null)
+const faqSection = ref(null)
+const footerSection = ref(null) // El footer también es una sección "anclable"
+
+let observers = [] // Para limpiar los IntersectionObservers
+
+function setupIntersectionObservers() {
+  const sections = [
+    { ref: featuresSection, id: 'features-section' },
+    { ref: pricingSection, id: 'pricing-section' },
+    { ref: faqSection, id: 'faq-section' },
+    { ref: footerSection, id: 'footer-section' },
+  ]
+
+  // CRÍTICO: La altura de compensación usada en home.css es 100px.
+  const headerHeight = 100; 
+  
+  // Modificamos el rootMargin para que el centro de la sección se considere visible
+  const options = {
+    root: null, // El viewport es el root
+    // Margen superior negativo para compensar el header fijo
+    rootMargin: `-${headerHeight}px 0px 0px 0px`, 
+    threshold: 0 // Cualquier intersección activa el callback
+  }
+
+  sections.forEach(section => {
+    if (section.ref.value) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // Lógica para manejar el Scroll Spy
+            // Verificamos si la sección está realmente en la parte superior del viewport
+            const rect = entry.target.getBoundingClientRect();
+            // Si la parte superior de la sección está ~justo en la posición del header fijo
+            if (rect.top <= headerHeight && rect.bottom > headerHeight) {
+                activeSection.value = section.id
+            }
+          }
+        })
+      }, options)
+      observer.observe(section.ref.value)
+      observers.push(observer) // Guardamos el observer para limpieza
+    }
+  })
+}
+// ------------------------------------
+
+
 let onResizeHandler = null; 
 onMounted(() => {
   const c = canvas.value
@@ -249,7 +506,9 @@ onMounted(() => {
     resizeCanvas(c)
     generateParticlesFromText(c, pixelSteps)
   }
+  
   window.addEventListener('resize', onResizeHandler)
+  window.addEventListener('scroll', handleScroll) 
 
   c.addEventListener('mousemove', (e) => {
     const rect = c.getBoundingClientRect()
@@ -262,6 +521,9 @@ onMounted(() => {
   })
   c.addEventListener('mouseup', () => { mouse.isPressed = false })
   c.addEventListener('contextmenu', (ev) => ev.preventDefault())
+
+  // Inicializamos los Intersection Observers
+  setupIntersectionObservers() 
 })
 
 onBeforeUnmount(() => {
@@ -269,11 +531,11 @@ onBeforeUnmount(() => {
   if (onResizeHandler) {
     window.removeEventListener('resize', onResizeHandler)
   }
-})
+  window.removeEventListener('scroll', handleScroll)
 
-// --- SCRIPT DEL HEADER Y FOOTER ---
-// (Ambos tenían scripts vacíos, así que no hay nada que añadir)
+  // Limpiamos los Intersection Observers
+  observers.forEach(observer => observer.disconnect()) 
+})
 </script>
 
 <style scoped src="../assets/Home.css"></style>
-
