@@ -6,6 +6,7 @@
   width: 100%;
   min-height: 100vh;
 }
+
 body {
   margin: 0;
   background-color: #000;
@@ -13,6 +14,14 @@ body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* 🔑 PROPIEDADES SCROLL SNAP Y EFECTO SUAVE 🔑 */
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  overflow-y: scroll; 
+  
+  /* 🚨 ELIMINADA: La compensación se hace en home.css con margin/padding */
+  /* scroll-padding-top: 6.25rem; */ 
 }
 
 
@@ -23,12 +32,13 @@ body {
   background-color: white;
   color: black;
   border: 1px solid white;
-  padding: 12px 24px;   /* <-- CAMBIO: Un poco más de padding */
-  border-radius: 99px;  /* <-- CAMBIO: Totalmente redondeado */
+  padding: 12px 24px;
+  border-radius: 99px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .btn-primary:hover {
   background-color: #ccc;
   border-color: #ccc;
@@ -45,8 +55,8 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .btn-secondary:hover {
   background-color: #222;
   border-color: #555;
 }
-
