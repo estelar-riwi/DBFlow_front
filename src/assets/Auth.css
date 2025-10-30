@@ -1,120 +1,173 @@
-/* Estilos necesarios para las páginas de Login y Register */
+/* Estilos para las páginas de Login y Register (Totalmente Transparente) */
 
-/* --- Contenedor Principal (Fondo Oscuro) --- */
+/* ---------------------------------------------------------------------- */
+/* --- CONTENEDOR PRINCIPAL --- */
+/* ---------------------------------------------------------------------- */
 .auth-page-wrap {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    background-color: #000; /* Fondo principal oscuro */
+    background-color: transparent; /* Mantenemos transparente */
+    position: relative;
+    font-family: 'Inter', sans-serif;
 }
 
-/* --- Tarjeta de Autenticación (Estilo Oscuro) --- */
+/* ---------------------------------------------------------------------- */
+/* --- TARJETA DE AUTENTICACIÓN (Totalmente Transparente) --- */
+/* ---------------------------------------------------------------------- */
 .auth-card {
-    /* Modelo de Caja */
+    /* Dimensiones y Modelo de Caja */
     width: 100%;
-    max-width: 400px;
-    padding: 40px;
-    border-radius: 12px;
+    max-width: 420px; 
+    padding: 40px; 
+    border-radius: 16px; 
     text-align: center;
-    
-    /* Apariencia: Similares a las tarjetas de Features/Pricing */
-    background: 
-      url("https://grainy-gradients.vercel.app/noise.png"),
-      linear-gradient(135deg, #181818 0%, #111111 100%);
-    background-blend-mode: overlay;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     color: white;
+    
+    position: relative;
+    z-index: 10; 
+    overflow: hidden;
+    
+    /* 🚨 CLAVE: Eliminamos el fondo y el blur */
+    background: none; 
+    backdrop-filter: none; 
+    
+    /* Borde muy sutil para delimitar el área */
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    
+    /* Eliminamos la sombra de la tarjeta para un look limpio */
+    box-shadow: none; 
+    
+    transition: transform 0.3s ease-out;
 }
 
-/* --- Logo y Marca (Reutilizando estilos de Home.css) --- */
+/* Eliminamos el :hover de la tarjeta ya que no tiene fondo */
+/* .auth-card:hover { ... } */
+
+/* ---------------------------------------------------------------------- */
+/* --- CONTROLES Y TYPOGRAPHY (Mantenemos Roboto Mono) --- */
+/* ---------------------------------------------------------------------- */
+
 .logo {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    font-size: 1.4rem;
+    gap: 10px;
+    font-size: 1.6rem; 
     font-weight: 700;
-    margin-bottom: 25px;
+    margin-bottom: 35px;
+    font-family: 'Roboto Mono', monospace; 
 }
-/* Reutilizamos el .logo-icon de Home.css para mantener la consistencia */
-.logo-icon {
-    width: 32px;
-    height: 32px;
-    background-color: white;
-    border-radius: 50%;
-    position: relative;
-}
-/* El::after requiere que copies ese estilo de Home.css a tu archivo global o aquí si no lo tienes globalmente */
 
-
-/* --- Títulos y Subtítulos --- */
 .auth-title {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 700;
-    margin: 0 0 8px 0;
+    margin: 0 0 5px 0;
+    letter-spacing: -0.5px;
+    font-family: 'Roboto Mono', monospace; 
+    /* Sombra de texto sutil para legibilidad sobre partículas */
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5); 
 }
 
 .auth-subtitle {
     font-size: 1rem;
-    color: #aaa;
-    margin-bottom: 30px;
+    color: #cbd5e1; /* Un poco más claro (slate-300) */
+    margin-bottom: 40px;
+    font-family: 'Roboto Mono', monospace; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* --- Formulario y Campos --- */
+/* --- FORMULARIO Y INPUTS --- */
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px; 
     text-align: left;
 }
 
 .form-group label {
     display: block;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    margin-bottom: 8px;
-    color: #ccc;
+    margin-bottom: 10px;
+    color: #f8fafc; /* Casi blanco (slate-50) */
+    font-family: 'Roboto Mono', monospace; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
 .auth-form input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #333;
-    border-radius: 6px;
-    background-color: #0d0d0d;
+    padding: 14px; 
+    border: 2px solid #475569; /* Borde más visible (slate-600) */
+    border-radius: 10px; 
+    /* Fondo semi-transparente para los inputs */
+    background-color: rgba(10, 10, 10, 0.7); 
     color: white;
     font-size: 1rem;
-    transition: border-color 0.3s;
-    box-sizing: border-box; /* Crucial para que el padding no desborde el ancho */
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-family: 'Roboto Mono', monospace; 
 }
 
+/* Efecto de focus */
 .auth-form input:focus {
-    border-color: #555;
+    border-color: #0ea5e9; /* Cyan-500 */
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25);
     outline: none;
+    transform: translateY(-1px); 
 }
 
-/* --- Botón de Ancho Completo --- */
+/* --- Botones y Enlaces de Navegación --- */
 .btn-full-width {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 20px;
+    padding: 14px 24px;
 }
 
-/* --- Texto de Pie de Página --- */
 .auth-footer-text {
     font-size: 0.9rem;
-    color: #aaa;
-    margin-top: 20px;
+    color: #94a3b8;
+    margin-top: 30px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
 .link-secondary {
-    color: white;
-    font-weight: 600;
+    color: #0ea5e9; /* Cyan-500 */
+    font-weight: 700;
     text-decoration: none;
     transition: color 0.2s;
+    font-family: 'Roboto Mono', monospace; 
 }
 
 .link-secondary:hover {
-    color: #797979;
+    color: #38bdf8; /* Cyan-400 */
+    text-decoration: underline;
+}
+
+/* --- Botón Volver al Home --- */
+.btn-back-home {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    
+    background: rgba(28, 28, 28, 0.75); 
+    backdrop-filter: blur(10px); 
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    z-index: 20; 
+    font-family: 'Roboto Mono', monospace; 
+}
+
+.btn-back-home:hover {
+    border-color: white;
+    background: rgba(255, 255, 255, 0.1);
 }

@@ -1,5 +1,10 @@
 /* Importamos la fuente que usará la cabecera y botones */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+/* main.css */
+/* Importamos las fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap');
+
+/* ... (El resto de tu código main.css se mantiene igual) ... */
 
 /* ... (tu body y #app styles) ... */
 #app {
