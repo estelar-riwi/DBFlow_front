@@ -4,16 +4,16 @@
       class="main-header"
       :class="{ 'header-hidden': !showHeader }"
     >
-      <div class="logo">
-        <div class="logo-icon"></div>
-        <strong>DBFlow</strong>
-      </div>
+    <div class="logo">
+    <img src="/public/logos/logo.ico" alt="DBFlow Logo" class="new-logo-icon">
+    DBFlow
+    </div>
 
       <nav class="main-nav">
-        <a href="#features-section" :class="{ 'active': activeSection === 'features-section' }">Features</a>
-        <a href="#pricing-section" :class="{ 'active': activeSection === 'pricing-section' }">Pricing</a>
-        <a href="#faq-section" :class="{ 'active': activeSection === 'faq-section' }">About</a>
-        <a href="#footer-section" :class="{ 'active': activeSection === 'footer-section' }">Testimonials</a>
+        <a href="#hero-section" :class="{ 'active': activeSection === 'hero-section' }">Inicio</a>
+        <a href="#features-section" :class="{ 'active': activeSection === 'features-section' }">Funcionalidades</a>
+        <a href="#pricing-section" :class="{ 'active': activeSection === 'pricing-section' }">Precios</a>
+        <a href="#faq-section" :class="{ 'active': activeSection === 'faq-section' }">Preguntas</a>
       </nav>
       <div class="auth-buttons">
         
@@ -22,40 +22,38 @@
         </router-link>
 
         <router-link to="/register" custom v-slot="{ navigate }">
-          <a @click="navigate" role="link" class="btn-primary">Get Started</a>
+          <a @click="navigate" role="link" class="btn-primary">Empieza ahora</a>
         </router-link>
       </div>
     </header>
 
-    <section class="hero-wrap">
+    <section class="hero-wrap" id="hero-section" ref="heroSection">
       <div class="canvas-container" ref="container">
         <canvas ref="canvas" class="w-full h-full"></canvas>
       </div>
 
       <div class="hero-main-content">
-        <h1 class="main-title">The Future of Database Management</h1>
-        <p class="main-subtitle">A new, faster, and smarter way to interact with your data.</p>
-        <button class="btn-primary-large">Get Started Now</button>
+        <h1 class="main-title">El futuro de la gestión de bases de datos</h1>
+        <p class="main-subtitle">Una forma nueva, más rápida e inteligente de interactuar con tus datos.</p>
+        <button class="btn-primary-large">Empieza ahora</button>
       </div>
 
       <div class="hero-footer-content">
         <div class="logo-carousel-wrap">
-          <span>Powering the best teams</span>
+          <span>Servicios</span>
           <div class="logo-track-container">
             <div class="logo-track">
-              <div class="logo-item">OpenAI</div>
-              <div class="logo-item">NVIDIA</div>
-              <div class="logo-item">column</div>
-              <div class="logo-item">GitHub</div>
-              <div class="logo-item">Figma</div>
-              <div class="logo-item">lemon squeezy</div>
-
-              <div class="logo-item">OpenAI</div>
-              <div class="logo-item">NVIDIA</div>
-              <div class="logo-item">column</div>
-              <div class="logo-item">GitHub</div>
-              <div class="logo-item">Figma</div>
-              <div class="logo-item">lemon squeezy</div>
+              <div class="logo-item">MySQL</div>
+              <div class="logo-item">PostgreSQL</div>
+              <div class="logo-item">MongoDB</div>
+              <div class="logo-item">SQL Server</div>
+              <div class="logo-item">Cassandra</div>
+              
+              <div class="logo-item">MySQL</div>
+              <div class="logo-item">PostgreSQL</div>
+              <div class="logo-item">MongoDB</div>
+              <div class="logo-item">SQL Server</div>
+              <div class="logo-item">Cassandra</div>
             </div>
           </div>
         </div>
@@ -113,7 +111,7 @@
             <h1>$0<span>/siempre</span></h1>
             <p>Perfecto para proyectos personales y pruebas iniciales.</p>
             <ul>
-                <li>Hasta **2 Bases de Datos por Motor**</li>
+                <li>Hasta 2 Bases de Datos por Motor</li>
                 <li>Motores: MySQL, Mongo, Postgre, etc.</li>
                 <li>Generación automática de Credenciales</li>
                 <li>Autenticación segura JWT</li>
@@ -128,13 +126,13 @@
             <h1>$5.000<span>/mes COP</span></h1>
             <p>Ideal para pequeños equipos y aplicaciones en crecimiento.</p>
             <ul>
-                <li>Hasta **5 Bases de Datos por Motor**</li>
-                <li>**Webhooks** para notificaciones y errores</li>
-                <li>Integración directa con **Mercado Pago**</li>
+                <li>Hasta 5 Bases de Datos por Motor</li>
+                <li>Webhooks para notificaciones y errores</li>
+                <li>Integración directa</li>
                 <li>Gestión centralizada de facturación</li>
                 <li>Rotación de credenciales bajo demanda</li>
             </ul>
-            <button class="btn-primary">Suscribirse (Mercado Pago) →</button>
+            <button class="btn-primary">Suscribirse →</button>
         </div>
 
         <div class="pricing-card">
@@ -142,13 +140,13 @@
             <h1>$10.000<span>/mes COP</span></h1>
             <p>La solución completa para desarrolladores y proyectos de alta demanda.</p>
             <ul>
-                <li>Hasta **10 Bases de Datos por Motor**</li>
-                <li>Acceso a todos los **Webhooks**</li>
+                <li>Hasta 10 Bases de Datos por Motor</li>
+                <li>Acceso a todos los Webhooks</li>
                 <li>Soporte prioritario y SLA</li>
                 <li>Auditoría completa de eventos (Logs)</li>
                 <li>Todos los beneficios del Plan Intermedio</li>
             </ul>
-            <button class="btn-outline">Actualizar Plan →</button>
+            <button class="btn-primary">Suscribirse →</button>
         </div>
         
       </div>
@@ -185,17 +183,16 @@
     </section>
 
     <section class="cta-section">
-      <h2>¿Listo para Transformar tu Gestión de DBs?</h2>
+  <h2>¿Listo para Transformar tu Gestión de DBs?</h2>
+  
+  <p>Únete a cientos de desarrolladores y empresas que ya usan CCD para automatizar la creación y escalabilidad de sus bases de datos en la nube.</p>
+  
+  <div class="cta-buttons">
+      <a href="/register" class="btn-primary">Comienza con el Plan Gratuito</a>
       
-      <p>Únete a cientos de desarrolladores y empresas que ya usan CCD para automatizar la creación y escalabilidad de sus bases de datos en la nube.</p>
-      
-      <div class="cta-buttons">
-          <button class="btn-primary">Comienza con el Plan Gratuito</button>
-          
-          <button class="btn-outline">Ver Planes y Precios</button>
-      </div>
-    </section>
-
+      <a href="#pricing-section" class="btn-outline">Ver Planes y Precios</a>
+  </div>
+</section>
     <footer class="main-footer" id="footer-section" ref="footerSection">
       <div class="footer-top-content">
           
@@ -213,9 +210,7 @@
                   <h4>Product</h4>
                   <a href="#features-section">Features</a>
                   <a href="#pricing-section">Pricing</a>
-                  <a href="#security-section">Security</a>
-                  <a href="#integrations-section">Integrations</a>
-              </div>
+                  <a href="#faq-section">Security</a> <a href="#features-section">Integrations</a> </div>
               
               <div>
                   <h4>Company</h4>
@@ -239,6 +234,8 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 // --- SCRIPT DEL HOME (CANVAS) ---
+// ... (Toda tu lógica de Partículas, Clases, y Canvas se mantiene igual) ...
+// (Particle, randRange, resizeCanvas, drawTextToOffscreen, generateParticlesFromText, animateLoop)
 const props = defineProps({
   words: {
     type: Array,
@@ -418,20 +415,18 @@ function animateLoop() {
 
 
 // --- LÓGICA DEL HEADER INTELIGENTE (SMART HEADER) ---
-const showHeader = ref(true) // Estado de visibilidad
-let lastScrollY = 0 // Última posición de scroll
-const SCROLL_DOWN_THRESHOLD = 50 // Umbral para empezar a ocultar
-const SCROLL_UP_THRESHOLD = 200 // Umbral para re-mostrar al subir (evita el temblor al inicio)
+const showHeader = ref(true) 
+let lastScrollY = 0 
+const SCROLL_DOWN_THRESHOLD = 50 
+const SCROLL_UP_THRESHOLD = 200 
 
 function handleScroll() {
   const currentScrollY = window.scrollY
   const isScrollingDown = currentScrollY > lastScrollY
   
   if (isScrollingDown && currentScrollY > SCROLL_DOWN_THRESHOLD) {
-    // Si baja y no está cerca de la parte superior, oculta el header
     showHeader.value = false
   } else if (!isScrollingDown || currentScrollY < SCROLL_UP_THRESHOLD) {
-    // Si sube O está cerca de la parte superior, muestra el header
     showHeader.value = true
   }
 
@@ -440,34 +435,35 @@ function handleScroll() {
 // ----------------------------------------------------
 
 
-// --- LÓGICA DE SCROLL SPY (NUEVO) ---
-const activeSection = ref(null) // Estado reactivo para la sección activa
+// --- LÓGICA DE SCROLL SPY (ACTUALIZADA) ---
+const activeSection = ref(null) 
 
-// Refs para las secciones (para Observer)
+// 🔑 CORRECCIÓN: Añadimos la ref para el Hero
+const heroSection = ref(null) 
 const featuresSection = ref(null)
 const pricingSection = ref(null)
 const faqSection = ref(null)
-const footerSection = ref(null) // El footer también es una sección "anclable"
+const footerSection = ref(null)
 
-let observers = [] // Para limpiar los IntersectionObservers
+let observers = [] 
 
 function setupIntersectionObservers() {
+  // 🔑 CORRECCIÓN: Añadimos heroSection a la lista de secciones
   const sections = [
+    { ref: heroSection, id: 'hero-section' }, 
     { ref: featuresSection, id: 'features-section' },
     { ref: pricingSection, id: 'pricing-section' },
     { ref: faqSection, id: 'faq-section' },
     { ref: footerSection, id: 'footer-section' },
   ]
 
-  // CRÍTICO: La altura de compensación usada en home.css es 100px.
-  const headerHeight = 100; 
+  // Compensación de 90px (del home.css) + 15px (top del header) = 105px
+  const headerHeight = 105; 
   
-  // Modificamos el rootMargin para que el centro de la sección se considere visible
   const options = {
-    root: null, // El viewport es el root
-    // Margen superior negativo para compensar el header fijo
+    root: null, 
     rootMargin: `-${headerHeight}px 0px 0px 0px`, 
-    threshold: 0 // Cualquier intersección activa el callback
+    threshold: 0 
   }
 
   sections.forEach(section => {
@@ -476,9 +472,7 @@ function setupIntersectionObservers() {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             // Lógica para manejar el Scroll Spy
-            // Verificamos si la sección está realmente en la parte superior del viewport
             const rect = entry.target.getBoundingClientRect();
-            // Si la parte superior de la sección está ~justo en la posición del header fijo
             if (rect.top <= headerHeight && rect.bottom > headerHeight) {
                 activeSection.value = section.id
             }
@@ -486,7 +480,7 @@ function setupIntersectionObservers() {
         })
       }, options)
       observer.observe(section.ref.value)
-      observers.push(observer) // Guardamos el observer para limpieza
+      observers.push(observer) 
     }
   })
 }

@@ -3,23 +3,21 @@
 /* ========================================================================= */
 
 /* --- Botones Genéricos (Componentes Reutilizables) --- */
+.btn-primary, .btn-primary-large, .btn-signin, .btn-outline {
+    font-family: 'Roboto Mono', monospace;
+}
+
 .btn-primary {
-    /* Modelo de Caja / Dimensiones */
-    padding: 8px 16px;
+    padding: 7px 14px; 
     border-radius: 99px;
-    
-    /* Apariencia */
     background-color: white;
     color: black;
     border: none;
-    
-    /* Tipografía */
-    font-size: 0.9rem;
+    font-size: 0.85rem; 
     font-weight: 700;
-    
-    /* Interacción */
     cursor: pointer;
     transition: background-color 0.2s;
+    white-space: nowrap;
 }
 
 .btn-primary:hover {
@@ -27,35 +25,29 @@
 }
 
 .btn-primary-large {
-    /* Modelo de Caja / Dimensiones */
-    padding: 14px 28px;
+    padding: 12px 24px; 
     border-radius: 99px;
-    
-    /* Apariencia */
     background-color: white;
     color: black;
     border: none;
-    
-    /* Tipografía */
-    font-size: 1rem;
+    font-size: 0.95rem; 
     font-weight: 700;
-    
-    /* Interacción */
     cursor: pointer;
     transition: background-color 0.2s, transform 0.2s;
 }
 
 .btn-primary-large:hover {
     background-color: #eee;
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 .btn-signin {
-    /* Tipografía */
-    color: white; 
-    font-size: 0.9rem;
+    color: white;
+    font-size: 0.85rem; 
     font-weight: 700;
     text-decoration: none;
+    cursor: pointer; /* 🔑 CORRECCIÓN: Cursor añadido */
+    white-space: nowrap;
 }
 
 .btn-signin:hover {
@@ -63,16 +55,12 @@
 }
 
 .btn-outline {
-    /* Apariencia */
     background: transparent;
     color: white;
     border: 1px solid #333;
-    
-    /* Modelo de Caja */
-    padding: 10px 18px;
+    padding: 8px 16px; 
     border-radius: 999px;
-    
-    /* Interacción */
+    font-size: 0.9rem; 
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -82,243 +70,222 @@
 }
 
 .section-title {
-    /* Tipografía */
-    font-size: 2.5rem;
+    font-size: 2.2rem; 
     font-weight: 700;
     color: white;
-    
-    /* Espaciado */
-    margin-top: -60px;
-    margin-bottom: 60px;
+    font-family: 'Roboto Mono', monospace;
+    letter-spacing: -0.5px;
+    margin-bottom: 50px; 
+}
+
+.section-subtitle {
+    font-size: 1rem; 
+    color: #a0a0a0;
+    margin-bottom: 60px; 
+    max-width: 650px; 
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    font-family: 'Roboto Mono', monospace;
 }
 
 /* ========================================================================= */
-/* ============================= ESTILOS DEL HEADER (AGRANDADO Y FIJO) ===== */
+/* ============================= ESTILOS DEL HEADER (AJUSTADO) ===== */
 /* ========================================================================= */
 
 .main-header {
-    /* Posicionamiento */
-    position: fixed; /* CLAVE: Header fijo */
-    top: 20px; 
+    position: fixed;
+    top: 15px; 
     left: 50%;
-    transform: translateX(-50%); 
+    transform: translateX(-50%);
     z-index: 100;
-    
-    /* Transición para el efecto de ocultamiento */
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; 
-    
-    /* Modelo de Caja / Layout (Flexbox) - AJUSTE DE TAMAÑO */
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
     display: flex;
     align-items: center;
-    gap: 40px; /* Aumentado */
-    width: auto; 
-    padding: 12px 30px; /* Aumentado para hacerlo más grande */
-    
-    /* Apariencia / Visuales */
-    background: rgba(28, 28, 28, 0.75); 
+    gap: 30px; 
+    width: auto;
+    padding: 1px 24px; 
+    background: rgba(28, 28, 28, 0.7); 
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 99px; 
+    border-radius: 99px;
     backdrop-filter: blur(10px); 
 }
 
-/* CLASE SMART HEADER: para ocultar el header al hacer scroll hacia abajo */
+/* CLASE SMART HEADER */
 .header-hidden {
-    transform: translate(-50%, calc(-100% - 20px));
-    opacity: 0; 
+    transform: translate(-50%, calc(-100% - 15px)); 
+    opacity: 0;
     pointer-events: none;
 }
 
 .logo {
-    /* Layout */
     display: flex;
     align-items: center;
-    gap: 10px; /* Aumentado */
-    
-    /* Tipografía */
-    font-size: 1.4rem; /* Aumentado */
+    gap: 1px; 
+    font-size: 1.2rem; /* 🔑 Reducido */
     font-weight: 700;
+    font-family: 'Roboto Mono', monospace;
+    line-height: 1; /* 🔑 CORRECCIÓN: Alineación vertical */
 }
 
-.logo-icon {
-    /* Modelo de Caja / Dimensiones */
-    width: 36px; /* Aumentado */
-    height: 36px; /* Aumentado */
-    
-    /* Apariencia / Visuales */
-    background-color: white;
-    border-radius: 50%;
-    
-    /* Posicionamiento */
-    position: relative;
+/* 🔑 CORRECCIÓN: Estilo para la nueva imagen del logo */
+.new-logo-icon {
+    width: 75px;  /* Pequeño */
+    height: 75px; /* Pequeño */
 }
 
-.logo-icon::after {
-    /* Posicionamiento */
-    content: '';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    
-    /* Dimensiones */
-    width: 8px;
-    height: 8px;
-    
-    /* Apariencia */
-    background-color: #555;
-    border-radius: 50%;
-}
+/* (Se eliminaron .logo-icon y .logo-icon::after) */
 
 .main-nav {
-    /* Layout */
     display: flex;
-    gap: 35px; /* Aumentado */
+    gap: 25px; 
 }
 
 .main-nav a {
-    /* Tipografía */
     color: #aaa;
-    font-size: 1rem; /* Aumentado */
+    font-size: 0.9rem; 
     text-decoration: none;
+    font-family: 'Roboto Mono', monospace;
+    position: relative; 
+    transition: color 0.3s ease;
+    cursor: pointer;
 }
 
 .main-nav a:hover {
     color: white;
 }
 
+/* Estilos de Scroll Spy (Raya Activa) */
+.main-nav a.active {
+    color: white;
+    font-weight: 700;
+}
+
+.main-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; 
+    height: 2px;
+    background-color: white;
+    transition: width 0.3s ease; 
+}
+
+.main-nav a.active::after {
+    width: 100%; 
+}
+
+
 .auth-buttons {
-    /* Layout */
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px; 
 }
 
 /* ========================================================================= */
-/* ========================== ESTILOS DE SCROLL SNAP ======================= */
-/* (Asegúrate de que 'body' tiene 'scroll-snap-type' en tu archivo main.css o aquí si es global)*/
+/* ========================== ESTILOS DE SCROLL SNAP Y COMPENSACIÓN ======================= */
 /* ========================================================================= */
 
 /* --- Ajuste de Secciones para Scroll Snap --- */
-.hero-wrap,
+.hero-wrap {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: black;
+    scroll-snap-align: start;
+    overflow: hidden; 
+}
+
+.canvas-container {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden; 
+}
+
+/* 🚨 Compensación de 90px (Header más pequeño + top: 15px) */
 .features-section,
 .pricing-section,
 .faq-section,
-.cta-section,
 .main-footer {
-    scroll-snap-align: start; /* Define que el inicio de la sección se ancla al inicio del viewport */
+    scroll-snap-align: start;
+    margin-top: -90px; /* Compensación */
+    padding-top: 190px; /* (Compensación 90px + Padding 100px) */
 }
 
-/* Aseguramos que el hero ocupe toda la altura */
-.hero-wrap {
-    /* Posicionamiento / Dimensiones */
-    position: relative;
-    width: 100%;
-    height: 100vh; 
-    
-    /* Visuales */
-    overflow: hidden;
-    background: black;
-}
-/* ------------------------------------------- */
-
-.canvas-container {
-    /* Posicionamiento */
-    position: absolute;
-    inset: 0;
-    z-index: 1; 
+.cta-section {
+    scroll-snap-align: start;
 }
 
-canvas {
-    /* Dimensiones / Display */
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-/* --- Contenido Principal (Texto y CTA) --- */
+/* --- Contenido Hero --- */
 .hero-main-content {
-    /* Posicionamiento */
     position: absolute;
-    top: 65%;
+    top: 60%; 
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 10; 
-    
-    /* Layout (Flexbox) */
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 24px;
-    
-    /* Modelo de Caja */
+    gap: 20px; 
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
 }
 
 .main-title {
-    /* Tipografía */
-    font-size: clamp(2.5rem, 5vw, 2.5rem); 
+    font-size: clamp(2.2rem, 4.5vw, 2.4rem); 
     font-weight: 700;
     color: white;
     text-align: center;
     letter-spacing: -1px;
-    
-    /* Espaciado */
-    margin-top: 100px;
+    margin-top: 130px; /* Ajustado */
+    font-family: 'Roboto Mono', monospace;
 }
 
 .main-subtitle {
-    /* Tipografía */
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    font-size: clamp(0.9rem, 2vw, 1.1rem); 
     color: #aaa;
     text-align: center;
     line-height: 1.6;
-    margin-top: -30px;
-    
-    /* Dimensiones */
-    max-width: 500px;
+    margin-top: -10px; /* Ajustado */
+    max-width: 450px; 
+    font-family: 'Roboto Mono', monospace;
 }
 
-/* --- Contenido del Footer (Carrusel) --- */
+/* --- Contenido Footer Hero --- */
 .hero-footer-content {
-    /* Posicionamiento */
     position: absolute;
-    bottom: 40px;
+    bottom: 30px; 
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
-    
-    /* Modelo de Caja */
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
 }
 
 .logo-carousel-wrap {
-    /* Layout */
     display: flex;
     align-items: center;
-    gap: 32px;
-    
-    /* Dimensiones */
+    gap: 24px; 
     width: 100%;
-    max-width: 1000px;
+    max-width: 900px; 
     margin: 0 auto;
 }
 
 .logo-carousel-wrap span {
-    /* Tipografía */
-    font-size: 0.9rem;
+    font-size: 0.85rem; 
     color: #777;
     white-space: nowrap;
+    font-family: 'Roboto Mono', monospace;
 }
 
 .logo-track-container {
-    /* Dimensiones */
     width: 100%;
     overflow: hidden;
-    
-    /* Visuales (Efecto de desvanecimiento) */
     mask-image: linear-gradient(
         to right,
         transparent,
@@ -329,12 +296,9 @@ canvas {
 }
 
 .logo-track {
-    /* Layout */
     display: flex;
-    gap: 48px;
+    gap: 40px; 
     width: max-content;
-    
-    /* Animación */
     animation: scroll 20s linear infinite;
 }
 
@@ -343,222 +307,265 @@ canvas {
 }
 
 @keyframes scroll {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
 
 .logo-item {
-    /* Tipografía */
-    font-size: 1.2rem;
+    font-size: 1.1rem; 
     font-weight: bold;
     color: #888;
     opacity: 0.8;
+    font-family: 'Roboto Mono', monospace;
 }
 
 /* ========================================================================= */
-/* ========================= ESTILOS DE FEATURES SECTION ==================== */
+/* ========================= ESTILOS DE FEATURES SECTION (MEJORADO) ========= */
+/* ========================================================================= */
 
 .features-section {
-    background: #181818;
-    padding: 100px 0; /* Aseguramos suficiente padding para el scroll snap */
+    background: #0a0a0a;
+    padding-bottom: 80px; 
     text-align: center;
-    font-family: "Inter", sans-serif;
+    font-family: 'Roboto Mono', monospace; 
+    position: relative;
+    overflow: hidden;
 }
 
-/* ... (resto de estilos de features-section, pricing, faq, cta y footer) ... */
+/* Título y subtítulo */
 .section-title {
-    font-size: 2rem;
+    font-size: 2.2rem; 
     font-weight: 700;
     color: #fff;
-    margin-bottom: 10px;
-  
+    margin-bottom: 10px; 
 }
-
-
 
 .section-subtitle {
-    font-size: 1rem;
+    font-size: 1rem; 
     color: #a0a0a0;
-    margin-bottom: 18px;
-    max-width: 900px;
+    margin-bottom: 60px; 
+    max-width: 650px;
     margin-left: auto;
     margin-right: auto;
+    line-height: 1.6;
 }
+
+/* --- Cuadrícula Bento --- */
 .features-grid {
     display: grid;
-    grid-template-columns: 2fr 1.1fr 1.9fr;
-    grid-template-rows: 1.2fr 1fr 1.1fr;
-    gap: 28px 18px;
-    max-width: 100vw;
+    grid-template-columns: 2fr 1.1fr 1.9fr; 
+    grid-template-rows: auto auto auto;
+    gap: 20px; 
+    max-width: 1300px; /* Ancho aumentado */
     margin: 0 auto;
     padding: 0 16px;
 }
 
+/* --- Tarjetas de Funcionalidad Mejoradas --- */
 .feature-card {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 15px 36px 24px 30px;
-    border-radius: 18px;
-    background: 
-    url("https://grainy-gradients.vercel.app/noise.png"),
-    linear-gradient(135deg, #232323 0%, #191919 100%);
+    padding: 28px; 
+    border-radius: 14px; 
+    background:
+      url("https://grainy-gradients.vercel.app/noise.png"),
+      linear-gradient(145deg, #1f1f1f 0%, #111111 100%);
     background-blend-mode: overlay;
-    /* Ningún borde visible */
-    box-shadow: 0 6px 24px 0 rgba(0,0,0,0.22);
-    border: none;
-}
-.feature-card h4 {
-    color: #e0e0e0;
-    font-size: 1.06rem;
-    font-weight: 400;
-    margin: 0 0 12px 0;
-    letter-spacing: 0;
-}
-.feature-card h3 {
-    color: #fff;
-    font-size: 2.8rem;
-    font-weight: 700;
-    margin: 0 0 14px 0;
-    line-height: 1.12;
-}
-.feature-card p {
-    color: #d5dadf;
-    font-size: 1.08rem;
-    margin: 0;
-    font-weight: 400;
-}
-.feature-card:hover {
-    box-shadow: 0 8px 42px 0 rgba(0,0,0,0.32);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Roboto Mono', monospace;
 }
 
-/* Layout específico tipo bento grid */
+.feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    padding: 1px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0));
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px) scale(1.015); 
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); 
+}
+
+.feature-card:hover::before {
+    opacity: 1;
+}
+
+/* --- Tipografía dentro de las tarjetas --- */
+.feature-card h4 {
+    color: #a0a0a0;
+    font-size: 0.85rem; 
+    font-weight: 700;
+    margin: 0 0 6px 0; 
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.feature-card h3 {
+    color: #fff;
+    font-size: 2rem; 
+    font-weight: 700;
+    margin: 0 0 10px 0; 
+    line-height: 1.2;
+}
+
+.feature-card p {
+    color: #cbd5e1;
+    font-size: 0.95rem; 
+    margin: 0;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* --- Layout Bento Grid (Spans) --- */
 .features-grid .feature-card:nth-child(1) { grid-column: 1 / 3; grid-row: 1 / 2; }
 .features-grid .feature-card:nth-child(2) { grid-column: 3 / 4; grid-row: 1 / 2;}
 .features-grid .feature-card:nth-child(3) { grid-column: 1 / 2; grid-row: 2 / 3;}
 .features-grid .feature-card:nth-child(4) { grid-column: 2 / 4; grid-row: 2 / 3;}
 .features-grid .feature-card:nth-child(5) { grid-column: 1 / 4; grid-row: 3 / 4;}
 
-/* Responsive: apilamiento en dispositivos pequeños */
-@media (max-width: 1200px) {
-    .features-grid {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: repeat(3, 160px);
-        gap: 12px;
-        max-width: 98vw;
-    }
-    .feature-card { padding: 18px 16px 16px 16px; }
-    .feature-card h3 { font-size: 2rem;}
-    /* Quitar spans en móvil/tablet para que se acomoden en filas normales */
-    .features-grid .feature-card { grid-column: auto !important; grid-row: auto !important; }
-}
-@media (max-width: 700px) {
-    .features-section { padding: 8px 0; }
-    .section-title { font-size: 1.2rem }
-    .features-grid {
-        grid-template-columns: 1fr;
-        grid-template-rows: none;
-        gap: 8px;
-        max-width: 99vw;
-    }
-    .feature-card {
-        padding: 10px 10vw 10px 8vw;
-        min-height: 70px;
-    }
-    .feature-card h3 { font-size: 1.05rem; }
-    .feature-card h4, .feature-card p { font-size: 0.92rem; }
-}
-
 
 /* ========================================================================= */
-/* =========================== ESTILOS DE PRICING ========================== */
+/* =========================== ESTILOS DE PRICING (MEJORADO) =============== */
 /* ========================================================================= */
 
 .pricing-section {
-    /* Apariencia */
     background: #000;
-    
-    /* Modelo de Caja */
-    padding: 100px 20px;
-    
-    /* Tipografía */
+    padding-bottom: 80px; 
     text-align: center;
+    font-family: 'Roboto Mono', monospace; 
+}
+
+.pricing-card h3, .pricing-card h1, .pricing-card p, .pricing-card li, .pricing-card .tag {
+    font-family: 'Roboto Mono', monospace;
 }
 
 .pricing-cards {
-    /* Layout (Flexbox) */
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 32px;
-    
-    /* Espaciado */
-    margin-top: 60px;
+    gap: 30px; /* Un poco más de espacio */
+    margin-top: 60px; 
 }
 
+/* --- TARJETA DE PRECIOS MEJORADA --- */
 .pricing-card {
-    /* Dimensiones */
-    width: 300px;
-    
-    /* Modelo de Caja */
-    padding: 40px 30px;
-    border-radius: 12px;
-    
-    /* Apariencia */
-    background: #111;
-    color: white;
-    
-    /* Tipografía */
+    width: 300px; /* Un poco más anchas */
+    padding: 35px 30px; 
+    border-radius: 14px; /* Mismo borde que features */
     text-align: left;
+    position: relative; /* Clave para el efecto shine */
     
-    /* Posicionamiento / Interacción */
-    position: relative;
-    transition: transform 0.3s ease, background 0.3s ease;
+    
+    /* 1. Fondo unificado (como las feature-cards) */
+    background:
+      url("https://grainy-gradients.vercel.app/noise.png"),
+      linear-gradient(145deg, #1f1f1f 0%, #111111 100%);
+    background-blend-mode: overlay;
+    
+    /* Borde sutil */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    
+    /* 2. Transición para el hover */
+    transition: transform 0.3s ease, box-shadow 0.4s ease;
 }
 
+/* 3. Efecto "Shine" (Reflejo diagonal) */
+.pricing-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%; /* Inicia fuera de la pantalla */
+    width: 75%;
+    height: 100%;
+    /* El reflejo de luz */
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.08), /* Muy sutil */
+        transparent
+    );
+    transform: skewX(-25deg); /* Ángulo del reflejo */
+    transition: left 0.6s ease-in-out;
+    border-radius: 14px;
+    pointer-events: none;
+}
+
+/* --- EFECTOS HOVER --- */
+.pricing-card:hover {
+    /* 1. Efecto de elevación */
+    transform: translateY(-5px); 
+    
+    /* 2. Efecto de Brillo Blanco en los lados */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), /* Sombra normal */
+                0 0 25px rgba(255, 255, 255, 0.1); /* Brillo blanco */
+}
+
+/* 3. Activa el efecto "Shine" al pasar el mouse */
+.pricing-card:hover::after {
+    left: 100%;
+}
+
+
+/* --- Tarjeta Popular --- */
 .pricing-card.popular {
-    border: 2px solid white;
-    transform: scale(1.05);
+    /* Mantenemos el borde blanco */
+    border: 1px solid white;
+    transform: scale(1.03); 
+    
+    /* 🚨 NUEVO: Brillo blanco estático para la tarjeta popular */
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.15), 
+                0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+.pricing-card.popular:hover {
+    /* Combina el escalado, la elevación y el brillo aumentado */
+    transform: scale(1.03) translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(255, 255, 255, 0.25);
+}
+
+
+/* --- Estilos internos (sin cambios) --- */
 .pricing-card .tag {
-    /* Posicionamiento */
     position: absolute;
     top: -14px;
     left: 50%;
     transform: translateX(-50%);
-    
-    /* Apariencia */
     background: white;
     color: black;
     border-radius: 999px;
-    
-    /* Tipografía / Modelo de Caja */
     font-weight: 700;
     font-size: 0.8rem;
     padding: 4px 12px;
 }
-
 .pricing-card h1 {
     font-size: 2.2rem;
     margin: 10px 0;
 }
-
 .pricing-card h1 span {
     font-size: 1rem;
     color: #aaa;
 }
-
 .pricing-card ul {
     list-style: none;
     padding: 0;
     margin: 20px 0;
 }
-
 .pricing-card li {
     margin: 10px 0;
     color: #aaa;
@@ -566,97 +573,126 @@ canvas {
 
 
 /* ========================================================================= */
-/* ============================= ESTILOS DE FAQ ============================ */
+/* ============================= ESTILOS DE FAQ (MEJORADO) ================= */
 /* ========================================================================= */
 
 .faq-section {
-    /* Apariencia */
     background: #000;
-    
-    /* Modelo de Caja */
-    padding: 100px 20px;
-    
-    /* Tipografía */
+    padding-bottom: 80px; 
     text-align: center;
+    font-family: 'Roboto Mono', monospace; 
 }
-
 .faq-list {
-    /* Dimensiones */
-    max-width: 800px;
+    max-width: 850px; /* Un poco más ancho */
     margin: 0 auto;
-    
-    /* Tipografía */
     text-align: left;
 }
 
+/* --- Estilos de la Tarjeta <details> --- */
 details {
-    /* Apariencia */
     background: #111;
-    border-radius: 8px;
-    
-    /* Modelo de Caja */
+    border-radius: 10px; /* Bordes más suaves */
     margin-bottom: 12px;
-    padding: 16px 20px;
-    
-    /* Interacción */
     cursor: pointer;
-    transition: background 0.2s;
+    /* 🚨 NUEVO: Borde y transición para el glow */
+    border: 1px solid #222; 
+    transition: background 0.2s, border-color 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden; /* 🔑 CLAVE: para la animación de max-height */
 }
-
 details:hover {
     background: #1a1a1a;
+    border-color: #333;
 }
 
+/* 🚨 NUEVO: Efecto de "Glow" cuando está abierto */
+details[open] {
+    background: #151515;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05); /* Brillo blanco sutil */
+}
+
+/* --- Estilos de la Pregunta <summary> --- */
 summary {
-    /* Tipografía */
-    font-weight: 600;
+    font-weight: 700;
     color: white;
-    
-    /* Interacción */
     outline: none;
+    font-size: 1.1rem; /* Un poco más grande */
+    padding: 20px 24px; /* Más padding */
+    
+    /* 🚨 NUEVO: Quitamos el marcador por defecto y añadimos espacio */
+    list-style: none; /* Oculta el triángulo (Firefox) */
+    position: relative;
+    padding-left: 3.5rem; /* Espacio para el ícono '+' */
+}
+summary::-webkit-details-marker {
+    display: none; /* Oculta el triángulo (Chrome/Safari) */
 }
 
-details p {
-    /* Tipografía */
-    margin-top: 10px;
+/* 🚨 NUEVO: Ícono '+' personalizado */
+summary::before {
+    content: '+';
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%) rotate(0deg);
+    font-size: 1.5rem;
     color: #aaa;
-    font-size: 0.9rem;
+    transition: transform 0.3s ease;
 }
 
+/* 🚨 NUEVO: Animación del ícono al abrir (se convierte en 'x') */
+details[open] summary::before {
+    transform: translateY(-50%) rotate(45deg);
+    color: white;
+}
+
+
+/* --- Estilos de la Respuesta <p> (Animada) --- */
+details p {
+    font-family: 'Roboto Mono', monospace;
+    color: #aaa;
+    font-size: 0.95rem; /* Un poco más grande */
+    line-height: 1.6;
+    
+    /* 🔑 CLAVE: Animación de despliegue */
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+    padding: 0 24px 0 3.5rem; /* Alineado con la pregunta */
+    transition: all 0.3s ease-in-out;
+}
+
+/* 🔑 CLAVE: Estado abierto de la respuesta */
+details[open] p {
+    opacity: 1;
+    max-height: 200px; /* Altura máxima (ajusta si el texto es más largo) */
+    margin-top: 0;
+    padding-bottom: 24px; /* Espacio inferior al abrir */
+}
 
 /* ========================================================================= */
 /* ============================= ESTILOS DE CTA ============================ */
-/* ========================================================================= */
 
 .cta-section {
-    /* Apariencia */
     background: #000;
-    
-    /* Modelo de Caja */
-    padding: 120px 20px;
-    
-    /* Tipografía */
+    padding: 100px 20px; 
     text-align: center;
+    font-family: 'Roboto Mono', monospace; 
 }
-
+.cta-section h2, .cta-section p {
+    font-family: 'Roboto Mono', monospace;
+}
 .cta-section h2 {
-    /* Tipografía */
     font-size: 2rem;
     font-weight: 700;
     color: white;
 }
-
 .cta-section p {
-    /* Tipografía */
     color: #aaa;
-    
-    /* Modelo de Caja */
     margin: 20px auto 40px;
     max-width: 600px;
 }
-
 .cta-buttons {
-    /* Layout */
     display: flex;
     justify-content: center;
     gap: 20px;
@@ -665,99 +701,115 @@ details p {
 
 /* ========================================================================= */
 /* ============================= ESTILOS DEL FOOTER ======================== */
-/* ========================================================================= */
 
 .main-footer {
-    /* Apariencia */
     background: #000;
     border-top: 1px solid #222;
-    
-    /* Modelo de Caja */
-    padding: 60px 20px;
-    
-    /* Layout: Apila el contenido superior y el copyright */
+    padding-bottom: 50px; 
     display: flex;
-    flex-direction: column; /* Coloca el contenido y el copyright uno debajo del otro */
-    align-items: center; /* Centra el contenido horizontalmente si no ocupa el 100% */
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Roboto Mono', monospace; 
 }
-
-/* Nuevo contenedor que mantiene la marca y links uno al lado del otro */
 .footer-top-content {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    width: 100%; /* Ocupa el 100% del ancho del footer */
-    max-width: 1200px; /* Opcional: Limita el ancho máximo para diseño desktop */
-    margin-bottom: 40px; /* Espacio antes del copyright */
+    width: 100%;
+    max-width: 1100px; 
+    margin-bottom: 40px;
     gap: 40px;
 }
-
-
-/* --- Estilos de Marca (DBFlow) --- */
-
+.footer-brand strong, .footer-brand p, .footer-links h4, .footer-links a, .copyright {
+    font-family: 'Roboto Mono', monospace;
+}
 .footer-brand {
-    /* Layout */
-    /* Permite que la marca ocupe suficiente espacio a la izquierda */
-    flex: 1 1 350px; 
+    flex: 1 1 350px;
     min-width: 250px;
 }
-
 .footer-brand strong {
     font-size: 1.4rem;
 }
-
 .footer-brand p, .footer-brand .tagline {
     color: #aaa;
     margin: 8px 0;
 }
-
-
-/* --- Estilos de Links --- */
-
 .footer-links {
-    /* Layout: Mantiene los grupos de links separados a la derecha */
     display: flex;
-    justify-content: flex-end; /* Alinea los grupos a la derecha */
-    gap: 80px; /* Espacio entre los grupos 'Product' y 'Company' */
+    justify-content: flex-end;
+    gap: 80px;
     flex: 1 1 350px;
     min-width: 250px;
 }
-
 .footer-links h4 {
-    /* Tipografía */
     margin-bottom: 12px;
     font-size: 1rem;
     color: white;
 }
-
 .footer-links a {
-    /* Tipografía */
     display: block;
     color: #aaa;
     text-decoration: none;
     font-size: 0.9rem;
-    
-    /* Espaciado */
     margin: 6px 0;
 }
-
 .footer-links a:hover {
     color: white;
 }
-
-
-/* --- Estilo de Copyright --- */
 .copyright {
-    /* Centrado y apariencia */
     color: #888;
     font-size: 0.85rem;
     width: 100%;
     text-align: center;
-    margin-top: 20px; /* Espacio para separarlo */
+    margin-top: 20px;
 }
 
-/* Media Query para móvil */
-@media (max-width: 768px) {
+/* ========================================================================= */
+/* ============================= ESTILOS RESPONSIVE ======================== */
+/* ========================================================================= */
+
+@media (max-width: 1350px) { 
+    .features-grid {
+        max-width: 95vw; 
+    }
+}
+
+@media (max-width: 1200px) { /* Tablet */
+    .features-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+        gap: 15px;
+    }
+    .feature-card { padding: 20px; }
+    .feature-card h3 { font-size: 1.6rem;}
+    .features-grid .feature-card { grid-column: auto !important; grid-row: auto !important; }
+}
+
+@media (max-width: 900px) { /* Small Tablet */
+    .main-header {
+        gap: 15px;
+        padding: 8px 16px;
+    }
+    .logo { font-size: 1.2rem; }
+    /* 🔑 CORRECCIÓN: Ajustamos el nuevo logo en responsive */
+    .new-logo-icon { 
+        width: 28px; 
+        height: 28px; 
+    }
+    .main-nav { gap: 15px; }
+    .main-nav a { font-size: 0.8rem; }
+    .auth-buttons { gap: 10px; }
+
+    .section-title { font-size: 2rem; }
+    .section-subtitle { max-width: 90%; }
+    
+    .pricing-cards { gap: 16px; }
+    .pricing-card { width: 45%; min-width: 280px; } 
+    .faq-list { max-width: 90vw; }
+    .footer-top-content { max-width: 95vw; }
+}
+
+@media (max-width: 768px) { /* Large Phone / Footer Stack */
     .footer-top-content {
         flex-direction: column;
         align-items: flex-start;
@@ -766,8 +818,50 @@ details p {
         flex-direction: column;
         gap: 30px;
         margin-top: 20px;
+        justify-content: flex-start; 
     }
     .copyright {
-        text-align: left; /* Alinea a la izquierda en móvil si es necesario */
+        text-align: left;
+    }
+}
+
+@media (max-width: 700px) { /* Mobile / Feature Stack */
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .feature-card { padding: 18px; }
+    .feature-card h3 { font-size: 1.4rem; }
+    .feature-card h4, .feature-card p { font-size: 0.85rem; }
+}
+
+@media (max-width: 640px) { /* Small Mobile / Nav Hide */
+    .main-header {
+        width: 90vw;
+        justify-content: space-between;
+    }
+    .main-nav {
+        display: none; /* Ocultamos la navegación principal */
+    }
+    .hero-main-content {
+        top: 55%;
+        width: 90%;
+    }
+    .main-title {
+        font-size: 1.8rem;
+    }
+    .main-subtitle {
+        font-size: 0.9rem;
+    }
+    .logo-carousel-wrap {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .logo-track-container {
+        width: 100%;
+        mask-image: none; /* Quitamos el fade en móvil */
+    }
+    .pricing-card {
+        width: 85%; /* Las tarjetas de precio ocupan casi todo el ancho */
     }
 }
