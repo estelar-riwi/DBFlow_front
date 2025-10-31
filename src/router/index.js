@@ -1,30 +1,64 @@
 import { createRouter, createWebHistory } from 'vue-router'
 // 1. Importa tus vistas
-import Home from '@/views/Home.vue' // Importa Home directamente
+import Home from '@/views/Home.vue' 
+import Dashboard from '@/views/Dashboard.vue' // Layout Principal
+import DatabaseList from '@/views/DatabaseList.vue' // Vista Hija por defecto
 
 const routes = [
   // 2. Crea las rutas (el mapa)
   {
-    path: '/', // Cuando la URL es la raíz
+    path: '/', 
     name: 'Home',
-    component: Home // Muestra el componente Home.vue
+    component: Home 
   },
   {
-    path: '/login', // Cuando la URL es /login
+    path: '/login', 
     name: 'Login',
-    // 🔑 Importación corregida y verificada con tu estructura:
     component: () => import('@/views/Login.vue') 
   },
   {
-    path: '/register', // Cuando la URL es /register
+    path: '/register', 
     name: 'Register',
-    // 🔑 Importación corregida y verificada con tu estructura:
     component: () => import('@/views/Register.vue') 
   },
   {
-    path: '/dashboard', // Cuando la URL es /dashboard
+    path: '/forgot-password', 
+    name: 'ForgotPassword',
+    component: () => import('@/views/ForgotPassword.vue') 
+  },
+  {
+    path: '/verify-email', 
+    name: 'VerifyEmail',
+    component: () => import('@/views/VerifyEmail.vue') 
+  },
+  {
+    path: '/confirm-email', 
+    name: 'ConfirmEmail',
+    component: () => import('@/views/ConfirmEmail.vue') 
+  },
+  
+  // 🚨 RUTAS DEL DASHBOARD ANIDADAS (COMPLETAS)
+  {
+    path: '/dashboard', 
     name: 'Dashboard',
-    component: () => import('@/views/Dashboard.vue')
+    component: Dashboard, // El layout principal
+    children: [
+      {
+        path: '', // La ruta por defecto (/dashboard)
+        name: 'DatabaseList',
+        component: DatabaseList // Muestra la lista
+      },
+      {
+        path: 'billing', // Ruta: /dashboard/billing
+        name: 'Billing',
+        component: () => import('@/views/Billing.vue') 
+      },
+      {
+        path: 'webhooks', // Ruta: /dashboard/webhooks
+        name: 'Webhooks',
+        component: () => import('@/views/Webhooks.vue') 
+      }
+    ]
   }
 ]
 
@@ -32,12 +66,12 @@ const router = createRouter({
   history: createWebHistory(),
   routes, // 3. Usa las rutas que definiste
   
-  // 🚨 Comportamiento de scroll para que la navegación entre Home y Login/Register sea suave
+  // Comportamiento de scroll
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
     } else {
-      // Siempre vuelve arriba al cambiar de vista completa (Home -> Login)
+      // Siempre vuelve arriba al cambiar de vista completa
       return { top: 0, behavior: 'smooth' };
     }
   }
