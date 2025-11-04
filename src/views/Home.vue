@@ -514,6 +514,7 @@ onMounted(() => {
     mouse.isRightClick = e.button === 2
   })
   c.addEventListener('mouseup', () => { mouse.isPressed = false })
+  
   c.addEventListener('contextmenu', (ev) => ev.preventDefault())
 
   // Inicializamos los Intersection Observers
