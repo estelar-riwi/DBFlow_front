@@ -24,7 +24,18 @@
         
         <div class="form-group">
         <label for="password">Contraseña</label>
-        <input type="password" id="password" v-model="password" required placeholder="••••••••">
+        <div class="password-wrapper">
+            <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required placeholder="••••••••">
+                        <button type="button" class="toggle-password" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                            <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c1.83 0 3.543-.417 5.057-1.157M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.522 10.522 0 01-4.293 5.362M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L9.88 9.88" />
+                            </svg>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.64 0 8.577 3.01 9.964 7.178.07.207.07.437 0 .644C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.577-3.01-9.964-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+        </div>
         </div>
 
         <div class="form-extra">
@@ -57,6 +68,7 @@ const router = useRouter();
 // --- Variables del Formulario ---
 const email = ref('');
 const password = ref('');
+const showPassword = ref(false);
 const errorMessage = ref('');
 const isLoading = ref(false);
 
@@ -275,4 +287,24 @@ onBeforeUnmount(() => {
     position: relative;
     z-index: 10;
 }
+.password-wrapper { position: relative; }
+.password-wrapper input { width: 100%; padding-right: 82px; }
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.toggle-password svg { width: 20px; height: 20px; }
+.toggle-password:hover { background: rgba(255,255,255,0.08); }
 </style>>

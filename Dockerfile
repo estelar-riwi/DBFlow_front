@@ -1,70 +1,28 @@
-# --- Etapa 1: Build (Compilación de la aplicación Vue/Vite) ---
-# Usa una imagen de Node para ejecutar 'npm install' y 'npm run build'
 FROM node:18-alpine AS build
 
-# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos de definición de dependencias para aprovechar el caché
+# Copy package manifests first to leverage Docker cache
 COPY package*.json ./
 
-# Instala las dependencias
-RUN npm install
+# Install dependencies. Use npm ci for reproducible installs when lockfile exists.
+# Add --legacy-peer-deps to match local behaviour if needed.
+RUN if [ -f package-lock.json ]; then npm ci --legacy-peer-deps; else npm install --legacy-peer-deps; fi
 
-# Copia todos los archivos de la aplicación
+# Copy source and build
 COPY . .
-
-# Ejecuta el comando de construcción de Vite. 
-# Esto genera los archivos estáticos en la carpeta 'dist' por defecto.
 RUN npm run build
 
-# --- Etapa 2: Runtime (Servir con Nginx) ---
-# Usa una imagen de Nginx muy ligera para servir los archivos estáticos
-FROM nginx:alpine AS final
-# EXPOSE 80 # Nginx ya expone el puerto 80 por defecto
+FROM nginx:stable-alpine AS final
 
-# Copia los archivos estáticos generados desde la etapa de compilación
-# El output de 'npm run build' (carpeta 'dist') se copia al directorio de servicio de Nginx
+# Copy built assets
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copia la configuración de Nginx para el contenedor con fallback de SPA
-# Esto asegura que rutas como /verify-email o /reset-password funcionen al recargar
+# If present, use the SPA-aware nginx config to ensure history-mode routes work.
 COPY nginx.front.conf /etc/nginx/conf.d/default.conf
 
-# Comando de ejecución por defecto (iniciar Nginx)
-CMD ["nginx", "-g", "daemon off;"]
-# --- Etapa 1: Build (Compilación de la aplicación Vue/Vite) ---
-# Usa una imagen de Node para ejecutar 'npm install' y 'npm run build'
-FROM node:18-alpine AS build
+# Expose HTTP and add a simple healthcheck
+EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD wget -qO- http://127.0.0.1/ || exit 1
 
-# Establece el directorio de trabajo dentro del contenedor
-WORKDIR /app
-
-# Copia los archivos de definición de dependencias para aprovechar el caché
-COPY package*.json ./
-
-# Instala las dependencias
-RUN npm install
-
-# Copia todos los archivos de la aplicación
-COPY . .
-
-# Ejecuta el comando de construcción de Vite. 
-# Esto genera los archivos estáticos en la carpeta 'dist' por defecto.
-RUN npm run build
-
-# --- Etapa 2: Runtime (Servir con Nginx) ---
-# Usa una imagen de Nginx muy ligera para servir los archivos estáticos
-FROM nginx:alpine AS final
-# EXPOSE 80 # Nginx ya expone el puerto 80 por defecto
-
-# Copia los archivos estáticos generados desde la etapa de compilación
-# El output de 'npm run build' (carpeta 'dist') se copia al directorio de servicio de Nginx
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copia la configuración de Nginx para el contenedor con fallback de SPA
-# Esto asegura que rutas como /verify-email o /reset-password funcionen al recargar
-COPY nginx.front.conf /etc/nginx/conf.d/default.conf
-
-# Comando de ejecución por defecto (iniciar Nginx)
 CMD ["nginx", "-g", "daemon off;"]

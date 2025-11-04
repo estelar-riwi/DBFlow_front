@@ -27,18 +27,18 @@ const routes = [
     component: () => import('@/views/ForgotPassword.vue') 
   },
   {
-    path: '/reset-password', 
+    path: '/reset-password/:token?', 
     name: 'ResetPassword',
     component: () => import('@/views/ResetPassword.vue'),
     // Soporta enlaces con mayúsculas provenientes de emails externos
-    alias: ['/Reset-Password'] 
+    alias: ['/Reset-Password', '/Reset-Password/:token?'] 
   },
   {
-    path: '/verify-email', 
+    path: '/verify-email/:token?', 
     name: 'VerifyEmail',
     component: () => import('@/views/VerifyEmail.vue'),
     // Soporta enlaces con mayúsculas provenientes de emails externos
-    alias: ['/Verify-Email'] 
+    alias: ['/Verify-Email', '/Verify-Email/:token?'] 
   },
   {
     path: '/confirm-email', 

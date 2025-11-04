@@ -50,7 +50,7 @@ const verificationSuccess = ref(false);
 
 // Verificar automáticamente si hay un token en la URL
 onMounted(async () => {
-    const token = route.query.token;
+    const token = route.query.token || route.params.token;
     
     if (token) {
         isVerifying.value = true;
