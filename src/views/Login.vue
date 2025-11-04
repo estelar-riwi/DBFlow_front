@@ -33,7 +33,9 @@
             </router-link>
         </div>
 
-        <button type="submit" class="btn-primary btn-full-width">Iniciar Sesión</button>
+        <button type="submit" class="btn-primary btn-full-width" :disabled="isLoading">
+            {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+        </button>
     </form>
     
     <p class="auth-footer-text">
@@ -47,15 +49,42 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { RouterLink } from 'vue-router'; 
+import { RouterLink, useRouter } from 'vue-router'; 
+import { login } from '@/services/authService';
+
+const router = useRouter();
 
 // --- Variables del Formulario ---
-const name = ref('');
 const email = ref('');
 const password = ref('');
-const handleRegister = () => {
-    console.log('Attempting registration for:', name.value);
-    alert(`Registration: ${email.value}`);
+const errorMessage = ref('');
+const isLoading = ref(false);
+
+const handleLogin = async () => {
+    errorMessage.value = '';
+    isLoading.value = true;
+    
+    try {
+        const result = await login({
+            email: email.value,
+            password: password.value
+        });
+        
+        if (result.success) {
+            alert(result.message);
+            // Redirigir al dashboard
+            router.push('/dashboard');
+        } else {
+            errorMessage.value = result.message;
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error during login:', error);
+        errorMessage.value = 'Error al conectar con el servidor';
+        alert('Error al conectar con el servidor');
+    } finally {
+        isLoading.value = false;
+    }
 };
 
 // --- LÓGICA DE PARTÍCULAS (Interactiva y Rápida) ---

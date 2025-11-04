@@ -5,7 +5,7 @@
       :class="{ 'header-hidden': !showHeader }"
     >
     <div class="logo">
-    <img src="/public/logos/logo.ico" alt="DBFlow Logo" class="new-logo-icon">
+    <img src="/logos/logo.ico" alt="DBFlow Logo" class="new-logo-icon">
     DBFlow
     </div>
 

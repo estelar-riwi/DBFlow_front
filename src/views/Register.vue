@@ -33,7 +33,9 @@
         <input type="password" id="password" v-model="password" required placeholder="••••••••">
         </div>
 
-        <button type="submit" class="btn-primary btn-full-width">Registrarse</button>
+        <button type="submit" class="btn-primary btn-full-width" :disabled="isLoading">
+            {{ isLoading ? 'Registrando...' : 'Registrarse' }}
+        </button>
     </form>
     
     <p class="auth-footer-text">
@@ -47,15 +49,44 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { RouterLink } from 'vue-router'; 
+import { RouterLink, useRouter } from 'vue-router'; 
+import { register } from '@/services/authService';
+
+const router = useRouter();
 
 // --- Variables del Formulario ---
 const name = ref('');
 const email = ref('');
 const password = ref('');
-const handleRegister = () => {
-    console.log('Attempting registration for:', name.value);
-    alert(`Registration: ${email.value}`);
+const errorMessage = ref('');
+const isLoading = ref(false);
+
+const handleRegister = async () => {
+    errorMessage.value = '';
+    isLoading.value = true;
+    
+    try {
+        const result = await register({
+            name: name.value,
+            email: email.value,
+            password: password.value
+        });
+        
+        if (result.success) {
+            alert(result.message);
+            // Redirigir a la página de verificación de email
+            router.push('/verify-email');
+        } else {
+            errorMessage.value = result.message;
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error during registration:', error);
+        errorMessage.value = 'Error al conectar con el servidor';
+        alert('Error al conectar con el servidor');
+    } finally {
+        isLoading.value = false;
+    }
 };
 
 // --- LÓGICA DE PARTÍCULAS (Interactiva y Rápida) ---
