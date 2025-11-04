@@ -14,9 +14,13 @@
     </div>
 
     <h2 class="auth-title">Verifica tu Correo</h2>
-    <p class="auth-subtitle">
+    <p class="auth-subtitle" v-if="!verificationMessage">
         Hemos enviado un enlace de verificación a tu correo. Por favor, revisa tu bandeja de entrada (y spam).
     </p>
+    
+    <div v-if="verificationMessage" :class="verificationSuccess ? 'success-message' : 'error-message'" style="margin: 20px 0; padding: 15px; border-radius: 8px; background: rgba(255,255,255,0.1);">
+        <p>{{ verificationMessage }}</p>
+    </div>
 
     <form @submit.prevent="handleResend" class="auth-form">
         
@@ -34,9 +38,55 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { RouterLink } from 'vue-router'; 
+import { RouterLink, useRoute } from 'vue-router'; 
+import { verifyEmail } from '@/services/authService';
+
+const route = useRoute();
 
 // --- Variables del Formulario ---
+const isVerifying = ref(false);
+const verificationMessage = ref('');
+const verificationSuccess = ref(false);
+
+// Verificar automáticamente si hay un token en la URL
+onMounted(async () => {
+    const token = route.query.token || route.params.token;
+    
+    if (token) {
+        isVerifying.value = true;
+        verificationMessage.value = 'Verificando tu correo...';
+        
+        try {
+            const result = await verifyEmail(token);
+            
+            if (result.success) {
+                verificationSuccess.value = true;
+                verificationMessage.value = result.message;
+            } else {
+                verificationSuccess.value = false;
+                verificationMessage.value = result.message;
+            }
+        } catch (error) {
+            verificationSuccess.value = false;
+            verificationMessage.value = 'Error al verificar el correo';
+        } finally {
+            isVerifying.value = false;
+        }
+    }
+    
+    // Inicializar canvas
+    const c = canvas.value;
+    if (!c) return;
+    
+    initCanvas(c);
+
+    onResizeHandler = () => {
+        resizeCanvas(c);
+    };
+    window.addEventListener('resize', onResizeHandler);
+    window.addEventListener('mousemove', handleMouseMove);
+});
+
 const handleResend = () => {
     // Aquí iría tu lógica para reenviar el correo
     console.log('Attempting to resend email...');

@@ -27,14 +27,28 @@ const routes = [
     component: () => import('@/views/ForgotPassword.vue') 
   },
   {
-    path: '/verify-email', 
+    path: '/reset-password/:token?', 
+    name: 'ResetPassword',
+    component: () => import('@/views/ResetPassword.vue'),
+    // Soporta enlaces con mayúsculas provenientes de emails externos
+    alias: ['/Reset-Password', '/Reset-Password/:token?'] 
+  },
+  {
+    path: '/verify-email/:token?', 
     name: 'VerifyEmail',
-    component: () => import('@/views/VerifyEmail.vue') 
+    component: () => import('@/views/VerifyEmail.vue'),
+    // Soporta enlaces con mayúsculas provenientes de emails externos
+    alias: ['/Verify-Email', '/Verify-Email/:token?'] 
   },
   {
     path: '/confirm-email', 
     name: 'ConfirmEmail',
     component: () => import('@/views/ConfirmEmail.vue') 
+  },
+  {
+    path: '/subscription', 
+    name: 'Subscription',
+    component: () => import('@/views/SubscriptionView.vue') 
   },
   
   // 🚨 RUTAS DEL DASHBOARD ANIDADAS (COMPLETAS)
@@ -64,7 +78,11 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes, // 3. Usa las rutas que definiste
+  routes: [
+    ...routes,
+    // Catch-all para rutas no definidas en SPA
+    { path: '/:pathMatch(.*)*', redirect: '/' }
+  ], // 3. Usa las rutas que definiste
   
   // Comportamiento de scroll
   scrollBehavior(to, from, savedPosition) {

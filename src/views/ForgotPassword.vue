@@ -23,7 +23,9 @@
           <input type="email" id="email" v-model="email" required placeholder="nombre@ejemplo.com">
         </div>
         
-        <button type="submit" class="btn-primary btn-full-width">Enviar Enlace</button>
+        <button type="submit" class="btn-primary btn-full-width" :disabled="isLoading">
+            {{ isLoading ? 'Enviando...' : 'Enviar Enlace' }}
+        </button>
       </form>
       
       <p class="auth-footer-text">
@@ -38,12 +40,37 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { RouterLink } from 'vue-router'; 
+import { forgotPassword } from '@/services/authService';
 
 // --- Variables del Formulario ---
 const email = ref('');
-const handlePasswordReset = () => {
-    console.log('Attempting password reset for:', email.value);
-    alert(`Enlace de recuperación enviado a: ${email.value}`);
+const isLoading = ref(false);
+const successMessage = ref('');
+const errorMessage = ref('');
+
+const handlePasswordReset = async () => {
+    successMessage.value = '';
+    errorMessage.value = '';
+    isLoading.value = true;
+    
+    try {
+        const result = await forgotPassword(email.value);
+        
+        if (result.success) {
+            successMessage.value = result.message;
+            alert(result.message);
+            email.value = ''; // Limpiar el campo
+        } else {
+            errorMessage.value = result.message;
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Error during password reset:', error);
+        errorMessage.value = 'Error al conectar con el servidor';
+        alert('Error al conectar con el servidor');
+    } finally {
+        isLoading.value = false;
+    }
 };
 
 // --- LÓGICA DE PARTÍCULAS (Campo Estelar Dinámico) ---
