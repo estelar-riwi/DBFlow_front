@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { showLoading, hideLoading } from '@/store/loading';
 
 // URL base del backend - configurada desde variables de entorno
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5199';
@@ -123,8 +124,52 @@ export async function resetPassword(resetData) {
 
 // Función auxiliar para cerrar sesión
 export function logout() {
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('user');
+  // Eliminar credenciales locales
+  try {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+  } catch (e) {
+    // No hacemos nada si localStorage no está disponible
+  }
+
+  // Eliminar header por si quedó seteado en axios
+  try {
+    if (axios.defaults && axios.defaults.headers && axios.defaults.headers.common) {
+      delete axios.defaults.headers.common['Authorization'];
+    }
+  } catch (e) {}
+
+  // Emitir evento para que otros componentes puedan reaccionar al logout
+  try {
+    window.dispatchEvent(new Event('user-logged-out'));
+  } catch (e) {}
+}
+
+/**
+ * Cerrar sesión y redirigir al login.
+ * Acepta opcionalmente una instancia de `router` (vue-router) para hacer push.
+ */
+export async function logoutAndRedirect(router) {
+  try {
+    showLoading('Cerrando sesión...');
+  } catch (e) {}
+
+  // Delay para que se vea la pantalla de carga
+  await new Promise(resolve => setTimeout(resolve, 800));
+
+  // Limpiar credenciales locales
+  logout();
+
+  try {
+    if (router && typeof router.push === 'function') {
+      await router.push({ name: 'Login' }).catch(() => {});
+    } else {
+      // Fallback: navegar usando location (recarga completa)
+      window.location.href = '/login';
+    }
+  } finally {
+    try { hideLoading(); } catch (e) {}
+  }
 }
 
 // Función para obtener el token actual

@@ -41,8 +41,8 @@
 }
 
 .logo-image {
-    width: 32px;
-    height: 32px;
+    width: 65px;
+    height: 70px;
 }
 
 /* --- Navegación del Sidebar --- */
@@ -96,6 +96,10 @@
 /* ================== ESTILOS DE CONTENIDO (NUEVO DISEÑO) ================== */
 /* ========================================================================= */
 
+/* Reveal on Scroll (reutilizable en Dashboard) */
+.reveal-on-scroll { opacity: 0; transform: translateY(20px); filter: blur(4px); transition: opacity .6s ease, transform .6s ease, filter .6s ease; }
+.reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+
 .main-content {
     margin-left: 260px; 
     width: calc(100% - 260px); /* Asegura que ocupe el resto */
@@ -143,9 +147,9 @@
 /* --- Estilos de las tarjetas de Cuota (Uso de DBs) --- */
 .quota-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
 .quota-card {
@@ -193,6 +197,7 @@
     padding: 16px 20px; /* Más padding */
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    vertical-align: middle;
 }
 
 .db-table th {
@@ -229,21 +234,33 @@
 
 /* Botones de acción en la tabla */
 .action-btn {
-    background: none;
-    border: none;
-    color: #94a3b8;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e2e8f0;
     cursor: pointer;
     font-family: 'Roboto Mono', monospace;
-    transition: color 0.2s ease;
-    padding: 5px; /* Área de clic */
-    font-size: 0.9rem;
-    font-weight: 600;
+    transition: all 0.2s ease;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 8px;
 }
+.action-btn + .action-btn { margin-left: 8px; }
 .action-btn:hover {
-    color: #00bfff; /* 🚨 NUEVO: Hover cian */
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+}
+.action-btn.delete {
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fda4a4;
 }
 .action-btn.delete:hover {
-    color: #ef4444; /* Rojo al pasar el mouse */
+    background: rgba(239, 68, 68, 0.08);
+    color: #ff6b6b;
+    border-color: rgba(239, 68, 68, 0.5);
 }
 
 /* 🚨 NUEVO: Estilos para el botón principal (si no los tienes globales) */
@@ -565,7 +582,7 @@
 }
 
 .form-group {
-    /* (Se aplica a los contenedores de label/input) */
+    margin-bottom: 6px; /* evita regla vacía */
 }
 
 .form-group label {

@@ -21,9 +21,6 @@
           <router-link to="/dashboard/webhooks" exact-active-class="active">
             <span>Webhooks</span>
           </router-link>
-          <router-link to="/dashboard/profile" exact-active-class="active">
-            <span>Perfil</span>
-          </router-link>
       </nav>
       
       <div class="sidebar-footer">
@@ -35,10 +32,12 @@
             <strong>{{ profileName }}</strong> <span class="profile-plan">Plan Gratuito</span>
           </div>
         </div>
-
-        <router-link to="/" class="btn-back-home-sidebar">
-          ← Volver al Inicio
-        </router-link>
+        
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button class="btn-logout" @click="onLogoutClick" title="Cerrar sesión" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;">
+            Cerrar sesión
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -124,7 +123,9 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { RouterLink, RouterView } from 'vue-router'; 
+import { RouterLink, RouterView, useRouter } from 'vue-router'; 
+import { showAlert } from '@/utils/notify';
+import { logoutAndRedirect } from '@/services/authService';
 
 // --- Lógica del Modal y Perfil ---
 const isModalOpen = ref(false);
@@ -151,27 +152,60 @@ const closeProfileModal = () => {
   isModalOpen.value = false;
 };
 
-const handleProfileUpdate = () => {
+const router = useRouter();
+
+async function onLogoutClick() {
+  // Confirmar acción
+  const result = await showAlert({ 
+    icon: 'info', 
+    title: 'Cerrar sesión', 
+    text: '¿Deseas cerrar tu sesión actualmente?', 
+    confirmText: 'Cerrar sesión', 
+    showCancel: true 
+  });
+  
+  if (result && result.isConfirmed) {
+    // Delay para que se cierre el modal antes de mostrar la pantalla de carga
+    await new Promise(resolve => setTimeout(resolve, 200));
+    // Limpia credenciales y redirige al login (ya maneja showLoading internamente)
+    await logoutAndRedirect(router);
+  }
+}
+
+const handleProfileUpdate = async () => {
   // Lógica de actualización (simulada)
   
   // 1. Validar contraseña (si se está cambiando)
-  if (newPassword.value) {
+    if (newPassword.value) {
     if (newPassword.value !== confirmPassword.value) {
-      alert('Las nuevas contraseñas no coinciden.');
+      showAlert({ icon: 'error', title: 'Error', text: 'Las nuevas contraseñas no coinciden.' });
       return;
     }
     if (!currentPassword.value) {
-      alert('Debes ingresar tu contraseña actual para cambiarla.');
+      showAlert({ icon: 'error', title: 'Error', text: 'Debes ingresar tu contraseña actual para cambiarla.' });
       return;
     }
+    
+    // Validar requisitos de contraseña (todos a la vez)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(newPassword.value)) {
+      await showAlert({ 
+        icon: 'error', 
+        title: 'Contraseña inválida', 
+        text: 'La contraseña debe tener:\n• Mínimo 8 caracteres\n• Al menos una mayúscula (A-Z)\n• Al menos una minúscula (a-z)\n• Al menos un número (0-9)', 
+        confirmText: 'Aceptar' 
+      });
+      return;
+    }
+    
     console.log('Enviando cambio de contraseña...');
   }
 
   // 2. Enviar datos del perfil
   console.log('Actualizando perfil:', profileName.value, profileEmail.value);
-  alert('Perfil actualizado (simulación)');
-  
-  closeProfileModal();
+  showAlert({ icon: 'success', title: 'Perfil', text: 'Perfil actualizado (simulación)' }).then(() => {
+    closeProfileModal();
+  });
 };
 // --- (Fin Lógica Modal) ---
 

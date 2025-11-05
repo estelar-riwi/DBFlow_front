@@ -16,7 +16,7 @@
       <h2 class="auth-title">Restablecer Contraseña</h2>
       <p class="auth-subtitle">Ingresa tu nueva contraseña.</p>
 
-      <form @submit.prevent="handleResetPassword" class="auth-form">
+      <form @submit.prevent="handleResetPassword" class="auth-form" novalidate>
         
         <div class="form-group">
           <label for="newPassword">Nueva Contraseña</label>
@@ -27,7 +27,7 @@
               v-model="newPassword" 
               required 
               placeholder="••••••••"
-              minlength="6"
+              minlength="8"
             >
             <button type="button" class="toggle-password" @click="showNewPassword = !showNewPassword" :aria-label="showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
               <svg v-if="showNewPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -50,7 +50,7 @@
               v-model="confirmPassword" 
               required 
               placeholder="••••••••"
-              minlength="6"
+              minlength="8"
             >
             <button type="button" class="toggle-password" @click="showConfirmPassword = !showConfirmPassword" :aria-label="showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
               <svg v-if="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -95,11 +95,20 @@ const showConfirmPassword = ref(false);
 const token = ref('');
 
 // Obtener el token de la URL
-onMounted(() => {
-  token.value = route.query.token || route.params.token || '';
-  
+import { showAlert } from '@/utils/notify';
+
+onMounted(async () => {
+  const tokenFromParam = route.params.token;
+  const tokenFromQuery = route.query.token;
+  token.value = tokenFromQuery || tokenFromParam || '';
+
+  // Si viene como ?token=... redirigimos a la URL canónica /reset-password/:token
+  if (tokenFromQuery && !tokenFromParam) {
+    router.replace({ name: 'ResetPassword', params: { token: token.value } });
+  }
+
   if (!token.value) {
-    alert('Token de restablecimiento inválido o expirado');
+  await showAlert({ icon: 'error', title: 'Error', text: 'Token de restablecimiento inválido o expirado' });
     router.push('/forgot-password');
   }
   
@@ -118,12 +127,19 @@ onMounted(() => {
 
 const handleResetPassword = async () => {
   if (newPassword.value !== confirmPassword.value) {
-    alert('Las contraseñas no coinciden');
+  await showAlert({ icon: 'error', title: 'Error', text: 'Las contraseñas no coinciden' });
     return;
   }
   
-  if (newPassword.value.length < 6) {
-    alert('La contraseña debe tener al menos 6 caracteres');
+  // Validar requisitos de contraseña (todos a la vez)
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  if (!passwordRegex.test(newPassword.value)) {
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Contraseña inválida', 
+      text: 'La contraseña debe tener:\n• Mínimo 8 caracteres\n• Al menos una mayúscula (A-Z)\n• Al menos una minúscula (a-z)\n• Al menos un número (0-9)', 
+      confirmText: 'Aceptar' 
+    });
     return;
   }
   
@@ -137,14 +153,14 @@ const handleResetPassword = async () => {
     });
     
     if (result.success) {
-      alert(result.message);
+  await showAlert({ icon: 'success', title: 'Éxito', text: result.message });
       router.push('/login');
     } else {
-      alert(result.message);
+  await showAlert({ icon: 'error', title: 'Error', text: result.message });
     }
-  } catch (error) {
+    } catch (error) {
     console.error('Error during password reset:', error);
-    alert('Error al conectar con el servidor');
+  await showAlert({ icon: 'error', title: 'Error', text: 'Error al conectar con el servidor' });
   } finally {
     isLoading.value = false;
   }

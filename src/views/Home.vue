@@ -67,31 +67,31 @@
       </p>
       <div class="features-grid">
         
-        <div class="feature-card">
+    <div class="feature-card reveal-on-scroll">
             <h4>Monitoreo y Analíticas</h4>
             <h3>Insights Instantáneos</h3>
             <p>Optimiza con métricas de rendimiento y consumo de recursos de tus DBs en tiempo real.</p>
         </div>
 
-        <div class="feature-card">
+    <div class="feature-card reveal-on-scroll">
             <h4>Administración de Equipos</h4>
             <h3>Colaboración Fluida</h3>
             <p>Gestiona y escala todas tus bases de datos (MySQL, Mongo, etc.) de manera centralizada.</p>
         </div>
 
-        <div class="feature-card">
+    <div class="feature-card reveal-on-scroll">
             <h4>Disponibilidad Máxima</h4>
             <h3>99.9%</h3>
             <p>Garantía de alta disponibilidad para mantener tus aplicaciones siempre operativas.</p>
         </div>
 
-        <div class="feature-card">
+    <div class="feature-card reveal-on-scroll">
             <h4>Seguridad Aislada</h4>
             <h3>Blindaje Empresarial</h3>
             <p>Cifrado de extremo a extremo, aislamiento total y seguridad garantizada por **JWT**.</p>
         </div>
         
-        <div class="feature-card">
+    <div class="feature-card reveal-on-scroll">
             <h4>Escalabilidad y Acceso</h4>
             <h3>Despliegue Global</h3>
             <p>Infraestructura global para que accedas a tu panel **DBflow** desde cualquier lugar.</p>
@@ -106,7 +106,7 @@
       </p>
       <div class="pricing-cards">
         
-        <div class="pricing-card">
+    <div class="pricing-card reveal-on-scroll">
             <h3>Plan Gratuito</h3>
             <h1>$0<span>/siempre</span></h1>
             <p>Perfecto para proyectos personales y pruebas iniciales.</p>
@@ -120,7 +120,7 @@
             <button class="btn-primary">Registrarse Gratis →</button>
         </div>
 
-        <div class="pricing-card popular">
+    <div class="pricing-card popular reveal-on-scroll">
             <div class="tag">Más Popular</div>
             <h3>Plan Intermedio</h3>
             <h1>$5.000<span>/mes COP</span></h1>
@@ -135,7 +135,7 @@
             <button class="btn-primary">Suscribirse →</button>
         </div>
 
-        <div class="pricing-card">
+    <div class="pricing-card reveal-on-scroll">
             <h3>Plan Avanzado</h3>
             <h1>$10.000<span>/mes COP</span></h1>
             <p>La solución completa para desarrolladores y proyectos de alta demanda.</p>
@@ -183,55 +183,65 @@
     </section>
 
     <section class="cta-section">
-  <h2>¿Listo para Transformar tu Gestión de DBs?</h2>
-  
-  <p>Únete a cientos de desarrolladores y empresas que ya usan CCD para automatizar la creación y escalabilidad de sus bases de datos en la nube.</p>
-  
-  <div class="cta-buttons">
-      <a href="/register" class="btn-primary">Comienza con el Plan Gratuito</a>
+      <!-- Converging Lines Effect for CTA Section -->
+      <ConvergingLines />
       
-      <a href="#pricing-section" class="btn-outline">Ver Planes y Precios</a>
-  </div>
-</section>
-    <footer class="main-footer" id="footer-section" ref="footerSection">
-      <div class="footer-top-content">
-          
-          <div class="footer-brand">
-              <strong>DBFlow</strong>
-              
-              <p>Potenciando negocios con soluciones de automatización de bases de datos de vanguardia.</p>
-              
-              <p class="tagline">Toma el control de tu éxito con DBflow.</p>
-          </div>
-          
-          <div class="footer-links">
-              
-              <div>
-                  <h4>Product</h4>
-                  <a href="#features-section">Features</a>
-                  <a href="#pricing-section">Pricing</a>
-                  <a href="#faq-section">Security</a> <a href="#features-section">Integrations</a> </div>
-              
-              <div>
-                  <h4>Company</h4>
-                  <a href="#">About</a>
-                  <a href="#">Blog</a>
-                  <a href="#">Careers</a>
-                  <a href="#">Contact</a>
-              </div>
-          </div>
+      <div class="cta-content">
+        <h2>¿Listo para Transformar tu Gestión de DBs?</h2>
+        
+        <p>Únete a cientos de desarrolladores y empresas que ya usan CCD para automatizar la creación y escalabilidad de sus bases de datos en la nube.</p>
+        
+        <div class="cta-buttons">
+            <a href="/register" class="btn-primary">Comienza con el Plan Gratuito</a>
+            
+            <a href="#pricing-section" class="btn-primary">Ver Planes y Precios</a>
+        </div>
       </div>
+    </section>
+  <footer class="main-footer" id="footer-section" ref="footerSection">
+    <div class="footer-top-content">
+      <!-- Columna de marca -->
+      <div class="footer-brand">
+        <div class="brand-row">
+        <img src="/logos/logo.ico" alt="DBFlow" class="footer-logo" />
+        <strong>DBFlow</strong>
+        </div>
+        <p class="brand-desc">Potenciando negocios con soluciones de automatización de bases de datos de vanguardia.</p>
+        <p class="quote">“Toma el control de tu éxito con DBFlow.”</p>
+      </div>
+          
+      <!-- Columnas de enlaces -->
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#features-section">Features</a>
+          <a href="#pricing-section">Pricing</a>
+          <a href="#faq-section">Security</a>
+          <a href="#features-section">Integrations</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Blog</a>
+          <a href="#">Careers</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-divider"></div>
       
-      <p class="copyright">
-          © 2025 DBflow. All rights reserved.
-      </p>
-    </footer>
+    <p class="copyright">
+      © 2025 DBFlow. All rights reserved.
+    </p>
+  </footer>
   </div>
 </template>
 
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import ConvergingLines from '../components/ConvergingLines.vue'
 
 // --- SCRIPT DEL HOME (CANVAS) ---
 // ... (Toda tu lógica de Partículas, Clases, y Canvas se mantiene igual) ...
@@ -356,15 +366,19 @@ function generateParticlesFromText(c, pixelStep = 6) {
   if (newTargets.length > particles.length) {
     const add = newTargets.length - particles.length
     for (let i = 0; i < add; i++) {
-      const side = Math.floor(Math.random() * 4);
-      let startX, startY;
-      const margin = 100;
-      if (side === 0) { startX = Math.random() * cw; startY = -margin; }
-      else if (side === 1) { startX = cw + margin; startY = Math.random() * ch; }
-      else if (side === 2) { startX = Math.random() * cw; startY = ch + margin; }
-      else { startX = -margin; startY = Math.random() * ch; }
+      // 🌟 NUEVO: Partículas vienen desde todas direcciones (efecto radial)
+      const angle = Math.random() * Math.PI * 2;
+      const distance = Math.max(cw, ch) * 0.8; // Distancia desde el centro
+      const centerX = cw / 2;
+      const centerY = ch / 2;
+      const startX = centerX + Math.cos(angle) * distance;
+      const startY = centerY + Math.sin(angle) * distance;
+      
       const p = new Particle(startX, startY);
-      p.size = Math.max(0.6, pixelStep / 6)
+      p.size = Math.max(0.8, pixelStep / 5);
+      // Añadir velocidad inicial hacia el centro
+      p.vel.x = -Math.cos(angle) * (15 + Math.random() * 10);
+      p.vel.y = -Math.sin(angle) * (15 + Math.random() * 10);
       particles.push(p)
     }
   }
@@ -372,8 +386,12 @@ function generateParticlesFromText(c, pixelStep = 6) {
   for (let i = 0; i < newTargets.length; i++) {
     const p = particles[i]
     const t = newTargets[i]
-    p.vel.x += (Math.random() - 0.5) * 25;
-    p.vel.y += (Math.random() - 0.5) * 25;
+    // Añadir impulso adicional para efecto de convergencia
+    const dx = t.x - p.pos.x;
+    const dy = t.y - p.pos.y;
+    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    p.vel.x += (dx / dist) * (10 + Math.random() * 15);
+    p.vel.y += (dy / dist) * (10 + Math.random() * 15);
     p.setTarget(t.x, t.y)
     p.isKilled = false
     p.colorWeight = 1
@@ -487,6 +505,29 @@ function setupIntersectionObservers() {
 // ------------------------------------
 
 
+// --- REVEAL ON SCROLL (tarjetas y contenidos) ---
+function setupRevealAnimations() {
+  const revealEls = document.querySelectorAll('.reveal-on-scroll');
+  if (!revealEls.length) return;
+
+  // Asignar un pequeño delay escalonado por orden visual
+  revealEls.forEach((el, i) => {
+    el.style.setProperty('--reveal-delay', `${i * 120}ms`);
+  });
+
+  const obs = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target); // solo una vez
+      }
+    });
+  }, { threshold: 0.15 });
+
+  revealEls.forEach(el => obs.observe(el));
+}
+// ------------------------------------------------
+
 let onResizeHandler = null; 
 onMounted(() => {
   const c = canvas.value
@@ -514,11 +555,13 @@ onMounted(() => {
     mouse.isRightClick = e.button === 2
   })
   c.addEventListener('mouseup', () => { mouse.isPressed = false })
-  
+
   c.addEventListener('contextmenu', (ev) => ev.preventDefault())
 
   // Inicializamos los Intersection Observers
   setupIntersectionObservers() 
+  // Inicializamos las animaciones de aparición
+  setupRevealAnimations()
 })
 
 onBeforeUnmount(() => {
