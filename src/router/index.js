@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { isAuthenticated } from '@/services/authService';
 // 1. Importa tus vistas
 import Home from '@/views/Home.vue' 
 import Dashboard from '@/views/Dashboard.vue' // Layout Principal
@@ -51,11 +52,12 @@ const routes = [
     component: () => import('@/views/SubscriptionView.vue') 
   },
   
-  // 🚨 RUTAS DEL DASHBOARD ANIDADAS (COMPLETAS)
+  // RUTAS DEL DASHBOARD
   {
     path: '/dashboard', 
     name: 'Dashboard',
     component: Dashboard, // El layout principal
+    meta: { requiresAuth: true },
     children: [
       {
         path: '', // La ruta por defecto (/dashboard)
@@ -84,15 +86,24 @@ const router = createRouter({
     { path: '/:pathMatch(.*)*', redirect: '/' }
   ], // 3. Usa las rutas que definiste
   
-  // Comportamiento de scroll
-  scrollBehavior(to, from, savedPosition) {
-    if (savedPosition) {
-      return savedPosition;
-    } else {
-      // Siempre vuelve arriba al cambiar de vista completa
-      return { top: 0, behavior: 'smooth' };
-    }
+  // Comportamiento de scroll: SIEMPRE arriba (en toda navegación)
+  scrollBehavior() {
+    return { left: 0, top: 0, behavior: 'auto' };
   }
 })
+
+// Guardia global: protege rutas con meta.requiresAuth
+router.beforeEach((to, from, next) => {
+  if (to.meta && to.meta.requiresAuth) {
+    if (isAuthenticated()) {
+      next();
+    } else {
+      // Redirigir al login y preservar la ruta destino para volver luego
+      next({ name: 'Login', query: { redirect: to.fullPath } });
+    }
+  } else {
+    next();
+  }
+});
 
 export default router

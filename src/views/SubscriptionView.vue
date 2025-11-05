@@ -18,6 +18,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { showAlert } from '@/utils/notify'
 import { createSubscription } from '@/services/paymentService'
 
 const email = ref('')
@@ -28,11 +29,11 @@ const subscribe = async () => {
     if (result?.init_point) {
       window.location.href = result.init_point // redirige al checkout de Mercado Pago
     } else {
-      alert('No se pudo iniciar la suscripción')
+  await showAlert({ icon: 'error', title: 'Error', text: 'No se pudo iniciar la suscripción' })
     }
   } catch (error) {
     console.error('Error creando suscripción:', error)
-    alert('Error al conectar con el servidor')
+  await showAlert({ icon: 'error', title: 'Error', text: 'Error al conectar con el servidor' })
   }
 }
 </script>

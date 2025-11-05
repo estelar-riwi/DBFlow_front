@@ -17,7 +17,7 @@
     <h2 class="auth-title">Create Account</h2>
     <p class="auth-subtitle">Start managing your databases now.</p>
 
-    <form @submit.prevent="handleRegister" class="auth-form">
+    <form @submit.prevent="handleRegister" class="auth-form" novalidate>
         <div class="form-group">
         <label for="name">Full Name</label>
         <input type="text" id="name" v-model="name" required placeholder="John Doe">
@@ -31,7 +31,7 @@
         <div class="form-group">
         <label for="password">Contraseña</label>
         <div class="password-wrapper">
-            <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required placeholder="••••••••">
+            <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required placeholder="••••••••" minlength="8">
                         <button type="button" class="toggle-password" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
                             <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c1.83 0 3.543-.417 5.057-1.157M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.5a10.522 10.522 0 01-4.293 5.362M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L9.88 9.88" />
@@ -60,8 +60,10 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { showAlert } from '@/utils/notify';
 import { RouterLink, useRouter } from 'vue-router'; 
 import { register } from '@/services/authService';
+import { showLoading, hideLoading } from '@/store/loading';
 
 const router = useRouter();
 
@@ -75,7 +77,21 @@ const isLoading = ref(false);
 
 const handleRegister = async () => {
     errorMessage.value = '';
+    
+    // Validar requisitos de contraseña (todos a la vez)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(password.value)) {
+        await showAlert({ 
+            icon: 'error', 
+            title: 'Contraseña inválida', 
+            text: 'La contraseña debe tener:\n• Mínimo 8 caracteres\n• Al menos una mayúscula (A-Z)\n• Al menos una minúscula (a-z)\n• Al menos un número (0-9)', 
+            confirmText: 'Aceptar' 
+        });
+        return;
+    }
+    
     isLoading.value = true;
+    try { showLoading('Registrando...'); } catch (e) {}
     
     try {
         const result = await register({
@@ -85,17 +101,30 @@ const handleRegister = async () => {
         });
         
         if (result.success) {
-            alert(result.message);
+            // Ocultar loading antes de mostrar el modal de éxito
+            try { hideLoading(); } catch (e) {}
+            // Alerta de éxito que se cierra automáticamente en 1.5 segundos
+            showAlert({ 
+                icon: 'success', 
+                title: 'Registro exitoso', 
+                text: result.message,
+                autoClose: 1500 
+            });
+            // Pequeño delay antes de redirigir (para que se vea la alerta)
+            await new Promise(resolve => setTimeout(resolve, 1600));
             // Redirigir a la página de verificación de email
             router.push('/verify-email');
         } else {
+            // Ocultar loading antes de mostrar error
+            try { hideLoading(); } catch (e) {}
             errorMessage.value = result.message;
-            alert(result.message);
+            await showAlert({ icon: 'error', title: 'Error', text: result.message, confirmText: 'Aceptar' });
         }
     } catch (error) {
         console.error('Error during registration:', error);
+        try { hideLoading(); } catch (e) {}
         errorMessage.value = 'Error al conectar con el servidor';
-        alert('Error al conectar con el servidor');
+    await showAlert({ icon: 'error', title: 'Error', text: 'Error al conectar con el servidor', confirmText: 'Aceptar' });
     } finally {
         isLoading.value = false;
     }

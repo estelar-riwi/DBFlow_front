@@ -40,6 +40,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { RouterLink } from 'vue-router'; 
+import { showAlert } from '@/utils/notify';
 import { forgotPassword } from '@/services/authService';
 
 // --- Variables del Formulario ---
@@ -56,18 +57,18 @@ const handlePasswordReset = async () => {
     try {
         const result = await forgotPassword(email.value);
         
-        if (result.success) {
-            successMessage.value = result.message;
-            alert(result.message);
-            email.value = ''; // Limpiar el campo
-        } else {
-            errorMessage.value = result.message;
-            alert(result.message);
-        }
+    if (result.success) {
+      successMessage.value = result.message;
+            await showAlert({ icon: 'success', title: 'Enviado', text: result.message });
+      email.value = ''; // Limpiar el campo
+    } else {
+      errorMessage.value = result.message;
+            await showAlert({ icon: 'error', title: 'Error', text: result.message });
+    }
     } catch (error) {
         console.error('Error during password reset:', error);
-        errorMessage.value = 'Error al conectar con el servidor';
-        alert('Error al conectar con el servidor');
+  errorMessage.value = 'Error al conectar con el servidor';
+  await showAlert({ icon: 'error', title: 'Error', text: 'Error al conectar con el servidor' });
     } finally {
         isLoading.value = false;
     }

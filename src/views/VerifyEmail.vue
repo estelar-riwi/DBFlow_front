@@ -38,10 +38,11 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { RouterLink, useRoute } from 'vue-router'; 
+import { RouterLink, useRoute, useRouter } from 'vue-router'; 
 import { verifyEmail } from '@/services/authService';
 
 const route = useRoute();
+const router = useRouter();
 
 // --- Variables del Formulario ---
 const isVerifying = ref(false);
@@ -50,8 +51,16 @@ const verificationSuccess = ref(false);
 
 // Verificar automáticamente si hay un token en la URL
 onMounted(async () => {
-    const token = route.query.token || route.params.token;
+    const tokenFromParam = route.params.token;
+    const tokenFromQuery = route.query.token;
+    const token = tokenFromParam || tokenFromQuery;
     
+    // Si el token viene en la query, reemplazamos la URL por la canónica (/verify-email/:token)
+    if (tokenFromQuery && !tokenFromParam) {
+        // Reemplaza la URL en el historial sin añadir una entrada nueva
+        router.replace({ name: 'VerifyEmail', params: { token } });
+    }
+
     if (token) {
         isVerifying.value = true;
         verificationMessage.value = 'Verificando tu correo...';
@@ -87,10 +96,12 @@ onMounted(async () => {
     window.addEventListener('mousemove', handleMouseMove);
 });
 
-const handleResend = () => {
+import { showAlert } from '@/utils/notify';
+
+const handleResend = async () => {
     // Aquí iría tu lógica para reenviar el correo
     console.log('Attempting to resend email...');
-    alert('Correo de verificación reenviado.');
+    await showAlert({ icon: 'success', title: 'Enviado', text: 'Correo de verificación reenviado.' });
 };
 
 // --- LÓGICA DE PARTÍCULAS (Interactiva y Rápida) ---

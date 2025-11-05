@@ -16,7 +16,7 @@
     <h2 class="auth-title">Bienvenido</h2>
     <p class="auth-subtitle">Inicia sesión para gestionar tus bases de datos.</p>
 
-    <form @submit.prevent="handleLogin" class="auth-form">
+    <form @submit.prevent="handleLogin" class="auth-form" novalidate>
         <div class="form-group">
         <label for="email">Correo</label>
         <input type="email" id="email" v-model="email" required placeholder="nombre@ejemplo.com">
@@ -60,8 +60,10 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { showAlert } from '@/utils/notify';
 import { RouterLink, useRouter } from 'vue-router'; 
 import { login } from '@/services/authService';
+import { showLoading, hideLoading } from '@/store/loading';
 
 const router = useRouter();
 
@@ -75,25 +77,39 @@ const isLoading = ref(false);
 const handleLogin = async () => {
     errorMessage.value = '';
     isLoading.value = true;
-    
+    try { showLoading(); } catch (e) {}
+
     try {
         const result = await login({
             email: email.value,
             password: password.value
         });
-        
+
         if (result.success) {
-            alert(result.message);
+            // Ocultar loading antes de mostrar el modal de éxito
+            try { hideLoading(); } catch (e) {}
+            // Alerta de éxito que se cierra automáticamente en 1.5 segundos
+            showAlert({ 
+                icon: 'success', 
+                title: 'Bienvenido', 
+                text: result.message,
+                autoClose: 1500 
+            });
+            // Pequeño delay antes de redirigir (para que se vea la alerta)
+            await new Promise(resolve => setTimeout(resolve, 1600));
             // Redirigir al dashboard
             router.push('/dashboard');
         } else {
+            // Ocultar loading antes de mostrar error
+            try { hideLoading(); } catch (e) {}
             errorMessage.value = result.message;
-            alert(result.message);
+            await showAlert({ icon: 'error', title: 'Error', text: result.message });
         }
     } catch (error) {
         console.error('Error during login:', error);
+        try { hideLoading(); } catch (e) {}
         errorMessage.value = 'Error al conectar con el servidor';
-        alert('Error al conectar con el servidor');
+        await showAlert({ icon: 'error', title: 'Error', text: 'Error al conectar con el servidor' });
     } finally {
         isLoading.value = false;
     }
