@@ -68,11 +68,6 @@ const routes = [
         path: 'billing', // Ruta: /dashboard/billing
         name: 'Billing',
         component: () => import('@/views/Billing.vue') 
-      },
-      {
-        path: 'webhooks', // Ruta: /dashboard/webhooks
-        name: 'Webhooks',
-        component: () => import('@/views/Webhooks.vue') 
       }
     ]
   }

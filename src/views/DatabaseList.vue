@@ -96,7 +96,10 @@
             v-for="engine in engineOptions" 
             :key="engine.name"
             class="engine-card"
-            :class="{ 'selected': newDb.engine === engine.name }"
+            :class="{ 
+              'selected': newDb.engine === engine.name,
+              'disabled': engine.name !== 'MySQL'
+            }"
             :style="{ '--engine-color': engine.color }"
             @click="selectEngine(engine.name)"
         >
@@ -106,7 +109,8 @@
             <h3>{{ engine.name }}</h3>
             <p class="engine-desc">{{ engine.description }}</p>
             <div class="engine-meta">
-            <span>Puerto: {{ engine.defaultPort }}</span>
+            <span v-if="engine.name === 'MySQL'" class="badge-available">✓ Disponible</span>
+            <span v-else class="badge-coming-soon">🔧 En proceso</span>
             </div>
         </div>
         </div>
@@ -251,6 +255,17 @@ const engineOptions = ref([
 ])
 
 const selectEngine = (engineName) => {
+  // Solo MySQL está disponible por ahora
+  if (engineName !== 'MySQL') {
+    showAlert({ 
+      icon: 'info', 
+      title: 'Próximamente', 
+      text: `${engineName} estará disponible próximamente. Por ahora solo MySQL está habilitado.`,
+      confirmText: 'Entendido'
+    })
+    return
+  }
+  
   newDb.value.engine = engineName
   createStep.value = 2
 }
@@ -613,6 +628,22 @@ font-size: 0.95rem;
   opacity: 0.2;
 }
 
+/* Tarjetas deshabilitadas */
+.engine-card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.engine-card.disabled:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.engine-card.disabled::before {
+  opacity: 0 !important;
+}
+
 .engine-icon {
   width: 42px;
   height: 42px;
@@ -659,6 +690,29 @@ font-size: 0.95rem;
   font-family: monospace;
   position: relative;
   z-index: 1;
+}
+
+/* Badges de estado */
+.badge-available {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.badge-coming-soon {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
 }
 
 /* Formulario del paso 2 */
@@ -783,14 +837,23 @@ font-size: 0.95rem;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #00bfff 0%, #0080ff 100%);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+  background: rgba(0, 191, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 191, 255, 0.3);
+  color: #00bfff;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 191, 255, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary:hover {
+  background: rgba(0, 191, 255, 0.25);
+  border-color: rgba(0, 191, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 191, 255, 0.4);
+  box-shadow: 0 6px 24px rgba(0, 191, 255, 0.35),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  color: #fff;
 }
 
 .btn-primary:disabled {
