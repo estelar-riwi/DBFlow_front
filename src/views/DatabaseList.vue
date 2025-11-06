@@ -8,31 +8,12 @@
 <section class="quota-section reveal-on-scroll">
     <h3>Bases de Datos</h3>
     <div class="quota-grid">
-    <StatCard title="MYSQL" :value="`${countByEngine('MySQL')} / 2`" subtitle="Instancias usadas">
-        <template #icon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-        </template>
-    </StatCard>
-    <StatCard title="POSTGRESQL" :value="`${countByEngine('PostgreSQL')} / 2`" subtitle="Instancias usadas">
-        <template #icon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-        </template>
-    </StatCard>
-    <StatCard title="MONGODB" :value="`${countByEngine('MongoDB')} / 2`" subtitle="Instancias usadas">
-        <template #icon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-        </template>
-    </StatCard>
-    <StatCard title="CASSANDRA" :value="`${countByEngine('Cassandra')} / 2`" subtitle="Instancias usadas">
-        <template #icon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-        </template>
-    </StatCard>
-    <StatCard title="SQL SERVER" :value="`${countByEngine('SQL Server')} / 2`" subtitle="Instancias usadas">
-        <template #icon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
-        </template>
-    </StatCard>
+    <StatCard title="MYSQL" :value="`${countByEngine('MySQL')} / 2`" subtitle="Instancias usadas" logo="/logos/mysql.svg" cardColor="#00758F" />
+    <StatCard title="POSTGRESQL" :value="`${countByEngine('PostgreSQL')} / 2`" subtitle="Instancias usadas" logo="/logos/postgresql.svg" cardColor="#336791" />
+    <StatCard title="MONGODB" :value="`${countByEngine('MongoDB')} / 2`" subtitle="Instancias usadas" logo="/logos/mongodb.svg" cardColor="#47A248" />
+    <StatCard title="CASSANDRA" :value="`${countByEngine('Cassandra')} / 2`" subtitle="Instancias usadas" logo="/logos/cassandra.svg" cardColor="#1287B1" />
+    <StatCard title="SQL SERVER" :value="`${countByEngine('SQL Server')} / 2`" subtitle="Instancias usadas" logo="/logos/sqlserver.svg" cardColor="#8B5CF6" />
+    <StatCard title="REDIS" :value="`${countByEngine('Redis')} / 2`" subtitle="Instancias usadas" logo="/logos/redis.svg" cardColor="#DC382D" />
     </div>
 </section>
 
@@ -46,9 +27,10 @@
         <option value="">Todos los motores</option>
         <option>MySQL</option>
         <option>PostgreSQL</option>
-        <option>Cassandra</option>
         <option>MongoDB</option>
+        <option>Cassandra</option>
         <option>SQL Server</option>
+        <option>Redis</option>
     </select>
     </div>
 
@@ -101,29 +83,82 @@
 
 <!-- Modal Crear -->
 <div v-if="showCreate" class="modal-overlay" @click.self="showCreate=false">
-    <div class="modal-content">
+    <div class="modal-content-glass">
     <button class="modal-close-btn" @click="showCreate=false">×</button>
-    <h2>Nueva Base de Datos</h2>
-    <form class="modal-form" @submit.prevent="createDb">
-        <div class="form-group">
-        <label>Nombre</label>
-        <input v-model="newDb.name" required placeholder="mi_base_datos" />
+    
+    <!-- Paso 1: Selección de Motor -->
+    <div v-if="createStep === 1" class="step-content">
+        <h2 class="modal-title">Selecciona el Motor de Base de Datos</h2>
+        <p class="modal-subtitle">Elige el tipo de base de datos que deseas crear</p>
+        
+        <div class="engine-grid">
+        <div 
+            v-for="engine in engineOptions" 
+            :key="engine.name"
+            class="engine-card"
+            :class="{ 'selected': newDb.engine === engine.name }"
+            :style="{ '--engine-color': engine.color }"
+            @click="selectEngine(engine.name)"
+        >
+            <div class="engine-icon">
+            <img :src="engine.logo" :alt="engine.name" />
+            </div>
+            <h3>{{ engine.name }}</h3>
+            <p class="engine-desc">{{ engine.description }}</p>
+            <div class="engine-meta">
+            <span>Puerto: {{ engine.defaultPort }}</span>
+            </div>
         </div>
-        <div class="form-group">
-        <label>Motor</label>
-        <select v-model="newDb.engine" required>
-            <option value="">Selecciona un motor</option>
-            <option>MySQL</option>
-            <option>PostgreSQL</option>
-            <option>MongoDB</option>
-            <option>SQL Server</option>
-        </select>
         </div>
+    </div>
+
+    <!-- Paso 2: Configuración -->
+    <div v-if="createStep === 2" class="step-content">
+        <button type="button" class="btn-back" @click="createStep = 1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Volver
+        </button>
+
+        <h2 class="modal-title">Configuración de {{ newDb.engine }}</h2>
+        <p class="modal-subtitle">Define el nombre de tu instancia</p>
+
+        <form class="modal-form" @submit.prevent="createDb">
+        <div class="form-group">
+            <label>Nombre de la Base de Datos</label>
+            <input 
+            v-model="newDb.name" 
+            required 
+            placeholder="mi_base_datos"
+            pattern="[a-zA-Z0-9_]+"
+            title="Solo letras, números y guiones bajos"
+            />
+            <small class="form-hint">Solo se permiten letras, números y guiones bajos</small>
+        </div>
+
+        <div class="connection-preview">
+            <h4>Vista Previa de Conexión</h4>
+            <div class="preview-item">
+            <span class="preview-label">Host:</span>
+            <span class="preview-value">{{ getEngineHost(newDb.engine) }}</span>
+            </div>
+            <div class="preview-item">
+            <span class="preview-label">Puerto:</span>
+            <span class="preview-value">{{ getEnginePort(newDb.engine) }}</span>
+            </div>
+            <div class="preview-item">
+            <span class="preview-label">String de conexión:</span>
+            <code class="preview-code">{{ getConnectionString(newDb.engine, newDb.name) }}</code>
+            </div>
+        </div>
+
         <div class="modal-actions">
-        <button type="button" class="btn-outline" @click="showCreate=false">Cancelar</button>
-        <button type="submit" class="btn-primary">Crear</button>
+            <button type="button" class="btn-outline" @click="createStep = 1">Atrás</button>
+            <button type="submit" class="btn-primary">Crear Instancia</button>
         </div>
-    </form>
+        </form>
+    </div>
     </div>
 </div>
 
@@ -154,7 +189,87 @@ return databases.value
 const countByEngine = (eng) => databases.value.filter(db => db.engine === eng).length
 
 const showCreate = ref(false)
+const createStep = ref(1)
 const newDb = ref({ name: '', engine: '' })
+
+// Opciones de motores con metadata
+const engineOptions = ref([
+  {
+    name: 'MySQL',
+    description: 'Base de datos relacional de código abierto',
+    logo: '/logos/mysql.svg',
+    defaultPort: 3306,
+    host: 'mysql.dbflow.dev',
+    connectionString: 'mysql://username:password@mysql.dbflow.dev:3306/{dbname}',
+    color: '#00758F'
+  },
+  {
+    name: 'PostgreSQL',
+    description: 'Sistema de gestión de bases de datos relacional',
+    logo: '/logos/postgresql.svg',
+    defaultPort: 5432,
+    host: 'postgres.dbflow.dev',
+    connectionString: 'postgresql://username:password@postgres.dbflow.dev:5432/{dbname}',
+    color: '#336791'
+  },
+  {
+    name: 'MongoDB',
+    description: 'Base de datos NoSQL orientada a documentos',
+    logo: '/logos/mongodb.svg',
+    defaultPort: 27017,
+    host: 'mongo.dbflow.dev',
+    connectionString: 'mongodb://username:password@mongo.dbflow.dev:27017/{dbname}',
+    color: '#47A248'
+  },
+  {
+    name: 'Cassandra',
+    description: 'Base de datos distribuida altamente escalable',
+    logo: '/logos/cassandra.svg',
+    defaultPort: 9042,
+    host: 'cassandra.dbflow.dev',
+    connectionString: 'cassandra://cassandra.dbflow.dev:9042/{dbname}',
+    color: '#1287B1'
+  },
+  {
+    name: 'SQL Server',
+    description: 'Sistema de gestión de bases de datos de Microsoft',
+    logo: '/logos/sqlserver.svg',
+    defaultPort: 1433,
+    host: 'sqlserver.dbflow.dev',
+    connectionString: 'Server=sqlserver.dbflow.dev,1433;Database={dbname};User Id=username;Password=password;',
+    color: '#8B5CF6'
+  },
+  {
+    name: 'Redis',
+    description: 'Almacén de estructura de datos en memoria',
+    logo: '/logos/redis.svg',
+    defaultPort: 6379,
+    host: 'redis.dbflow.dev',
+    connectionString: 'redis://username:password@redis.dbflow.dev:6379',
+    color: '#DC382D'
+  }
+])
+
+const selectEngine = (engineName) => {
+  newDb.value.engine = engineName
+  createStep.value = 2
+}
+
+const getEngineHost = (engineName) => {
+  const engine = engineOptions.value.find(e => e.name === engineName)
+  return engine?.host || 'db.dbflow.dev'
+}
+
+const getEnginePort = (engineName) => {
+  const engine = engineOptions.value.find(e => e.name === engineName)
+  return engine?.defaultPort || 8000
+}
+
+const getConnectionString = (engineName, dbName) => {
+  const engine = engineOptions.value.find(e => e.name === engineName)
+  if (!engine) return ''
+  return engine.connectionString.replace('{dbname}', dbName || 'database_name')
+}
 
 // Password visibility states
 const showPasswords = ref(new Set())
@@ -184,15 +299,16 @@ const copyPassword = async (pwd = '') => {
 }
 
 const openCreateModal = () => {
-newDb.value = { name: '', engine: '' }
-showCreate.value = true
+  newDb.value = { name: '', engine: '' }
+  createStep.value = 1
+  showCreate.value = true
 }
 
 const createDb = () => {
 if (!newDb.value.name || !newDb.value.engine) return
 
-const portByEngine = { MySQL: 3306, PostgreSQL: 5432, MongoDB: 27017, Cassandra: 9042, 'SQL Server': 1433 }
-const hostByEngine = { MySQL: 'mysql.dbflow.dev', PostgreSQL: 'postgres.dbflow.dev', MongoDB: 'mongo.dbflow.dev', Cassandra: 'cassandra.dbflow.dev', 'SQL Server': 'sqlserver.dbflow.dev' }
+const portByEngine = { MySQL: 3306, PostgreSQL: 5432, MongoDB: 27017, Cassandra: 9042, 'SQL Server': 1433, Redis: 6379 }
+const hostByEngine = { MySQL: 'mysql.dbflow.dev', PostgreSQL: 'postgres.dbflow.dev', MongoDB: 'mongo.dbflow.dev', Cassandra: 'cassandra.dbflow.dev', 'SQL Server': 'sqlserver.dbflow.dev', Redis: 'redis.dbflow.dev' }
     const generatePassword = (engine) => (engine?.slice(0,2) || 'db') + '-' + Math.random().toString(36).slice(2, 10) + '!'
 
 databases.value.push({
@@ -206,6 +322,7 @@ databases.value.push({
 })
 
 newDb.value = { name: '', engine: '' }
+createStep.value = 1
 showCreate.value = false
 }
 
@@ -259,7 +376,7 @@ width: 100%;
 .quota-section { margin-bottom: 40px; }
 .quota-grid {
 display: grid;
-grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+grid-template-columns: repeat(3, 1fr);
 gap: 20px;
 }
 
@@ -324,4 +441,435 @@ font-size: 0.95rem;
 .toolbar-select { width: 100%; }
 .quota-grid { grid-template-columns: 1fr; }
 }
+
+/* ============================================
+   MODAL DE CREACIÓN - GLASSMORPHISM
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content-glass {
+  background: rgba(15, 15, 16, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 650px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  position: relative;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Scrollbar personalizado para el modal */
+.modal-content-glass::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content-glass::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.modal-content-glass::-webkit-scrollbar-thumb {
+  background: rgba(0, 191, 255, 0.3);
+  border-radius: 10px;
+}
+
+.modal-content-glass::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 191, 255, 0.5);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #fff;
+  background: linear-gradient(135deg, #00bfff 0%, #0080ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.modal-subtitle {
+  color: #94a3b8;
+  margin: 0 0 32px 0;
+  font-size: 1rem;
+}
+
+.step-content {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Grid de motores de BD */
+.engine-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.engine-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.engine-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--engine-color, #00bfff) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.engine-card:hover {
+  border-color: var(--engine-color, rgba(0, 191, 255, 0.4));
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--engine-color, rgba(0, 191, 255, 0.15));
+}
+
+.engine-card:hover::before {
+  opacity: 0.15;
+}
+
+.engine-card.selected {
+  border-color: var(--engine-color, #00bfff);
+  background: linear-gradient(135deg, var(--engine-color, #00bfff) 0%, transparent 100%);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.2), 0 0 20px var(--engine-color, rgba(0, 191, 255, 0.3));
+}
+
+.engine-card.selected::before {
+  opacity: 0.2;
+}
+
+.engine-icon {
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.engine-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.engine-card h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: #fff;
+  border: none;
+  padding: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  position: relative;
+  z-index: 1;
+}
+
+.engine-desc {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0 0 10px 0;
+  line-height: 1.3;
+  position: relative;
+  z-index: 1;
+}
+
+.engine-meta {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-family: monospace;
+  position: relative;
+  z-index: 1;
+}
+
+/* Formulario del paso 2 */
+.modal-form {
+  margin-top: 24px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #00bfff;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(0, 191, 255, 0.1);
+}
+
+.form-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* Vista previa de conexión */
+.connection-preview {
+  background: rgba(0, 191, 255, 0.05);
+  border: 1px solid rgba(0, 191, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.connection-preview h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #00bfff;
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 16px;
+}
+
+.preview-item:last-child {
+  margin-bottom: 0;
+}
+
+.preview-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.preview-value {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  font-family: monospace;
+  text-align: right;
+}
+
+.preview-code {
+  font-size: 0.8rem;
+  color: #00bfff;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: block;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  white-space: normal;
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Botones del modal */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+.btn-primary,
+.btn-outline {
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #00bfff 0%, #0080ff 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 191, 255, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-outline {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-outline:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+}
+
+.btn-back svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+  .modal-content-glass {
+    padding: 24px;
+  }
+
+  .modal-title {
+    font-size: 1.4rem;
+  }
+
+  .engine-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .preview-label {
+    min-width: auto;
+  }
+
+  .preview-value {
+    text-align: left;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn-primary,
+  .btn-outline {
+    width: 100%;
+  }
+}
+
 </style>
