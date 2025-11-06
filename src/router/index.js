@@ -65,9 +65,9 @@ const routes = [
         component: () => import('@/views/Billing.vue') 
       },
       {
-        path: 'webhooks', // Ruta: /dashboard/webhooks
-        name: 'Webhooks',
-        component: () => import('@/views/Webhooks.vue') 
+      path: 'subscription',
+      name: 'Subscription',
+      component: () => import('@/views/SubscriptionView.vue') 
       }
     ]
   }
