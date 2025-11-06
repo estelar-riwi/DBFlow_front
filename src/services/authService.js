@@ -17,7 +17,7 @@ function parseJwt(token) {
 }
 
 // URL base - En desarrollo usa el proxy de Vite, en producción usa la variable de entorno
-const API_BASE_URL = import.meta.env.PROD ? (import.meta.env.VITE_API_URL || 'http://localhost:5030') : '';
+const API_BASE_URL = import.meta.env.PROD ? (import.meta.env.VITE_API_URL || 'https://service.estelar.andrescortes.dev') : '';
 const API_URL = `${API_BASE_URL}/api/Access`;
 
 /**

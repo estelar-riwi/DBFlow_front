@@ -111,8 +111,8 @@
             <h1>$0<span>/siempre</span></h1>
             <p>Perfecto para proyectos personales y pruebas iniciales.</p>
             <ul>
-                <li>Hasta 2 Bases de Datos por Motor</li>
-                <li>Motores: MySQL, Mongo, Postgre, etc.</li>
+                <li>Hasta 2 Bases de Datos por gestor</li>
+                <li>Gestores: MySQL, Mongo, Postgre, etc.</li>
                 <li>Generación automática de Credenciales</li>
                 <li>Autenticación segura JWT</li>
                 <li>Soporte vía correo (Estándar)</li>
@@ -126,7 +126,7 @@
             <h1>$5.000<span>/mes COP</span></h1>
             <p>Ideal para pequeños equipos y aplicaciones en crecimiento.</p>
             <ul>
-                <li>Hasta 5 Bases de Datos por Motor</li>
+                <li>Hasta 5 Bases de Datos por gestor</li>
                 <li>Webhooks para notificaciones y errores</li>
                 <li>Integración directa</li>
                 <li>Gestión centralizada de facturación</li>
@@ -140,7 +140,7 @@
             <h1>$10.000<span>/mes COP</span></h1>
             <p>La solución completa para desarrolladores y proyectos de alta demanda.</p>
             <ul>
-                <li>Hasta 10 Bases de Datos por Motor</li>
+                <li>Hasta 10 Bases de Datos por gestor</li>
                 <li>Acceso a todos los Webhooks</li>
                 <li>Soporte prioritario y SLA</li>
                 <li>Auditoría completa de eventos (Logs)</li>
@@ -160,13 +160,13 @@
       <div class="faq-list">
         
         <details>
-            <summary>¿Qué es DBflow y qué motores de bases de datos soporta?</summary>
-            <p>DBflow es una plataforma cloud para la gestión automatizada de bases de datos que te permite crear, administrar y escalar instancias de motores populares como MySQL, PostgreSQL, MongoDB, SQL Server, Redis y Cassandra de manera centralizada.</p>
+            <summary>¿Qué es DBflow y qué gestores de bases de datos soporta?</summary>
+            <p>DBflow es una plataforma cloud para la gestión automatizada de bases de datos que te permite crear, administrar y escalar instancias de gestores populares como MySQL, PostgreSQL, MongoDB, SQL Server, Redis y Cassandra de manera centralizada.</p>
         </details>
         
         <details>
             <summary>¿Puedo probar DBflow antes de comprometerme con un plan de pago?</summary>
-            <p>¡Sí! Al registrarte, accedes automáticamente al Plan Gratuito, que te permite crear y mantener activas hasta dos bases de datos por cada motor (hasta 12 DBs en total) sin costo ni tarjeta de crédito.</p>
+            <p>¡Sí! Al registrarte, accedes automáticamente al Plan Gratuito, que te permite crear y mantener activas hasta dos bases de datos por cada gestor (hasta 12 DBs en total) sin costo ni tarjeta de crédito.</p>
         </details>
         
         <details>
