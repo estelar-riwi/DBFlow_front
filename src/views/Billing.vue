@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
 <div>
     <div class="view-header">
       <div>
@@ -105,4 +105,4 @@ onMounted(() => {
 .db-table thead th { background: rgba(255,255,255,0.03); font-size: .85rem; color: #cbd5e1; font-weight: 600; }
 .db-table tbody tr { border-top: 1px solid rgba(255,255,255,0.06); }
 .db-table tbody tr:hover { background: rgba(255,255,255,0.03); }
-</style>
+</style> -->

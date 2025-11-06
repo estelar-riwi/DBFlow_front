@@ -33,10 +33,16 @@
       <div
         v-for="plan in availablePlans"
         :key="plan.id"
-        :class="['plan-card', { 'plan-card-selected': currentPlan.id === plan.id }]"
+        :class="['plan-card', { 
+          'plan-card-selected': currentPlan.id === plan.id,
+          'plan-card-disabled': !plan.available && currentPlan.id !== plan.id
+        }]"
       >
         <div class="plan-header">
-          <h4>{{ plan.name }}</h4>
+          <div class="plan-title-wrapper">
+            <h4>{{ plan.name }}</h4>
+            <span v-if="!plan.available && currentPlan.id !== plan.id" class="badge-coming-soon">🔧 Próximamente</span>
+          </div>
           <span class="plan-price" v-if="plan.price === 0">{{ plan.priceText }}</span>
           <span class="plan-price" v-else>
             {{ plan.price.toLocaleString('es-CO') }} COP<small>/mes</small>
@@ -60,6 +66,13 @@
           disabled
         >
           Plan Actual
+        </button>
+        <button
+          v-else-if="!plan.available"
+          class="btn-disabled"
+          disabled
+        >
+          No Disponible
         </button>
         <button
           v-else
@@ -132,6 +145,7 @@ const availablePlans = ref([
     dbsPerEngine: 2,
     dbsPerEngineText: 'Hasta 2 bases de datos por motor',
     mpPlanId: null, // No hay ID de MP para el plan gratuito
+    available: true
   },
   {
     id: 'intermediate',
@@ -140,6 +154,7 @@ const availablePlans = ref([
     dbsPerEngine: 5,
     dbsPerEngineText: 'Hasta 5 bases de datos por motor',
     mpPlanId: MERCADO_PAGO_PLAN_IDS.INTERMEDIO, // ID de MP para este plan
+    available: false
   },
   {
     id: 'advanced',
@@ -148,6 +163,7 @@ const availablePlans = ref([
     dbsPerEngine: 10,
     dbsPerEngineText: 'Hasta 10 bases de datos por motor',
     mpPlanId: MERCADO_PAGO_PLAN_IDS.AVANZADO, // ID de MP para este plan
+    available: false // 👈 DESHABILITADO
   },
 ]);
 
@@ -155,8 +171,24 @@ const availablePlans = ref([
 const subscribeToPlan = async (planId) => {
   const selectedPlan = availablePlans.value.find(p => p.id === planId);
 
-  if (!selectedPlan || !selectedPlan.mpPlanId) {
-    await showAlert({ icon: 'error', title: 'Error', text: 'Plan no válido o sin ID de Mercado Pago.' });
+  if (!selectedPlan) {
+    await showAlert({ icon: 'error', title: 'Error', text: 'Plan no válido.' });
+    return;
+  }
+
+  // Verificar si el plan está disponible
+  if (!selectedPlan.available) {
+    await showAlert({ 
+      icon: 'info', 
+      title: 'Próximamente', 
+      text: `El ${selectedPlan.name} estará disponible próximamente. Por ahora solo el Plan Intermedio está habilitado.`,
+      confirmText: 'Entendido'
+    });
+    return;
+  }
+
+  if (!selectedPlan.mpPlanId) {
+    await showAlert({ icon: 'error', title: 'Error', text: 'Plan sin ID de Mercado Pago configurado.' });
     return;
   }
 
@@ -250,13 +282,41 @@ onMounted(() => {
   box-shadow: 0 0 0 2px #007bff;
 }
 
+/* Tarjetas deshabilitadas */
+.plan-card-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.plan-card-disabled:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
 .plan-header {
   margin-bottom: 15px;
 }
+.plan-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
 .plan-header h4 {
   font-size: 1.5rem;
-  margin: 0 0 5px 0;
+  margin: 0;
   color: #e2e8f0;
+}
+.badge-coming-soon {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  white-space: nowrap;
 }
 .plan-price {
   font-size: 2rem;
@@ -322,6 +382,19 @@ onMounted(() => {
   font-weight: 600;
   width: 100%;
   cursor: default;
+}
+
+.btn-disabled {
+  background-color: rgba(255, 152, 0, 0.15);
+  color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 /* Tabla estilo unificado (ya lo tenías) */

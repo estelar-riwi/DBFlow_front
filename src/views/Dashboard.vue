@@ -18,9 +18,6 @@
           <router-link to="/dashboard/subscription" exact-active-class="active">
             <span>Subscriptions</span>
           </router-link>
-          <router-link to="/dashboard/webhooks" exact-active-class="active">
-            <span>Webhooks</span>
-          </router-link>
       </nav>
       
       <div class="sidebar-footer">
