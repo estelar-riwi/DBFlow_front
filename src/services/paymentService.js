@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// Asegúrate de que esta URL sea la URL base real de tu backend
-const API_BASE_URL = 'http  ://localhost:5030'; // O 'http://localhost:5000'
+// URL base del backend - configurada desde variables de entorno
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://service.estelar.andrescortes.dev/';
+const API_URL = `${API_BASE_URL}/api/payments`;
 
 export const createSubscription = async (planId, email) => {
   try {
