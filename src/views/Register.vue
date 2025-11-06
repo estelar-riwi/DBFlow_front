@@ -5,7 +5,7 @@
     <canvas ref="canvas" class="w-full h-full"></canvas>
     </div>
     
-    <router-link to="/" class="btn-back-home">← Back to Home</router-link>
+    <router-link to="/" class="btn-back-home">← Volver al Inicio</router-link>
     
     <div class="auth-card">
     

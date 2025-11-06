@@ -46,11 +46,6 @@ const routes = [
     name: 'ConfirmEmail',
     component: () => import('@/views/ConfirmEmail.vue') 
   },
-  {
-    path: '/subscription', 
-    name: 'Subscription',
-    component: () => import('@/views/SubscriptionView.vue') 
-  },
   
   // RUTAS DEL DASHBOARD
   {
@@ -73,6 +68,11 @@ const routes = [
         path: 'webhooks', // Ruta: /dashboard/webhooks
         name: 'Webhooks',
         component: () => import('@/views/Webhooks.vue') 
+      },
+      {
+      path: 'subscription',
+      name: 'Subscription',
+      component: () => import('@/views/SubscriptionView.vue') 
       }
     ]
   }

@@ -43,7 +43,7 @@
         <input v-model="searchTerm" placeholder="Buscar por nombre..." />
     </div>
     <select v-model="filterEngine" class="toolbar-select">
-        <option value="">Todos los motores</option>
+        <option value="">Todos nuestros gestores de bases de datos</option>
         <option>MySQL</option>
         <option>PostgreSQL</option>
         <option>Cassandra</option>
@@ -58,7 +58,7 @@
         <tr>
             <th>Estado</th>
             <th>Nombre</th>
-            <th>Motor</th>
+            <th>Gestor</th>
             <th>Host</th>
             <th>Puerto</th>
                             <th>Contraseña</th>
@@ -110,9 +110,9 @@
         <input v-model="newDb.name" required placeholder="mi_base_datos" />
         </div>
         <div class="form-group">
-        <label>Motor</label>
+        <label>Gestor</label>
         <select v-model="newDb.engine" required>
-            <option value="">Selecciona un motor</option>
+            <option value="">Selecciona un gestor</option>
             <option>MySQL</option>
             <option>PostgreSQL</option>
             <option>MongoDB</option>
