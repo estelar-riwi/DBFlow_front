@@ -322,16 +322,15 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    overflow: hidden; /* Para truncar texto si es necesario */
+    min-width: 0; /* Permite que el contenedor se ajuste */
 }
 
 .profile-info strong {
     color: white;
     font-weight: 600;
     font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-wrap: break-word;
+    line-height: 1.2;
 }
 
 .profile-plan {
@@ -479,16 +478,15 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    overflow: hidden; 
+    min-width: 0; 
 }
 
 .profile-info strong {
     color: white;
     font-weight: 600;
     font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-wrap: break-word;
+    line-height: 1.2;
 }
 
 .profile-plan {
@@ -651,4 +649,66 @@
 }
 .btn-outline:hover {
     border-color: white;
+}
+
+/* ========================================================================= */
+/* =================== ESTILOS ADICIONALES PARA FORMULARIO ================= */
+/* ========================================================================= */
+
+/* Sección del formulario con separación visual */
+.form-section {
+    margin-bottom: 30px;
+}
+
+/* Hint o texto de ayuda debajo de los títulos */
+.form-hint {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin-top: -10px;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+/* Requisitos de contraseña */
+.password-requirements {
+    display: block;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+/* Wrapper para inputs de contraseña con botón de mostrar/ocultar */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 45px; /* Espacio para el botón del ojo */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+    color: #00bfff;
+}
+
+.toggle-password svg {
+    width: 20px;
+    height: 20px;
 }
