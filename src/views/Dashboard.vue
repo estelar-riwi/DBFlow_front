@@ -15,8 +15,8 @@
           <router-link to="/dashboard" exact-active-class="active">
             <span>Mis Bases de Datos</span>
           </router-link>
-          <router-link to="/dashboard/billing" exact-active-class="active">
-            <span>Plan y Facturación</span>
+          <router-link to="/dashboard/subscription" exact-active-class="active">
+            <span>Subscriptions</span>
           </router-link>
       </nav>
       

@@ -10,7 +10,7 @@
 
     <h3>Plan Actual</h3>
     <div class="quota-grid">
-      <StatCard title="Plan Actual" value="Gratuito" subtitle="2 DBs por motor">
+      <StatCard title="Plan Actual" value="Gratuito" subtitle="2 DBs por gestor">
         <template #icon>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v18l7-5 7 5V3z"/></svg>
         </template>

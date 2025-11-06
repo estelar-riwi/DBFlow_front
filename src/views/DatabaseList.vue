@@ -24,7 +24,7 @@
         <input v-model="searchTerm" placeholder="Buscar por nombre..." />
     </div>
     <select v-model="filterEngine" class="toolbar-select">
-        <option value="">Todos los motores</option>
+        <option value="">Todos nuestros gestores de bases de datos</option>
         <option>MySQL</option>
         <option>PostgreSQL</option>
         <option>MongoDB</option>
@@ -40,7 +40,7 @@
         <tr>
             <th>Estado</th>
             <th>Nombre</th>
-            <th>Motor</th>
+            <th>Gestor</th>
             <th>Host</th>
             <th>Puerto</th>
                             <th>Contraseña</th>
