@@ -423,4 +423,90 @@ onMounted(() => {
 .db-table thead th { background: rgba(255,255,255,0.03); font-size: .85rem; color: #cbd5e1; font-weight: 600; }
 .db-table tbody tr { border-top: 1px solid rgba(255,255,255,0.06); }
 .db-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+/* ========================================================================= */
+/* ============================= RESPONSIVE SUBSCRIPTION =================== */
+/* ========================================================================= */
+
+@media (max-width: 1024px) {
+  .plans-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .plan-card {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .subscription-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .subscription-header p {
+    font-size: 0.9rem;
+  }
+  
+  .plan-card {
+    padding: 24px 20px;
+  }
+  
+  .db-table-container {
+    overflow-x: auto;
+  }
+  
+  .db-table {
+    min-width: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .subscription-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .subscription-header p {
+    font-size: 0.85rem;
+  }
+  
+  .plan-card {
+    padding: 20px 16px;
+  }
+  
+  .plan-card h3 {
+    font-size: 1.3rem;
+  }
+  
+  .plan-price {
+    font-size: 2rem;
+  }
+  
+  .plan-price span {
+    font-size: 0.9rem;
+  }
+  
+  .btn-primary,
+  .btn-secondary,
+  .btn-disabled {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .subscription-header h1 {
+    font-size: 1.3rem;
+  }
+  
+  .plan-card {
+    padding: 18px 14px;
+  }
+  
+  .plan-price {
+    font-size: 1.8rem;
+  }
+}
+
 </style>
