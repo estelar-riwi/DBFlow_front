@@ -35,7 +35,9 @@
       <div class="hero-main-content">
         <h1 class="main-title">El futuro de la gestión de bases de datos</h1>
         <p class="main-subtitle">Una forma nueva, más rápida e inteligente de interactuar con tus datos.</p>
-        <button class="btn-primary-large">Empieza ahora</button>
+        <router-link to="/register" custom v-slot="{ navigate }">
+          <button class="btn-primary-large" @click="navigate">Empieza ahora</button>
+        </router-link>
       </div>
 
       <div class="hero-footer-content">

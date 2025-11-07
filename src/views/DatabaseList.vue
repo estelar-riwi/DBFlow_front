@@ -978,22 +978,24 @@ font-size: 0.95rem;
 }
 
 .btn-primary {
-  background: rgba(0, 191, 255, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 191, 255, 0.3);
-  color: #00bfff;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
   font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0, 191, 255, 0.2),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  font-family: 'Roboto Mono', monospace;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2),
+              0 0 40px rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary:hover {
-  background: rgba(0, 191, 255, 0.25);
-  border-color: rgba(0, 191, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(0, 191, 255, 0.35),
-              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
+              0 0 60px rgba(255, 255, 255, 0.2),
+              0 0 90px rgba(255, 255, 255, 0.1);
   color: #fff;
 }
 

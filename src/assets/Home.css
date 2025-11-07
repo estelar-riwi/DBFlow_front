@@ -770,6 +770,10 @@ details[open] p {
     margin-top: 40px;
 }
 
+.cta-buttons a {
+    text-decoration: none;
+}
+
 /* Nuevos estilos para botones CTA creativos */
 .btn-cta-primary,
 .btn-cta-secondary {

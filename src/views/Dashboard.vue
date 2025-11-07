@@ -31,11 +31,12 @@
           </div>
         </div>
         
-        <div style="display:flex; gap:8px; margin-top:12px;">
-          <button class="btn-logout" @click="onLogoutClick" title="Cerrar sesión" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;">
-            Cerrar sesión
-          </button>
-        </div>
+        <button class="btn-logout" @click="onLogoutClick" title="Cerrar sesión">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+          </svg>
+          <span>Cerrar sesión</span>
+        </button>
       </div>
     </aside>
 
@@ -269,8 +270,8 @@ async function onLogoutClick() {
       dashboard.classList.add('dashboard-exit');
     }
     
-    // Esperar a que termine la animación (400ms)
-    await new Promise(resolve => setTimeout(resolve, 400));
+    // Esperar a que termine la animación (600ms)
+    await new Promise(resolve => setTimeout(resolve, 600));
     
     // Limpia credenciales y redirige al login
     await logoutAndRedirect(router);
