@@ -68,8 +68,8 @@
             </td>
             <td>
                 <div class="actions">
-                    <button class="action-btn">Ver</button>
-                    <button class="action-btn delete">Borrar</button>
+                    <button class="action-btn" @click="viewCredentials(db)" title="Ver credenciales completas">Ver</button>
+                    <button class="action-btn delete" @click="removeDatabase(db)" title="Eliminar base de datos">Borrar</button>
                 </div>
             </td>
         </tr>
@@ -173,14 +173,13 @@
 import { ref, computed, onMounted } from 'vue'
 import StatCard from '../components/StatCard.vue'
 import { showAlert } from '@/utils/notify'
+import { createDatabase, getDatabaseCredentials, deleteDatabase, getAllDatabases, rotateCredentials } from '@/services/databaseService'
+import { showLoading, hideLoading } from '@/store/loading'
 
 const searchTerm = ref('')
 const filterEngine = ref('')
-const databases = ref([
-    { id: 1, name: 'db_proyecto_final', engine: 'MySQL', host: 'mysql.dbflow.dev', port: 3306, status: 'Activo', password: 'mysql-3x4mpL3!' },
-    { id: 2, name: 'db_blog_personal', engine: 'MongoDB', host: 'mongo.dbflow.dev', port: 27017, status: 'Activo', password: 'mongo-3x4mpL3!' },
-    { id: 3, name: 'db_ecommerce', engine: 'PostgreSQL', host: 'postgres.dbflow.dev', port: 5432, status: 'Activo', password: 'pg-3x4mpL3!' }
-])
+const databases = ref([])
+
 
 const filteredDbs = computed(() => {
 const term = searchTerm.value.toLowerCase()
@@ -319,30 +318,172 @@ const openCreateModal = () => {
   showCreate.value = true
 }
 
-const createDb = () => {
-if (!newDb.value.name || !newDb.value.engine) return
+const createDb = async () => {
+  if (!newDb.value.name || !newDb.value.engine) {
+    showAlert('Por favor completa todos los campos', 'error')
+    return
+  }
 
-const portByEngine = { MySQL: 3306, PostgreSQL: 5432, MongoDB: 27017, Cassandra: 9042, 'SQL Server': 1433, Redis: 6379 }
-const hostByEngine = { MySQL: 'mysql.dbflow.dev', PostgreSQL: 'postgres.dbflow.dev', MongoDB: 'mongo.dbflow.dev', Cassandra: 'cassandra.dbflow.dev', 'SQL Server': 'sqlserver.dbflow.dev', Redis: 'redis.dbflow.dev' }
-    const generatePassword = (engine) => (engine?.slice(0,2) || 'db') + '-' + Math.random().toString(36).slice(2, 10) + '!'
+  try {
+    showLoading('Creando base de datos...')
+    
+    // Llamar a la API
+    const response = await createDatabase({
+      databaseName: newDb.value.name,
+      engine: newDb.value.engine
+    })
+    
+    console.log('Base de datos creada:', response)
+    
+    // Agregar la nueva base de datos a la lista local
+    databases.value.push({
+      id: response.id,
+      name: response.databaseName,
+      engine: newDb.value.engine,
+      host: response.host,
+      port: response.port,
+      status: 'Activo',
+      username: response.username,
+      password: response.password || '••••••••'
+    })
+    
+    // Resetear el formulario
+    newDb.value = { name: '', engine: '' }
+    createStep.value = 1
+    showCreate.value = false
+    
+    showAlert('Base de datos creada exitosamente', 'success')
+  } catch (error) {
+    console.error('Error al crear base de datos:', error)
+    console.error('Response data:', error.response?.data)
+    console.error('Response status:', error.response?.status)
+    console.error('Response headers:', error.response?.headers)
+    
+    const errorMessage = error.response?.data?.message 
+      || error.response?.data?.title
+      || error.response?.data?.errors
+      || error.message
+      || 'Error al crear la base de datos'
+    
+    showAlert(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage, 'error')
+  } finally {
+    hideLoading()
+  }
+}
 
-databases.value.push({
-    id: Date.now(),
-    name: newDb.value.name,
-    engine: newDb.value.engine,
-    host: hostByEngine[newDb.value.engine] || 'db.dbflow.dev',
-    port: portByEngine[newDb.value.engine] || 8000,
-        status: 'Activo',
-        password: generatePassword(newDb.value.engine)
-})
+// Cargar bases de datos desde la API
+const loadDatabases = async () => {
+  try {
+    showLoading('Cargando bases de datos...')
+    const data = await getAllDatabases()
+    
+    console.log('Bases de datos recibidas del backend:', data)
+    
+    // Solo actualizar si hay datos
+    if (data && Array.isArray(data)) {
+      // Mapear la respuesta de la API al formato esperado
+      databases.value = data.map(db => ({
+        id: db.id,
+        name: db.databaseName || db.name,
+        engine: db.engine,
+        host: db.host || getEngineHost(db.engine),
+        port: db.port || getEnginePort(db.engine),
+        status: db.status || 'Activo',
+        username: db.username,
+        password: db.password || '••••••••'
+      }))
+      
+      console.log('Bases de datos mapeadas:', databases.value)
+    }
+  } catch (error) {
+    console.error('Error al cargar bases de datos:', error)
+    console.error('Response:', error.response?.data)
+    // Mantener la lista vacía si falla la carga
+  } finally {
+    hideLoading()
+  }
+}
 
-newDb.value = { name: '', engine: '' }
-createStep.value = 1
-showCreate.value = false
+// Eliminar base de datos
+const removeDatabase = async (db) => {
+  if (!confirm(`¿Estás seguro de eliminar la base de datos "${db.name}"?`)) {
+    return
+  }
+  
+  try {
+    showLoading('Eliminando base de datos...')
+    await deleteDatabase(db.id, db.engine)
+    
+    // Remover de la lista local
+    databases.value = databases.value.filter(d => d.id !== db.id)
+    
+    showAlert('Base de datos eliminada exitosamente', 'success')
+  } catch (error) {
+    console.error('Error al eliminar base de datos:', error)
+    showAlert(error.response?.data?.message || 'Error al eliminar la base de datos', 'error')
+  } finally {
+    hideLoading()
+  }
+}
+
+// Ver credenciales de una base de datos
+const viewCredentials = async (db) => {
+  try {
+    showLoading('Obteniendo credenciales...')
+    const credentials = await getDatabaseCredentials(db.id)
+    
+    // Actualizar la base de datos con las credenciales completas
+    const index = databases.value.findIndex(d => d.id === db.id)
+    if (index !== -1) {
+      databases.value[index] = {
+        ...databases.value[index],
+        ...credentials
+      }
+    }
+    
+    showAlert('Credenciales obtenidas exitosamente', 'success')
+  } catch (error) {
+    console.error('Error al obtener credenciales:', error)
+    showAlert(error.response?.data?.message || 'Error al obtener credenciales', 'error')
+  } finally {
+    hideLoading()
+  }
+}
+
+// Rotar credenciales (generar nueva contraseña)
+const rotateDbCredentials = async (db) => {
+  if (!confirm(`¿Deseas generar una nueva contraseña para "${db.name}"? La contraseña anterior dejará de funcionar.`)) {
+    return
+  }
+  
+  try {
+    showLoading('Rotando credenciales...')
+    const newCredentials = await rotateCredentials(db.id)
+    
+    // Actualizar la base de datos con las nuevas credenciales
+    const index = databases.value.findIndex(d => d.id === db.id)
+    if (index !== -1) {
+      databases.value[index] = {
+        ...databases.value[index],
+        ...newCredentials
+      }
+    }
+    
+    showAlert('Credenciales actualizadas exitosamente', 'success')
+  } catch (error) {
+    console.error('Error al rotar credenciales:', error)
+    showAlert(error.response?.data?.message || 'Error al rotar credenciales', 'error')
+  } finally {
+    hideLoading()
+  }
 }
 
 onMounted(() => {
-const observer = new IntersectionObserver(
+  // Cargar bases de datos al montar el componente
+  // loadDatabases() // TODO: Verificar endpoint correcto para listar bases de datos
+  
+  // Observer para animaciones
+  const observer = new IntersectionObserver(
     (entries) => {
     entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -351,9 +492,9 @@ const observer = new IntersectionObserver(
     })
     },
     { threshold: 0.1 }
-)
-const reveals = document.querySelectorAll('.reveal-on-scroll')
-reveals.forEach((el) => observer.observe(el))
+  )
+  const reveals = document.querySelectorAll('.reveal-on-scroll')
+  reveals.forEach((el) => observer.observe(el))
 })
 </script>
 

@@ -269,11 +269,9 @@ export async function updateProfile(profileData) {
       message: 'Perfil actualizado exitosamente'
     };
   } catch (error) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Error al actualizar el perfil',
-      errors: error.response?.data?.errors || null
-    };
+    console.error('Error en updateProfile:', error);
+    // Lanzar el error para que sea capturado en el componente
+    throw error;
   }
 }
 
