@@ -41,7 +41,7 @@
         <div class="plan-header">
           <div class="plan-title-wrapper">
             <h4>{{ plan.name }}</h4>
-            <span v-if="!plan.available && currentPlan.id !== plan.id" class="badge-coming-soon">🔧 Próximamente</span>
+            <span v-if="!plan.available && currentPlan.id !== plan.id" class="badge-coming-soon">Próximamente</span>
           </div>
           <span class="plan-price" v-if="plan.price === 0">{{ plan.priceText }}</span>
           <span class="plan-price" v-else>
