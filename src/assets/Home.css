@@ -1222,3 +1222,66 @@ details[open] p {
         width: 85%; /* Las tarjetas de precio ocupan casi todo el ancho */
     }
 }
+
+@media (max-width: 480px) { /* Extra Small Mobile */
+    .main-title {
+        font-size: 1.5rem;
+    }
+    .main-subtitle {
+        font-size: 0.85rem;
+    }
+    .btn-primary, .btn-outline, .btn-primary-large {
+        font-size: 0.9rem;
+        padding: 12px 20px;
+    }
+    .section-title {
+        font-size: 1.6rem;
+    }
+    .section-subtitle {
+        font-size: 0.9rem;
+    }
+    .cta-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    .cta-buttons a {
+        width: 100%;
+        text-align: center;
+    }
+    .pricing-card h1 {
+        font-size: 2rem;
+    }
+    details summary {
+        font-size: 0.9rem;
+    }
+    .footer-brand strong {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 360px) { /* Very Small Screens */
+    .main-header {
+        padding: 8px 12px;
+    }
+    .logo {
+        font-size: 1rem;
+    }
+    .new-logo-icon {
+        width: 24px;
+        height: 24px;
+    }
+    .auth-buttons .btn-primary, 
+    .auth-buttons .btn-signin {
+        font-size: 0.8rem;
+        padding: 8px 14px;
+    }
+    .main-title {
+        font-size: 1.3rem;
+    }
+    .section-title {
+        font-size: 1.4rem;
+    }
+    .feature-card, .pricing-card {
+        padding: 16px;
+    }
+}

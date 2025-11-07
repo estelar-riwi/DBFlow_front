@@ -87,4 +87,42 @@ import { loading } from '@/store/loading';
     transform: scale(1) translateY(0);
   }
 }
+
+/* ========================================================================= */
+/* ============================= RESPONSIVE LOADING ======================== */
+/* ========================================================================= */
+
+@media (max-width: 480px) {
+  .loader-card {
+    padding: 24px 32px;
+    min-width: 180px;
+    border-radius: 12px;
+  }
+  
+  .spinner {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .loader-text {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .loader-card {
+    padding: 20px 24px;
+    min-width: 160px;
+  }
+  
+  .spinner {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .loader-text {
+    font-size: 0.85rem;
+  }
+}
+
 </style>
