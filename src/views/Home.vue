@@ -186,6 +186,7 @@
 
     <section class="cta-section">
       <!-- Converging Lines Effect for CTA Section -->
+       
       <ConvergingLines />
       
       <div class="cta-content">
