@@ -7,15 +7,33 @@ const API_URL = `${API_BASE_URL}/api/Databases`;
 /**
  * Crea una nueva base de datos
  * @param {Object} databaseData - Datos de la base de datos
+ * @param {string} databaseData.databaseName - Nombre de la base de datos
+ * @param {string} databaseData.engine - Motor de la base de datos (MySQL, PostgreSQL, MongoDB, Redis, SQLServer)
+ * @returns {Promise<Object>} Respuesta con id, message, host, port, username, databaseName
  */
 export async function createDatabase(databaseData) {
   console.log('Datos recibidos:', databaseData);
   
-  // El backend espera nombres de campos específicos (según el error de validación)
+  // Obtener el userId del localStorage (puede estar en varios lugares)
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userId = localStorage.getItem('user_id') || 
+                 user.UserId || 
+                 user.userId || 
+                 user.id ||
+                 user.ID;
+  
+  console.log('User data:', user);
+  console.log('UserId encontrado:', userId);
+  
+  if (!userId) {
+    throw new Error('No se encontró el ID del usuario. Por favor, inicia sesión nuevamente.');
+  }
+  
+  // El backend espera: UserId, engine y databaseName
   const payload = {
-    UserId: parseInt(databaseData.user_id), // Convertir a número
-    DatabaseName: databaseData.database_name,
-    Engine: databaseData.database_engine
+    UserId: parseInt(userId),
+    engine: databaseData.engine || databaseData.database_engine,
+    databaseName: databaseData.databaseName || databaseData.database_name
   };
   
   console.log('Enviando petición POST /api/Databases con:', payload);
@@ -29,10 +47,23 @@ export async function createDatabase(databaseData) {
 /**
  * Obtiene las credenciales de una base de datos específica
  * @param {number} databaseId - ID de la base de datos
- * @returns {Promise<Object>} Credenciales de conexión
+ * @returns {Promise<Object>} Credenciales: { id, host, port, username, password, databaseName }
  */
 export async function getDatabaseCredentials(databaseId) {
   const response = await axios.get(`${API_URL}/${databaseId}/Credentials`);
+  return response.data;
+}
+
+/**
+ * Rota las credenciales de una base de datos (genera nueva contraseña)
+ * @param {number} databaseId - ID de la base de datos
+ * @param {number|string} isInteger - Parámetro requerido por la API
+ * @returns {Promise<Object>} Nuevas credenciales: { id, host, port, username, password, databaseName }
+ */
+export async function rotateCredentials(databaseId, isInteger = 0) {
+  const response = await axios.post(`${API_URL}/${databaseId}/RotateCredentials`, null, {
+    params: { isInteger }
+  });
   return response.data;
 }
 

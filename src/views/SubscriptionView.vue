@@ -97,7 +97,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>30 Oct, 2025</td>
+            <td>6 Oct, 2025</td>
             <td>Suscripción Plan Gratuito</td>
             <td>$0 COP</td>
             <td><span class="status-dot"></span> <span class="badge badge-success">Completado</span></td>
@@ -264,22 +264,26 @@ onMounted(() => {
 }
 
 .plan-card {
-  background: #0f0f10;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #111;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
   padding: 25px;
   display: flex;
   flex-direction: column;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), 
+              0 0 40px rgba(255, 255, 255, 0.1);
 }
 .plan-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), 
+              0 0 60px rgba(255, 255, 255, 0.2);
 }
 .plan-card-selected {
-  border-color: #007bff; /* Color para el plan actual */
-  box-shadow: 0 0 0 2px #007bff;
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 35px rgba(255, 255, 255, 0.5), 
+              0 0 70px rgba(255, 255, 255, 0.3);
 }
 
 /* Tarjetas deshabilitadas */
@@ -321,7 +325,9 @@ onMounted(() => {
 .plan-price {
   font-size: 2rem;
   font-weight: 700;
-  color: #007bff; /* Color principal de precio */
+  color: white;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.5),
+               0 0 30px rgba(255, 255, 255, 0.3);
 }
 .plan-price small {
   font-size: 1rem;
@@ -353,24 +359,31 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background-color: #007bff; /* Azul de Mercado Pago */
-  color: white;
+  background: white;
+  color: black;
   border: none;
   padding: 12px 25px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: background-color 0.2s ease;
-  width: 100%; /* Botón al 100% de ancho */
+  font-family: 'Roboto Mono', monospace;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 
+              0 0 40px rgba(255, 255, 255, 0.3);
 }
 .btn-primary:hover {
-  background-color: #0056b3;
+  transform: scale(1.03);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.7), 
+              0 0 60px rgba(255, 255, 255, 0.5),
+              0 0 90px rgba(255, 255, 255, 0.3);
 }
 .btn-primary:disabled {
   background-color: #444;
   cursor: not-allowed;
   opacity: 0.6;
+  box-shadow: none;
 }
 .btn-secondary {
   background-color: #333;
@@ -399,11 +412,11 @@ onMounted(() => {
 
 /* Tabla estilo unificado (ya lo tenías) */
 .db-table-container {
-  background: #0f0f10;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
 }
 .db-table { width: 100%; border-collapse: collapse; }
 .db-table th, .db-table td { padding: 12px 14px; text-align: left; }

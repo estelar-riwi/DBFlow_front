@@ -40,13 +40,17 @@
     </aside>
 
     <main class="main-content">
-      <router-view />
+      <transition name="page-fade" mode="out-in">
+        <router-view :key="$route.fullPath" />
+      </transition>
     </main>
 
-    <div class="modal-overlay" v-if="isModalOpen" @click="closeProfileModal">
-      <div class="modal-card" @click.stop>
-        <button class="modal-close-btn" @click="closeProfileModal">×</button>
-        <h2>Editar Perfil</h2>
+    <transition name="modal-fade">
+      <div class="modal-overlay" v-if="isModalOpen" @click="closeProfileModal">
+        <transition name="modal-scale">
+          <div class="modal-card" v-if="isModalOpen" @click.stop>
+            <button class="modal-close-btn" @click="closeProfileModal">×</button>
+            <h2>Editar Perfil</h2>
         
         <form @submit.prevent="handleProfileUpdate" class="modal-form" autocomplete="off">
           
@@ -77,10 +81,9 @@
             </div>
           </div>
 
-          <!-- Cambiar Contraseña (Opcional) -->
+          <!-- Cambiar Contraseña -->
           <div class="form-section">
-            <h3 class="modal-subtitle">Cambiar Contraseña (Opcional)</h3>
-            <p class="form-hint">Deja estos campos en blanco si no deseas cambiar tu contraseña</p>
+            <h3 class="modal-subtitle">Cambiar Contraseña</h3>
             
             <div class="form-group">
               <label for="current-password">Contraseña Actual</label>
@@ -147,8 +150,10 @@
           </div>
         </form>
 
+          </div>
+        </transition>
       </div>
-    </div>
+    </transition>
 
   </div>
 </template>
@@ -258,9 +263,16 @@ async function onLogoutClick() {
   });
   
   if (result && result.isConfirmed) {
-    // Delay para que se cierre el modal antes de mostrar la pantalla de carga
-    await new Promise(resolve => setTimeout(resolve, 200));
-    // Limpia credenciales y redirige al login (ya maneja showLoading internamente)
+    // Agregar clase de animación de salida
+    const dashboard = document.querySelector('.dashboard-layout');
+    if (dashboard) {
+      dashboard.classList.add('dashboard-exit');
+    }
+    
+    // Esperar a que termine la animación (400ms)
+    await new Promise(resolve => setTimeout(resolve, 400));
+    
+    // Limpia credenciales y redirige al login
     await logoutAndRedirect(router);
   }
 }
@@ -385,10 +397,15 @@ const handleProfileUpdate = async () => {
   } catch (error) {
     hideLoading();
     console.error('Error al actualizar perfil:', error);
+    
+    // Mensaje más amigable si el endpoint no existe (404)
+    const is404 = error.response?.status === 404;
     await showAlert({ 
-      icon: 'error', 
-      title: 'Error', 
-      text: 'Ocurrió un error al actualizar el perfil'
+      icon: 'warning', 
+      title: is404 ? 'Función no disponible' : 'Error', 
+      text: is404 
+        ? 'La actualización de perfil estará disponible próximamente.\n\nPor ahora, los cambios en el perfil solo se pueden hacer contactando al administrador.'
+        : 'Ocurrió un error al actualizar el perfil'
     });
   }
 };

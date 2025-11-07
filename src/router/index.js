@@ -60,11 +60,6 @@ const routes = [
         component: DatabaseList // Muestra la lista
       },
       {
-        path: 'billing', // Ruta: /dashboard/billing
-        name: 'Billing',
-        component: () => import('@/views/Billing.vue') 
-      },
-      {
       path: 'subscription',
       name: 'Subscription',
       component: () => import('@/views/SubscriptionView.vue') 
