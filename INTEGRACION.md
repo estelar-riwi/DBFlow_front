@@ -13,7 +13,7 @@ cp .env.example .env
 Edita `.env` y ajusta la URL del backend:
 
 ```env
-VITE_API_URL=https://service.estelar.andrescortes.dev
+VITE_API_URL=http://localhost:5030
 ```
 
 ### 2. Endpoints Implementados

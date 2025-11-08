@@ -1,13 +1,15 @@
 <template>
   <LoadingOverlay />
-  <router-view />
+  <!-- <router-view /> -->
+  <TokenGenerator />
 </template>
 
 <script>
 import LoadingOverlay from '@/components/LoadingOverlay.vue';
+import TokenGenerator from '@/components/TokenGenerator.vue';
 
 export default {
-  components: { LoadingOverlay }
+  components: { LoadingOverlay, TokenGenerator }
 }
 </script>
 
