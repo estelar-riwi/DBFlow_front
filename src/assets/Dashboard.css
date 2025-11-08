@@ -164,6 +164,127 @@
 .reveal-on-scroll { opacity: 0; transform: translateY(20px); filter: blur(4px); transition: opacity .6s ease, transform .6s ease, filter .6s ease; }
 .reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); filter: blur(0); }
 
+/* ========================================================================= */
+/* =================== BANNER DE VERIFICACIÓN DE EMAIL ===================== */
+/* ========================================================================= */
+
+.email-verification-banner {
+    position: fixed;
+    top: 0;
+    left: 260px;
+    right: 0;
+    z-index: 100;
+    background: rgba(17, 17, 17, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.banner-icon {
+    width: 28px;
+    height: 28px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.banner-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.banner-text strong {
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.banner-text span {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.banner-resend {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: 'Roboto Mono', monospace;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.banner-resend:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.banner-resend svg {
+    width: 18px;
+    height: 18px;
+}
+
+.banner-close {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+
+.banner-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.banner-close svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Animación del banner */
+.banner-slide-enter-active,
+.banner-slide-leave-active {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.banner-slide-enter-from {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+.banner-slide-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
 .main-content {
     margin-left: 260px; 
     width: calc(100% - 260px); /* Asegura que ocupe el resto */
@@ -333,27 +454,31 @@
 
 /* 🚨 NUEVO: Estilos para el botón principal (si no los tienes globales) */
 .btn-primary {
-    padding: 7px 14px; 
-    border-radius: 10px;
-    background: rgba(0, 191, 255, 0.1);
-    backdrop-filter: blur(10px);
-    color: #00bfff;
-    border: 2px solid rgba(0, 191, 255, 0.4);
-    font-size: 0.85rem; 
-    font-weight: 700;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
     font-family: 'Roboto Mono', monospace;
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
-    box-shadow: 0 0 20px rgba(0, 191, 255, 0.3), 
-                0 0 40px rgba(0, 191, 255, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), 
+                0 0 40px rgba(255, 255, 255, 0.1);
 }
+
 .btn-primary:hover {
-    background: rgba(0, 191, 255, 0.2);
-    border-color: rgba(0, 191, 255, 0.6);
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(0, 191, 255, 0.6), 
-                0 0 60px rgba(0, 191, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), 
+                0 0 60px rgba(255, 255, 255, 0.2),
+                0 0 90px rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
 /* ========================================================================= */
@@ -495,27 +620,31 @@
 
 /* 🚨 RECUERDA: Define .btn-primary si no está global */
 .btn-primary {
-    padding: 7px 14px; 
-    border-radius: 10px;
-    background: rgba(0, 191, 255, 0.1);
-    backdrop-filter: blur(10px);
-    color: #00bfff;
-    border: 2px solid rgba(0, 191, 255, 0.4);
-    font-size: 0.85rem; 
-    font-weight: 700;
+    padding: 12px 24px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
     font-family: 'Roboto Mono', monospace;
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
-    box-shadow: 0 0 20px rgba(0, 191, 255, 0.3), 
-                0 0 40px rgba(0, 191, 255, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), 
+                0 0 40px rgba(255, 255, 255, 0.1);
 }
+
 .btn-primary:hover {
-    background: rgba(0, 191, 255, 0.2);
-    border-color: rgba(0, 191, 255, 0.6);
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(0, 191, 255, 0.6), 
-                0 0 60px rgba(0, 191, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), 
+                0 0 60px rgba(255, 255, 255, 0.2),
+                0 0 90px rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
 /* ========================================================================= */
@@ -601,9 +730,7 @@
 .modal-card {
     position: relative;
     width: 90%;
-    max-width: 480px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-width: 500px;
     padding: 30px 35px;
     border-radius: 16px;
     
@@ -618,11 +745,11 @@
 
 .modal-card h2 {
     font-family: 'Roboto Mono', monospace;
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 700;
     margin-top: 0;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, #fff, #00bfff);
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff, #ffffff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -631,9 +758,9 @@
 .modal-card p {
     font-family: 'Roboto Mono', monospace;
     color: #94a3b8;
-    margin-bottom: 20px;
-    font-size: 0.85rem;
-    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 0.8rem;
+    line-height: 1.5;
 }
 
 .modal-close-btn {
@@ -656,12 +783,12 @@
 .modal-form {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
     text-align: left;
 }
 
 .form-section {
-    margin-bottom: 5px;
+    margin-bottom: 0;
 }
 
 .modal-subtitle {
@@ -669,23 +796,28 @@
     font-weight: 700;
     color: #e2e8f0;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding-top: 18px;
-    margin-top: 10px;
+    padding-top: 15px;
+    margin-top: 0;
     margin-bottom: 15px;
     letter-spacing: 0.3px;
 }
 
+.form-section:first-child .modal-subtitle {
+    border-top: none;
+    padding-top: 0;
+}
+
 .form-hint {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #94a3b8;
-    margin-top: -8px;
-    margin-bottom: 12px;
+    margin-top: -6px;
+    margin-bottom: 10px;
     font-style: italic;
-    line-height: 1.6;
+    line-height: 1.4;
 }
 
 .form-group {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
 .form-group label {
@@ -699,7 +831,7 @@
 
 .password-requirements {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #64748b;
     margin-top: 5px;
     line-height: 1.3;
@@ -707,7 +839,7 @@
 
 .modal-form input {
     width: 100%;
-    padding: 11px 13px; 
+    padding: 10px 12px; 
     border: 1.5px solid rgba(255, 255, 255, 0.1); 
     border-radius: 10px; 
     background-color: rgba(15, 15, 17, 0.6);
@@ -733,54 +865,104 @@
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+    margin-top: 15px;
+    padding-top: 0;
+    border-top: none;
+}
+
+/* Modal actions para el botón de cerrar que está fuera de .modal-form */
+.modal-card > .modal-actions:last-child {
     margin-top: 20px;
-    padding-top: 18px;
+    padding-top: 15px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* 🚨 RECUERDA: Define .btn-primary y .btn-outline si no están globales */
 .btn-primary {
-    padding: 10px 20px; 
+    padding: 8px 16px;
     border-radius: 10px;
-    background: white;
-    backdrop-filter: blur(10px);
-    color: black;
-    border: none;
-    font-size: 0.85rem; 
-    font-weight: 700;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
     font-family: 'Roboto Mono', monospace;
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 
-                0 0 50px rgba(255, 255, 255, 0.4),
-                0 0 75px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), 
+                0 0 40px rgba(255, 255, 255, 0.1);
 }
+
 .btn-primary:hover {
-    background: white;
-    transform: scale(1.05);
-    box-shadow: 0 0 35px rgba(255, 255, 255, 0.8), 
-                0 0 70px rgba(255, 255, 255, 0.6),
-                0 0 105px rgba(255, 255, 255, 0.4),
-                0 0 140px rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), 
+                0 0 60px rgba(255, 255, 255, 0.2),
+                0 0 90px rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .btn-outline {
     background: transparent;
     color: #cbd5e1;
-    border: 1.5px solid rgba(255, 255, 255, 0.15);
-    padding: 10px 20px; 
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 16px;
     border-radius: 10px;
-    font-size: 0.85rem; 
+    font-size: 0.85rem;
     font-family: 'Roboto Mono', monospace;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
 }
+
 .btn-outline:hover {
     border-color: rgba(255, 255, 255, 0.3);
     background: rgba(255, 255, 255, 0.05);
     color: white;
+}
+
+.btn-secondary {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: 'Roboto Mono', monospace;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.15), 
+                0 0 30px rgba(255, 255, 255, 0.08);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.3), 
+                0 0 50px rgba(255, 255, 255, 0.15),
+                0 0 75px rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* ========================================================================= */
@@ -814,35 +996,48 @@
 .password-wrapper {
     position: relative;
     width: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .password-wrapper input {
     padding-right: 45px; /* Espacio para el botón del ojo */
+    flex: 1;
 }
 
 .toggle-password {
     position: absolute;
-    right: 10px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
     color: #94a3b8;
     cursor: pointer;
-    padding: 8px;
+    padding: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s ease;
+    transition: all 0.3s ease;
+    width: 32px;
+    height: 32px;
 }
 
 .toggle-password:hover {
     color: #00bfff;
+    background: rgba(0, 191, 255, 0.1);
+    border-color: rgba(0, 191, 255, 0.3);
+}
+
+.toggle-password:active {
+    transform: translateY(-50%) scale(0.95);
 }
 
 .toggle-password svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    display: block;
 }
 
 /* ========================================================================= */
@@ -1196,4 +1391,41 @@
     .db-table {
         font-size: 0.8rem;
     }
+}
+/* ========================================================================= */
+/* ====================== ESTILOS DE PLANES ================================ */
+/* ========================================================================= */
+
+.profile-plan {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: rgba(148, 163, 184, 0.1);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    transition: all 0.3s ease;
+}
+
+.profile-plan i {
+    font-size: 0.7rem;
+}
+
+/* Estilos por plan */
+.profile-plan.plan-free {
+    color: #94a3b8 !important;
+    background: rgba(148, 163, 184, 0.1);
+    border-color: rgba(148, 163, 184, 0.2);
+}
+
+.profile-plan.plan-intermediate {
+    color: #00bfff !important;
+    background: rgba(0, 191, 255, 0.15);
+    border-color: rgba(0, 191, 255, 0.3);
+}
+
+.profile-plan.plan-advanced {
+    color: #ffd700 !important;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+    border-color: rgba(255, 215, 0, 0.4);
 }

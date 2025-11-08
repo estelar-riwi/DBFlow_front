@@ -23,6 +23,17 @@
     </div>
 
     <form @submit.prevent="handleResend" class="auth-form">
+        <div class="form-group">
+            <label for="email" class="form-label">Correo Electrónico</label>
+            <input 
+                id="email" 
+                type="email" 
+                v-model="userEmail" 
+                placeholder="tu@correo.com" 
+                class="form-input"
+                required
+            />
+        </div>
         
         <button type="submit" class="btn-primary btn-full-width">Reenviar Correo</button>
     </form>
@@ -39,7 +50,9 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { RouterLink, useRoute, useRouter } from 'vue-router'; 
-import { verifyEmail } from '@/services/authService';
+import { verifyEmail, resendVerificationEmail } from '@/services/authService';
+import { showAlert } from '@/utils/notify';
+import { showLoading, hideLoading } from '@/store/loading';
 
 const route = useRoute();
 const router = useRouter();
@@ -48,9 +61,16 @@ const router = useRouter();
 const isVerifying = ref(false);
 const verificationMessage = ref('');
 const verificationSuccess = ref(false);
+const userEmail = ref('');
 
 // Verificar automáticamente si hay un token en la URL
 onMounted(async () => {
+    // Cargar el email no verificado si está disponible
+    const unverifiedEmail = localStorage.getItem('unverified_email');
+    if (unverifiedEmail) {
+        userEmail.value = unverifiedEmail;
+    }
+    
     const tokenFromParam = route.params.token;
     const tokenFromQuery = route.query.token;
     const token = tokenFromParam || tokenFromQuery;
@@ -71,6 +91,8 @@ onMounted(async () => {
             if (result.success) {
                 verificationSuccess.value = true;
                 verificationMessage.value = result.message;
+                // Limpiar el email no verificado del localStorage si la verificación fue exitosa
+                localStorage.removeItem('unverified_email');
             } else {
                 verificationSuccess.value = false;
                 verificationMessage.value = result.message;
@@ -96,12 +118,73 @@ onMounted(async () => {
     window.addEventListener('mousemove', handleMouseMove);
 });
 
-import { showAlert } from '@/utils/notify';
-
 const handleResend = async () => {
-    // Aquí iría tu lógica para reenviar el correo
-    console.log('Attempting to resend email...');
-    await showAlert({ icon: 'success', title: 'Enviado', text: 'Correo de verificación reenviado.' });
+    console.log('🔵 BOTÓN REENVIAR CLICKEADO en VerifyEmail');
+    
+    // Intentar obtener el email del campo de formulario o del localStorage
+    const emailFromInput = userEmail.value?.trim();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const emailFromStorage = user.Email || user.email;
+    const email = emailFromInput || emailFromStorage;
+    
+    console.log('📧 Email del input:', emailFromInput);
+    console.log('� Email del storage:', emailFromStorage);
+    console.log('📧 Email final a usar:', email);
+    
+    if (!email) {
+        await showAlert({ 
+            icon: 'error', 
+            title: 'Error', 
+            text: 'Por favor, ingresa tu correo electrónico.' 
+        });
+        return;
+    }
+    
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        await showAlert({ 
+            icon: 'error', 
+            title: 'Error', 
+            text: 'Por favor, ingresa un correo electrónico válido.' 
+        });
+        return;
+    }
+    
+    try {
+        console.log('📤 Llamando a resendVerificationEmail...');
+        showLoading('Reenviando correo de verificación...');
+        
+        const result = await resendVerificationEmail(email);
+        
+        hideLoading();
+        
+        console.log('📨 Resultado:', result);
+        
+        if (result.success) {
+            await showAlert({ 
+                icon: 'success', 
+                title: '¡Correo Reenviado!', 
+                text: `Se ha enviado un nuevo enlace de verificación a ${email}. Por favor, revisa tu bandeja de entrada.`,
+                confirmText: 'Entendido',
+                autoClose: 3000
+            });
+        } else {
+            await showAlert({ 
+                icon: 'error', 
+                title: 'Error', 
+                text: result.message || 'No se pudo reenviar el correo de verificación.' 
+            });
+        }
+    } catch (error) {
+        hideLoading();
+        console.error('💥 Error al reenviar:', error);
+        await showAlert({ 
+            icon: 'error', 
+            title: 'Error', 
+            text: 'Ocurrió un error al reenviar el correo. Inténtalo de nuevo.' 
+        });
+    }
 };
 
 // --- LÓGICA DE PARTÍCULAS (Interactiva y Rápida) ---

@@ -39,7 +39,8 @@ export function showAlert({ icon = 'info', title = '', text = '', confirmText = 
 
     const p = document.createElement('div');
     p.className = 'custom-alert-text';
-    p.textContent = text || '';
+    // Usar innerHTML para soportar HTML en el texto
+    p.innerHTML = text || '';
 
     content.appendChild(h);
     content.appendChild(p);

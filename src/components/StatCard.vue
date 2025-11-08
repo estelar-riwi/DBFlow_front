@@ -30,41 +30,120 @@ const onClick = () => { if (props.clickable) emit('click') }
 .stat-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 24px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-  border: 1px solid var(--card-color, rgba(255,255,255,0.15));
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
+  gap: 18px;
+  padding: 28px;
+  border-radius: 16px;
+  background: rgba(17, 17, 17, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-color, rgba(255, 255, 255, 0.15));
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 0 1px var(--card-color, rgba(255, 255, 255, 0.05)),
+    inset 0 1px 0 var(--card-color, rgba(255, 255, 255, 0.1));
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    var(--card-color, rgba(255, 255, 255, 0.3)), 
+    transparent);
+}
+
 .stat-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--card-color, rgba(0,191,255,0.6));
-  box-shadow: 0 12px 40px var(--card-color, rgba(0,191,255,0.25));
+  transform: translateY(-6px);
+  border-color: var(--card-color, rgba(255, 255, 255, 0.3));
+  box-shadow: 
+    0 12px 48px rgba(0, 0, 0, 0.4),
+    0 0 0 1px var(--card-color, rgba(255, 255, 255, 0.1)),
+    0 0 60px var(--card-color, rgba(255, 255, 255, 0.15)),
+    inset 0 1px 0 var(--card-color, rgba(255, 255, 255, 0.15));
 }
-.stat-card.clickable { cursor: pointer; }
-.stat-card.clickable:hover { border-color: var(--card-color, rgba(0,191,255,0.8)); }
+
+.stat-card.clickable { 
+  cursor: pointer; 
+}
+
+.stat-card.clickable:hover { 
+  border-color: var(--card-color, rgba(255, 255, 255, 0.4));
+  box-shadow: 
+    0 12px 48px rgba(0, 0, 0, 0.4),
+    0 0 0 1px var(--card-color, rgba(255, 255, 255, 0.15)),
+    0 0 80px var(--card-color, rgba(255, 255, 255, 0.2)),
+    inset 0 1px 0 var(--card-color, rgba(255, 255, 255, 0.2));
+}
 
 .stat-icon { 
-  width: 48px; 
-  height: 48px; 
+  width: 56px; 
+  height: 56px; 
   display: grid; 
   place-items: center; 
-  border-radius: 12px; 
-  background: linear-gradient(135deg, var(--card-color, rgba(0,191,255,0.15)), transparent);
-  color: var(--card-color, #00bfff);
-}
-.stat-icon :deep(svg) { width: 24px; height: 24px; stroke-width: 2; }
-.stat-logo {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  border-radius: 14px; 
+  background: var(--card-color, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--card-color, rgba(255, 255, 255, 0.1));
+  color: var(--card-color, #ffffff);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 var(--card-color, rgba(255, 255, 255, 0.15));
+  flex-shrink: 0;
 }
 
-.stat-content { display:flex; flex-direction: column; gap: 2px; }
-.stat-title { color:#94a3b8; font-size: .85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-value { color: #fff; font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin: 4px 0; }
-.stat-subtitle { color:#9aa0a6; font-size: .8rem; }
+.stat-icon :deep(svg) { 
+  width: 28px; 
+  height: 28px; 
+  stroke-width: 2;
+  filter: drop-shadow(0 0 8px var(--card-color, rgba(255, 255, 255, 0.3)));
+}
+
+.stat-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px var(--card-color, rgba(255, 255, 255, 0.4)));
+}
+
+.stat-content { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px;
+  flex: 1;
+}
+
+.stat-title { 
+  color: #94a3b8; 
+  font-size: 0.85rem; 
+  font-weight: 600; 
+  text-transform: uppercase; 
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+
+.stat-value { 
+  color: #fff; 
+  font-size: 2rem; 
+  font-weight: 800; 
+  line-height: 1.1; 
+  text-shadow: 
+    0 0 20px var(--card-color, rgba(255, 255, 255, 0.3)),
+    0 0 40px var(--card-color, rgba(255, 255, 255, 0.1));
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stat-subtitle { 
+  color: #9aa0a6; 
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
 </style>
