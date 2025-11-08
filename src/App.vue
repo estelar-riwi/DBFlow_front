@@ -1,7 +1,9 @@
 <template>
   <LoadingOverlay />
   <transition name="page-transition" mode="out-in">
-    <router-view :key="$route.path" />
+    <router-view v-slot="{ Component }">
+      <component :is="Component" :key="$route.path" />
+    </router-view>
   </transition>
 </template>
 

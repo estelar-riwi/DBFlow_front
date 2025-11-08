@@ -21,18 +21,41 @@
 }
 
 .custom-alert-card {
+  position: relative;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 30px 35px;
+  border-radius: 16px;
+  
   background: rgba(18, 18, 20, 0.95);
   backdrop-filter: blur(20px);
-  color: #fff;
-  padding: 28px 32px;
-  border-radius: 16px;
-  width: min(480px, 92%);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 25px rgba(255, 255, 255, 0.15), 
-              0 0 50px rgba(255, 255, 255, 0.1),
-              0 20px 40px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 100px rgba(0, 191, 255, 0.05);
+  color: white;
+  
   font-family: 'Roboto Mono', monospace;
   animation: cardScaleIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Estilo personalizado para la scrollbar */
+.custom-alert-card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-alert-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.custom-alert-card::-webkit-scrollbar-thumb {
+  background: rgba(0, 191, 255, 0.3);
+  border-radius: 4px;
+}
+
+.custom-alert-card::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 191, 255, 0.5);
 }
 
 @keyframes cardScaleIn {
@@ -49,25 +72,33 @@
 }
 
 .custom-alert-title {
-  font-size: 1.2rem;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1.6rem;
   font-weight: 700;
-  margin-bottom: 10px;
-  color: white;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  margin-top: 0;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .custom-alert-text {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 24px;
-  white-space: pre-line;
+  font-family: 'Roboto Mono', monospace;
+  color: #94a3b8;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
   line-height: 1.6;
+  white-space: pre-line;
 }
 
 .custom-alert-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .custom-alert-btn {
@@ -82,30 +113,47 @@
 }
 
 .custom-alert-btn--primary {
+  padding: 10px 20px;
+  border-radius: 10px;
   background: white;
   color: black;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 
-              0 0 40px rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Roboto Mono', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 
+              0 0 50px rgba(255, 255, 255, 0.4),
+              0 0 75px rgba(255, 255, 255, 0.3);
 }
 
 .custom-alert-btn--primary:hover {
+  background: white;
   transform: scale(1.05);
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.6), 
-              0 0 60px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 35px rgba(255, 255, 255, 0.8), 
+              0 0 70px rgba(255, 255, 255, 0.6),
+              0 0 105px rgba(255, 255, 255, 0.4),
+              0 0 140px rgba(255, 255, 255, 0.2);
 }
 
 .custom-alert-btn--secondary {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: #cbd5e1;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .custom-alert-btn--secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
 }
 
 .custom-alert-icon {
