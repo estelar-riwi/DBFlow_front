@@ -14,10 +14,12 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://service.estelar.andrescortes.dev/',
+        target: 'https://service.estelar.andrescortes.dev',
         changeOrigin: true,
         secure: false
       }
     }
   }
 })
+
+

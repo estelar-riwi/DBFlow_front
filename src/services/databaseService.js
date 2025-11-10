@@ -59,7 +59,8 @@ function getUserId() {
  * @returns {Promise<Object>} Respuesta con id, host, port, username, password, databaseName
  */
 export async function createDatabase(databaseData) {
-  console.log('📝 Creando base de datos MySQL con:', databaseData);
+  console.log('� ========== CREANDO BASE DE DATOS MYSQL ==========');
+  console.log('📝 Datos recibidos:', databaseData);
   
   const userId = getUserId();
   const token = getAuthToken();
@@ -84,7 +85,10 @@ export async function createDatabase(databaseData) {
   
   try {
     const response = await axios.post(`${API_BASE_URL}/api/Databases/MySQL`, payload);
-    console.log('✅ Base de datos MySQL creada exitosamente:', response.data);
+    console.log('✅ RESPUESTA DEL BACKEND:', response.data);
+    console.log('🔍 Engine en la respuesta:', response.data.engine);
+    console.log('🔍 Tipo de engine:', typeof response.data.engine);
+    console.log('🐬 ========== FIN CREACIÓN MYSQL ==========');
     return response.data;
   } catch (error) {
     console.error('❌ Error al crear base de datos:');
@@ -158,11 +162,29 @@ export async function deleteDatabase(databaseId) {
 export async function getAllDatabases() {
   const userId = getUserId();
   
-  console.log('Obteniendo todas las bases de datos para usuario:', userId);
+  console.log('📋 ========== OBTENIENDO TODAS LAS BASES DE DATOS ==========');
+  console.log('👤 UserId:', userId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Users/${userId}/Databases`);
   
   const response = await axios.get(`${API_BASE_URL}/api/Users/${userId}/Databases`);
   
-  console.log('Bases de datos obtenidas:', response.data);
+  console.log('✅ RESPUESTA COMPLETA DEL BACKEND:');
+  console.log('📦 response.data:', response.data);
+  console.log('📦 response.data (JSON):', JSON.stringify(response.data, null, 2));
+  console.log('📊 Total de bases de datos:', response.data?.length || 0);
+  
+  // Mostrar cada base de datos con TODOS sus campos
+  if (response.data && Array.isArray(response.data)) {
+    response.data.forEach((db, index) => {
+      console.log(`\n  📌 BD #${index + 1}:`);
+      console.log(`     Nombre: ${db.databaseName || db.name}`);
+      console.log(`     Engine: "${db.engine}" (tipo: ${typeof db.engine})`);
+      console.log(`     Todas las propiedades:`, Object.keys(db));
+      console.log(`     Objeto completo:`, db);
+    });
+  }
+  
+  console.log('\n📋 ========== FIN OBTENCIÓN BASES DE DATOS ==========');
   return response.data;
 }
 
@@ -185,4 +207,162 @@ export async function getDatabasesCount() {
   
   console.log('✅ Conteo de bases de datos obtenido:', response.data);
   return response.data;
+}
+
+/* ========================================================================= */
+/* =================== FUNCIONES POSTGRESQL ================================ */
+/* ========================================================================= */
+
+/**
+ * Crea una nueva base de datos PostgreSQL
+ * @param {Object} databaseData - Datos de la base de datos
+ * @param {string} databaseData.databaseName - Nombre de la base de datos
+ * @returns {Promise<Object>} Respuesta con id, host, port, username, password, databaseName
+ */
+export async function createPostgreSQLDatabase(databaseData) {
+  console.log('� ========== CREANDO BASE DE DATOS POSTGRESQL ==========');
+  console.log('📝 Datos recibidos:', databaseData);
+  
+  const userId = getUserId();
+  const token = getAuthToken();
+  
+  console.log('🔑 Token disponible:', token ? 'SÍ (' + token.substring(0, 20) + '...)' : '❌ NO');
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  // El backend espera: databaseName, engine y userId
+  const payload = {
+    databaseName: databaseData.databaseName || databaseData.database_name,
+    engine: databaseData.engine || 'PostgreSQL',
+    userId: userId
+  };
+  
+  console.log('📤 Enviando petición POST /api/Databases/PostgreSQL');
+  console.log('📦 Payload JSON:', JSON.stringify(payload, null, 2));
+  console.log('👤 UserId:', userId);
+  console.log('🌐 URL completa:', `${API_BASE_URL}/api/Databases/PostgreSQL`);
+  
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/Databases/PostgreSQL`, payload);
+    console.log('✅ RESPUESTA DEL BACKEND:', response.data);
+    console.log('🔍 Engine en la respuesta:', response.data.engine);
+    console.log('🔍 Tipo de engine:', typeof response.data.engine);
+    console.log('🐘 ========== FIN CREACIÓN POSTGRESQL ==========');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al crear base de datos PostgreSQL:');
+    console.error('Status:', error.response?.status);
+    console.error('Status Text:', error.response?.statusText);
+    console.error('Error data:', error.response?.data);
+    console.error('Payload enviado:', payload);
+    throw error;
+  }
+}
+
+/**
+ * Obtiene las credenciales de una base de datos PostgreSQL específica
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<Object>} Credenciales: { id, host, port, username, password, databaseName }
+ */
+export async function getPostgreSQLCredentials(databaseId) {
+  console.log('🔐 Obteniendo credenciales de PostgreSQL para base de datos ID:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/PostgreSQL/${databaseId}/Credentials`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/Databases/PostgreSQL/${databaseId}/Credentials`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Credenciales PostgreSQL obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener credenciales PostgreSQL:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
+}
+
+/**
+ * Rota las credenciales de una base de datos PostgreSQL (genera nueva contraseña)
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<Object>} Nuevas credenciales: { id, host, port, username, password, databaseName }
+ */
+export async function rotatePostgreSQLCredentials(databaseId) {
+  console.log('🔄 Rotando credenciales PostgreSQL para base de datos:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/PostgreSQL/${databaseId}/RotateCredentials`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/Databases/PostgreSQL/${databaseId}/RotateCredentials`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Credenciales PostgreSQL rotadas exitosamente:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al rotar credenciales PostgreSQL:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
+}
+
+/**
+ * Elimina una base de datos PostgreSQL
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<void>}
+ */
+export async function deletePostgreSQLDatabase(databaseId) {
+  console.log('🗑️ Eliminando base de datos PostgreSQL:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/PostgreSQL/${databaseId}`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.delete(
+      `${API_BASE_URL}/api/Databases/PostgreSQL/${databaseId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Base de datos PostgreSQL eliminada exitosamente:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al eliminar base de datos PostgreSQL:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
 }

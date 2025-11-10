@@ -20,7 +20,7 @@ export const PLANS = {
     id: 'intermediate',
     name: 'Intermedio',
     displayName: 'Plan Intermedio',
-    price: 5.000,
+    price: 5000, // 5.000 COP
     databaseLimit: 5, // 5 bases de datos por gestor
     features: [
       '5 bases de datos por gestor',
@@ -33,7 +33,7 @@ export const PLANS = {
     id: 'advanced',
     name: 'Avanzado',
     displayName: 'Plan Avanzado',
-    price: 10.000,
+    price: 10000, // 10.000 COP
     databaseLimit: 10, // 10 bases de datos por gestor
     features: [
       '10 bases de datos por gestor',

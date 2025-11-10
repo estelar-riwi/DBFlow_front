@@ -245,7 +245,7 @@
             class="engine-card"
             :class="{ 
               'selected': newDb.engine === engine.name,
-              'disabled': engine.name !== 'MySQL' && engine.name !== 'PostgreSQL'
+              'disabled': engine.name !== 'MySQL'
             }"
             :style="{ '--engine-color': engine.color }"
             @click="selectEngine(engine.name)"
@@ -256,7 +256,7 @@
             <h3>{{ engine.name }}</h3>
             <p class="engine-desc">{{ engine.description }}</p>
             <div class="engine-meta">
-            <span v-if="engine.name === 'MySQL' || engine.name === 'PostgreSQL'" class="badge-available">✓ Disponible</span>
+            <span v-if="engine.name === 'MySQL'" class="badge-available">✓ Disponible</span>
             <span v-else class="badge-coming-soon">🔧 En proceso</span>
             </div>
         </div>
@@ -321,18 +321,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import StatCard from '../components/StatCard.vue'
 import { showAlert } from '@/utils/notify'
-import { 
-  createDatabase, 
-  getDatabaseCredentials, 
-  deleteDatabase, 
-  getAllDatabases, 
-  rotateCredentials, 
-  getDatabasesCount,
-  createPostgreSQLDatabase,
-  getPostgreSQLCredentials,
-  rotatePostgreSQLCredentials,
-  deletePostgreSQLDatabase
-} from '@/services/databaseService'
+import { createDatabase, getDatabaseCredentials, deleteDatabase, getAllDatabases, rotateCredentials, getDatabasesCount } from '@/services/databaseService'
 import { showLoading, hideLoading } from '@/store/loading'
 import { showAuthStatusModal } from '@/utils/authDebug'
 import { debugToken } from '@/utils/tokenDebug'
@@ -456,12 +445,12 @@ const engineOptions = ref([
 ])
 
 const selectEngine = (engineName) => {
-  // Solo MySQL y PostgreSQL están disponibles por ahora
-  if (engineName !== 'MySQL' && engineName !== 'PostgreSQL') {
+  // Solo MySQL está disponible por ahora
+  if (engineName !== 'MySQL') {
     showAlert({ 
       icon: 'info', 
       title: 'Próximamente', 
-      text: `${engineName} estará disponible próximamente. Por ahora solo MySQL y PostgreSQL están habilitados.`,
+      text: `${engineName} estará disponible próximamente. Por ahora solo MySQL está habilitado.`,
       confirmText: 'Entendido'
     })
     return
@@ -614,30 +603,16 @@ const createDb = async () => {
   try {
     showLoading('Creando base de datos...')
     
-    let response;
+    // Llamar a la API de MySQL con todos los campos requeridos
+    const response = await createDatabase({
+      databaseName: newDb.value.name,
+      engine: newDb.value.engine || 'MySQL' // Asegurar que siempre tenga engine
+    })
     
-    // Llamar a la API correspondiente según el engine
-    if (newDb.value.engine === 'PostgreSQL') {
-      response = await createPostgreSQLDatabase({
-        databaseName: newDb.value.name,
-        engine: newDb.value.engine
-      })
-    } else {
-      // MySQL por defecto
-      response = await createDatabase({
-        databaseName: newDb.value.name,
-        engine: newDb.value.engine || 'MySQL'
-      })
-    }
-    
-    console.log('✅ Base de datos creada exitosamente:', response)
-    console.log('📋 Engine de la BD creada:', response.engine)
-    console.log('📋 Nombre de la BD creada:', response.databaseName)
+    console.log('Base de datos creada:', response)
     
     // Recargar las bases de datos y el conteo
-    console.log('🔄 Recargando lista de bases de datos...')
     await loadDatabases()
-    console.log('🔄 Recargando conteo de bases de datos...')
     await loadDatabasesCount()
     
     // Resetear el formulario
@@ -750,60 +725,19 @@ const loadDatabases = async () => {
     
     // Solo actualizar si hay datos
     if (data && Array.isArray(data)) {
-      console.log('🔍 Mapeando bases de datos recibidas del backend...')
-      console.log('📦 DATOS COMPLETOS DEL BACKEND:', JSON.stringify(data, null, 2))
-      
       // Mapear la respuesta de la API al formato esperado
-      databases.value = data.map(db => {
-        console.log('📦 BD del backend:', {
-          id: db.id,
-          name: db.databaseName || db.name,
-          engine: db.engine,
-          engineName: db.engineName, // ✨ Campo correcto del backend
-          engineType: typeof db.engine,
-          todasLasPropiedades: Object.keys(db)
-        })
-        
-        // ✅ El backend devuelve "engineName" en lugar de "engine"
-        const engine = db.engineName || db.engine || 'MySQL';
-        
-        console.log(`🔧 Engine detectado para "${db.databaseName || db.name}": ${engine}`)
-        console.log(`⚠️ ADVERTENCIA: db.engine = ${db.engine}, db.engineName = ${db.engineName}`)
-        
-        // Configurar host y port según el engine
-        let defaultHost = 'mysql.dbflow.dev';
-        let defaultPort = 3306;
-        
-        if (engine === 'PostgreSQL') {
-          defaultHost = 'postgres.dbflow.dev';
-          defaultPort = 5432;
-        } else if (engine === 'MongoDB') {
-          defaultHost = 'mongo.dbflow.dev';
-          defaultPort = 27017;
-        } else if (engine === 'Redis') {
-          defaultHost = 'redis.dbflow.dev';
-          defaultPort = 6379;
-        } else if (engine === 'Cassandra') {
-          defaultHost = 'cassandra.dbflow.dev';
-          defaultPort = 9042;
-        } else if (engine === 'SQL Server') {
-          defaultHost = 'sqlserver.dbflow.dev';
-          defaultPort = 1433;
-        }
-        
-        return {
-          id: db.id,
-          name: db.databaseName || db.name,
-          engine: engine, // ✅ Usar el engine exacto del backend
-          host: db.host || defaultHost,
-          port: db.port || defaultPort,
-          status: db.status || 'Activo',
-          username: db.username,
-          password: db.password || '••••••••',
-          // Si la contraseña ya fue copiada antes, mantenerla oculta
-          passwordVisible: !hiddenPasswords.includes(db.id)
-        }
-      })
+      databases.value = data.map(db => ({
+        id: db.id,
+        name: db.databaseName || db.name,
+        engine: db.engine || 'MySQL', // Usar el engine de la API
+        host: db.host || 'mysql.dbflow.dev',
+        port: db.port || 3306,
+        status: db.status || 'Activo',
+        username: db.username,
+        password: db.password || '••••••••',
+        // Si la contraseña ya fue copiada antes, mantenerla oculta
+        passwordVisible: !hiddenPasswords.includes(db.id)
+      }))
       
       console.log('✅ Bases de datos mapeadas:', databases.value)
       console.log('📊 Total de bases de datos:', databases.value.length)
@@ -874,65 +808,19 @@ const loadDatabasesCount = async () => {
     const count = await getDatabasesCount()
     console.log('📊 Conteo de bases de datos recibido:', count)
     console.log('📊 Tipo de respuesta:', typeof count)
-    console.log('📊 Es array?:', Array.isArray(count))
     console.log('📊 Claves de la respuesta:', count ? Object.keys(count) : 'null')
-    console.log('📊 CONTENIDO COMPLETO:', JSON.stringify(count, null, 2))
     
     // Actualizar el conteo - manejar diferentes formatos de respuesta
     if (count) {
-      // Si el backend devuelve un array, convertirlo a objeto
-      let countObj = count;
-      
-      if (Array.isArray(count)) {
-        console.log('⚠️ Backend devolvió un array, convirtiendo a objeto...')
-        
-        // El backend devuelve: [{ engineName: "PostgreSQL", count: 2 }]
-        // Necesitamos convertirlo a: { postgresql: 2, mysql: 0, ... }
-        const countByEngine = {
-          mysql: 0,
-          postgresql: 0,
-          mongodb: 0,
-          cassandra: 0,
-          sqlserver: 0,
-          redis: 0
-        };
-        
-        count.forEach(item => {
-          const engineName = item.engineName || item.enginename || item.engine;
-          const engineCount = item.count || 0;
-          
-          console.log(`� Contando: ${engineName} = ${engineCount}`);
-          
-          // Mapear engineName a la clave correcta
-          if (engineName === 'MySQL') {
-            countByEngine.mysql = engineCount;
-          } else if (engineName === 'PostgreSQL') {
-            countByEngine.postgresql = engineCount;
-          } else if (engineName === 'MongoDB') {
-            countByEngine.mongodb = engineCount;
-          } else if (engineName === 'Cassandra') {
-            countByEngine.cassandra = engineCount;
-          } else if (engineName === 'SQL Server' || engineName === 'SQLServer') {
-            countByEngine.sqlserver = engineCount;
-          } else if (engineName === 'Redis') {
-            countByEngine.redis = engineCount;
-          }
-        });
-        
-        databasesCount.value = countByEngine;
-        console.log('✅ Conteo actualizado desde array:', databasesCount.value);
-      } else {
-        // Si es un objeto, usar el mapeo anterior
-        databasesCount.value = {
-          mysql: countObj.mysql || countObj.MySQL || countObj.Mysql || 0,
-          postgresql: countObj.postgresql || countObj.PostgreSQL || countObj.Postgresql || 0,
-          mongodb: countObj.mongodb || countObj.MongoDB || countObj.Mongodb || 0,
-          cassandra: countObj.cassandra || countObj.Cassandra || 0,
-          sqlserver: countObj.sqlserver || countObj.sqlServer || countObj.SQLServer || countObj['SQL Server'] || 0,
-          redis: countObj.redis || countObj.Redis || 0
-        }
-        console.log('✅ Conteo actualizado desde objeto:', databasesCount.value);
+      databasesCount.value = {
+        mysql: count.mysql || count.MySQL || count.Mysql || 0,
+        postgresql: count.postgresql || count.PostgreSQL || count.Postgresql || 0,
+        mongodb: count.mongodb || count.MongoDB || count.Mongodb || 0,
+        cassandra: count.cassandra || count.Cassandra || 0,
+        sqlserver: count.sqlserver || count.sqlServer || count.SQLServer || count['SQL Server'] || 0,
+        redis: count.redis || count.Redis || 0
       }
+      console.log('✅ Conteo actualizado:', databasesCount.value)
     }
   } catch (error) {
     console.error('❌ Error al cargar conteo de bases de datos:', error)
@@ -959,14 +847,7 @@ const removeDatabase = async (db) => {
   
   try {
     showLoading('Eliminando base de datos...')
-    
-    // Usar la API correspondiente según el engine
-    if (db.engine === 'PostgreSQL') {
-      await deletePostgreSQLDatabase(db.id)
-    } else {
-      // MySQL por defecto
-      await deleteDatabase(db.id)
-    }
+    await deleteDatabase(db.id)
     
     // Limpiar el localStorage de contraseñas ocultas para esta BD
     const hiddenPasswords = JSON.parse(localStorage.getItem('hiddenPasswords') || '[]')
@@ -1022,15 +903,7 @@ const viewCredentials = async (db) => {
     
     console.log('🔍 Solicitando credenciales para DB:', db)
     
-    let credentials;
-    
-    // Usar la API correspondiente según el engine
-    if (db.engine === 'PostgreSQL') {
-      credentials = await getPostgreSQLCredentials(db.id)
-    } else {
-      // MySQL por defecto (usa rotación porque no tiene endpoint GET)
-      credentials = await getDatabaseCredentials(db.id)
-    }
+    const credentials = await getDatabaseCredentials(db.id)
     
     console.log('✅ Credenciales recibidas:', credentials)
     
@@ -1146,16 +1019,7 @@ const rotateDbCredentials = async (db) => {
   
   try {
     showLoading('Rotando credenciales...')
-    
-    let newCredentials;
-    
-    // Usar la API correspondiente según el engine
-    if (db.engine === 'PostgreSQL') {
-      newCredentials = await rotatePostgreSQLCredentials(db.id)
-    } else {
-      // MySQL por defecto
-      newCredentials = await rotateCredentials(db.id)
-    }
+    const newCredentials = await rotateCredentials(db.id)
     
     console.log('Nuevas credenciales:', newCredentials)
     
@@ -1998,245 +1862,6 @@ font-size: 0.95rem;
   color: #fff;
   font-size: 0.8rem;
   line-height: 1.4;
-}
-
-/* ========================================================================= */
-/* =================== RESPONSIVE COMPLETO - DATABASE LIST ================= */
-/* ========================================================================= */
-
-@media (max-width: 1200px) {
-  .quota-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 14px 16px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 1024px) {
-  .view-header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .btn-create-db {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-  
-  .quota-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .db-table {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .view-header h1 {
-    font-size: 1.6rem;
-  }
-  
-  .btn-create-db {
-    width: 100%;
-    text-align: center;
-  }
-  
-  .quota-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .quota-card {
-    padding: 16px;
-  }
-  
-  .quota-card h4 {
-    font-size: 0.9rem;
-  }
-  
-  .quota-card .usage {
-    font-size: 1.6rem;
-  }
-  
-  /* Tabla responsive con scroll */
-  .db-table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .db-table {
-    min-width: 900px;
-    font-size: 0.85rem;
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 12px 14px;
-  }
-  
-  .action-btn {
-    font-size: 0.8rem;
-    padding: 5px 10px;
-  }
-  
-  /* Scrollbar personalizado */
-  .db-table-container::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .db-table-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-  }
-  
-  .db-table-container::-webkit-scrollbar-thumb {
-    background: rgba(0, 191, 255, 0.3);
-    border-radius: 10px;
-  }
-  
-  .db-table-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 191, 255, 0.5);
-  }
-}
-
-@media (max-width: 640px) {
-  .view-header h1 {
-    font-size: 1.4rem;
-  }
-  
-  .btn-create-db {
-    font-size: 0.85rem;
-    padding: 10px 16px;
-  }
-  
-  .quota-card {
-    padding: 14px;
-  }
-  
-  .quota-card h4 {
-    font-size: 0.85rem;
-  }
-  
-  .quota-card .usage {
-    font-size: 1.4rem;
-  }
-  
-  .db-table {
-    min-width: 800px;
-    font-size: 0.8rem;
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 10px 12px;
-  }
-  
-  .db-table th {
-    font-size: 0.75rem;
-  }
-  
-  .status-badge {
-    padding: 3px 8px;
-    font-size: 0.7rem;
-  }
-  
-  .action-btn {
-    font-size: 0.75rem;
-    padding: 4px 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .view-header h1 {
-    font-size: 1.2rem;
-  }
-  
-  .btn-create-db {
-    font-size: 0.8rem;
-    padding: 9px 14px;
-  }
-  
-  .quota-card {
-    padding: 12px;
-  }
-  
-  .quota-card h4 {
-    font-size: 0.8rem;
-  }
-  
-  .quota-card .usage {
-    font-size: 1.3rem;
-  }
-  
-  .db-table {
-    min-width: 700px;
-    font-size: 0.75rem;
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 8px 10px;
-  }
-  
-  .db-table th {
-    font-size: 0.7rem;
-  }
-  
-  .status-badge {
-    padding: 2px 6px;
-    font-size: 0.65rem;
-  }
-  
-  .action-btn {
-    font-size: 0.7rem;
-    padding: 3px 6px;
-  }
-}
-
-@media (max-width: 360px) {
-  .view-header h1 {
-    font-size: 1.1rem;
-  }
-  
-  .btn-create-db {
-    font-size: 0.75rem;
-    padding: 8px 12px;
-  }
-  
-  .quota-card {
-    padding: 10px;
-  }
-  
-  .quota-card h4 {
-    font-size: 0.75rem;
-  }
-  
-  .quota-card .usage {
-    font-size: 1.2rem;
-  }
-  
-  .db-table {
-    min-width: 650px;
-    font-size: 0.7rem;
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 7px 8px;
-  }
-  
-  .db-table th {
-    font-size: 0.65rem;
-  }
-  
-  .action-btn {
-    font-size: 0.65rem;
-    padding: 3px 5px;
-  }
 }
 
 </style>
