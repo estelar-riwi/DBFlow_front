@@ -1,78 +1,60 @@
+/**
+ * Servicio para manejar la comunicación con el controlador de pagos (PaymentsController.cs)
+ */
+
 import axios from 'axios';
-import { setUserPlan } from './subscriptionService';
+import { getAuthToken } from './authService'; // Asumiendo que esta función existe y funciona
 
-// URL base del backend - configurada desde variables de entorno
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5030';
-const API_URL = `${API_BASE_URL}/api/payments`;
+// URL base - Asegúrate de que esta configuración coincida con tu entorno
+const API_BASE_URL = import.meta.env.PROD ? (import.meta.env.VITE_API_URL || 'http://localhost:5030') : '';
 
 /**
- * Crea una suscripción y actualiza el plan del usuario
- * @param {string} planId - ID del plan (free, intermediate, advanced)
- * @param {string} email - Email del usuario
- * @returns {Promise<Object>} Respuesta del backend
+ * Llama al endpoint del backend para crear una suscripción en Mercado Pago.
+ *
+ * @param {object} subscriptionData - Datos que incluyen PlanId, Email, CardTokenId, BackUrl, UserId
+ * @returns {Promise<object>} Respuesta del backend (generalmente el objeto de suscripción de MP)
  */
-export const createSubscription = async (planId, email) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/api/Payments/subscription`, {
-      planId: planId,
-      email: email
-    });
-    
-    // Si el pago fue exitoso, actualizar el plan del usuario en localStorage
-    if (response.data && response.status === 200) {
-      setUserPlan(planId);
-      console.log('✅ Suscripción creada y plan actualizado:', planId);
+export async function createSubscription(subscriptionData) {
+    // Obtenemos el token para asegurar que la API sepa qué usuario está pagando (si lo necesitas)
+    const token = getAuthToken();
+
+    try {
+        const response = await axios.post(
+            `${API_BASE_URL}/api/Payments/subscription`,
+            subscriptionData,
+            {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json'
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('❌ Error en createSubscription:', error);
+        
+        // Manejo de errores basado en la estructura de Axios
+        const errorMessage = error.response?.data?.error || error.message || 'Error desconocido al crear la suscripción.';
+        throw new Error(errorMessage);
     }
-    
-    return response.data;
-  } catch (error) {
-    console.error('❌ Error in createSubscription:', error);
-    throw error;
-  }
-};
+}
 
-/**
- * Confirma el pago y activa la suscripción
- * @param {string} paymentId - ID del pago
- * @param {string} planId - ID del plan
- * @returns {Promise<Object>}
- */
-export const confirmPayment = async (paymentId, planId) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/api/Payments/confirm`, {
-      paymentId: paymentId
-    });
-    
-    // Si la confirmación fue exitosa, actualizar el plan
-    if (response.data && response.status === 200) {
-      setUserPlan(planId);
-      console.log('✅ Pago confirmado y plan actualizado:', planId);
+export async function getSubscriptionHistory() {
+    const token = getAuthToken();
+    if (!token) {
+        throw new Error('No autenticado');
     }
-    
-    return response.data;
-  } catch (error) {
-    console.error('❌ Error al confirmar pago:', error);
-    throw error;
-  }
-};
 
-/**
- * Obtiene el historial de suscripciones del usuario
- * @returns {Promise<Array>} Lista de suscripciones
- */
-export const getSubscriptionHistory = async () => {
-  try {
-    const token = localStorage.getItem('authToken');
-    const response = await axios.get(`${API_BASE_URL}/api/Users/Subscriptions`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    console.log('✅ Historial de suscripciones obtenido:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('❌ Error al obtener historial de suscripciones:', error);
-    throw error;
-  }
-};
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/Payments/history`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('❌ Error en getSubscriptionHistory:', error);
+        const errorMessage = error.response?.data?.error || error.message || 'Error desconocido al obtener el historial de suscripciones.';
+        throw new Error(errorMessage);
+    }
+}

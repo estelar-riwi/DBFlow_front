@@ -34,8 +34,7 @@
         v-for="plan in availablePlans"
         :key="plan.id"
         :class="['plan-card', { 
-          'plan-card-selected': currentPlan.id === plan.id,
-          'plan-card-disabled': !plan.available && currentPlan.id !== plan.id
+          'plan-card-selected': currentPlan.id === plan.id
         }]"
       >
         <div class="plan-header">
@@ -66,13 +65,6 @@
           disabled
         >
           Plan Actual
-        </button>
-        <button
-          v-else-if="!plan.available"
-          class="btn-disabled"
-          disabled
-        >
-          No Disponible
         </button>
         <button
           v-else
@@ -124,10 +116,13 @@
 <script setup>
 import StatCard from '@/components/StatCard.vue'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { showAlert } from '@/utils/notify'
 import { createSubscription, getSubscriptionHistory } from '@/services/paymentService'
 import { getUserPlan, setUserPlan } from '@/services/subscriptionService'
 import { getAllPlans, getPlanConfig } from '@/config/plans'
+
+const router = useRouter()
 
 // --- DATOS DE PLANES Y ESTADO DEL USUARIO ---
 
@@ -165,82 +160,13 @@ const availablePlans = ref(allPlansConfig.map(plan => ({
   dbsPerEngineText: `Hasta ${plan.databaseLimit} bases de datos por motor`,
   mpPlanId: plan.id === 'intermediate' ? MERCADO_PAGO_PLAN_IDS.INTERMEDIO :
             plan.id === 'advanced' ? MERCADO_PAGO_PLAN_IDS.AVANZADO : null,
-  available: plan.id === 'free' || plan.id === 'intermediate', // Solo gratuito e intermedio por ahora
+  available: true, // Todos los planes habilitados
   features: plan.features
 })));
 
 // --- LÓGICA DE SUSCRIPCIÓN ---
-const subscribeToPlan = async (planId) => {
-  const selectedPlan = availablePlans.value.find(p => p.id === planId);
-
-  if (!selectedPlan) {
-    await showAlert({ icon: 'error', title: 'Error', text: 'Plan no válido.' });
-    return;
-  }
-
-  // Verificar si el plan está disponible
-  if (!selectedPlan.available) {
-    await showAlert({ 
-      icon: 'info', 
-      title: 'Próximamente', 
-      text: `El ${selectedPlan.name} estará disponible próximamente.`,
-      confirmText: 'Entendido'
-    });
-    return;
-  }
-
-  // Si es el plan gratuito, solo actualizar el localStorage
-  if (planId === 'free') {
-    setUserPlan('free')
-    currentPlan.value = {
-      id: 'free',
-      name: 'Plan Gratuito',
-      price: 0,
-      priceText: 'Gratuito',
-      dbsPerEngine: 2,
-      dbsPerEngineText: 'Hasta 2 DBs por motor',
-    }
-    userPlanId.value = 'free'
-    
-    await showAlert({ 
-      icon: 'success', 
-      title: 'Plan actualizado', 
-      text: 'Has cambiado al Plan Gratuito.',
-      confirmText: 'Entendido'
-    });
-    return;
-  }
-
-  if (!selectedPlan.mpPlanId) {
-    await showAlert({ icon: 'error', title: 'Error', text: 'Plan sin ID de Mercado Pago configurado.' });
-    return;
-  }
-
-  // Obtener email del usuario desde localStorage
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
-  const userEmail = user.email || user.Email || prompt(`Ingresa tu correo electrónico para suscribirte al ${selectedPlan.name}:`);
-
-  if (!userEmail) {
-    await showAlert({ icon: 'info', title: 'Cancelado', text: 'Suscripción cancelada por el usuario.' });
-    return;
-  }
-
-  try {
-    // Pasar el planId (free, intermediate, advanced) en lugar del mpPlanId
-    const result = await createSubscription(planId, userEmail);
-    if (result?.init_point) {
-      // Guardar el plan seleccionado temporalmente para cuando regrese del pago
-      localStorage.setItem('pending_plan', planId)
-      
-      // Redirige al usuario al checkout de Mercado Pago
-      window.location.href = result.init_point;
-    } else {
-      await showAlert({ icon: 'error', title: 'Error', text: 'No se pudo iniciar la suscripción. Inténtalo de nuevo.' });
-    }
-  } catch (error) {
-    console.error('❌ Error creando suscripción:', error);
-    await showAlert({ icon: 'error', title: 'Error', text: 'Hubo un problema al conectar con el servidor de pagos.' });
-  }
+const subscribeToPlan = (planId) => {
+  router.push({ name: 'Payment', params: { planId } });
 };
 
 // --- FUNCIONES AUXILIARES PARA HISTORIAL ---

@@ -9,7 +9,7 @@ VITE_API_URL=http://localhost:5030
 
 ### Producción (.env.production)
 ```env
-VITE_API_URL=https://service.estelar.andrescortes.dev
+VITE_API_URL=http://localhost:5030
 ```
 
 ## Comandos de Build
@@ -34,7 +34,7 @@ npm run preview
 ### 1. Asegúrate de tener el archivo .env.production
 El archivo `.env.production` debe contener:
 ```env
-VITE_API_URL=https://service.estelar.andrescortes.dev
+VITE_API_URL=http://localhost:5030
 ```
 
 ### 2. Genera el build
