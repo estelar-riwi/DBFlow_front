@@ -671,33 +671,23 @@ const createDb = async () => {
       return
     }
     
-    // Si es un error 401, la base de datos PUEDE haberse creado de todos modos
-    // (problema de configuración del backend)
+    // Si es un error 401, el token expiró - cerrar sesión automáticamente
     if (error.response?.status === 401) {
-      console.warn('⚠️ Error 401 - Token expirado. Recargando lista por si acaso...')
+      console.warn('⚠️ Error 401 - Token expirado');
       
-      // Intentar recargar las bases de datos de todos modos
-      try {
-        await loadDatabases()
-        await loadDatabasesCount()
-      } catch (reloadError) {
-        console.error('Error al recargar:', reloadError)
-      }
-      
-      // Preguntar al usuario si quiere cerrar sesión
-      const result = await showAlert({ 
+      // Mostrar mensaje y cerrar sesión automáticamente
+      await showAlert({ 
         icon: 'warning', 
-        title: '⚠️ Token expirado o inválido', 
-        text: 'Tu sesión ha expirado o el token de autenticación no es válido.\n\n¿Deseas cerrar sesión e iniciar sesión nuevamente?',
-        confirmText: 'Sí, cerrar sesión',
-        showCancel: true,
-        cancelText: 'Cancelar'
+        title: '⚠️ Sesión Expirada', 
+        text: 'Tu sesión ha expirado. Serás redirigido al inicio de sesión.',
+        confirmText: 'Entendido',
+        autoClose: 3000  // Se cierra automáticamente después de 3 segundos
       })
       
-      if (result && result.isConfirmed) {
-        // Cerrar sesión y redirigir al login
-        await logoutAndRedirect(router)
-      }
+      console.log('🚪 Cerrando sesión automáticamente...');
+      
+      // Cerrar sesión y redirigir
+      await logoutAndRedirect(router)
       
       return
     }
@@ -759,6 +749,23 @@ const loadDatabases = async () => {
   } catch (error) {
     console.error('❌ Error al cargar bases de datos:', error)
     console.error('❌ Response:', error.response?.data)
+    
+    // Si es un error 401, cerrar sesión automáticamente
+    if (error.response?.status === 401) {
+      console.warn('⚠️ Error 401 al cargar bases de datos - Token expirado');
+      
+      await showAlert({ 
+        icon: 'warning', 
+        title: '⚠️ Sesión Expirada', 
+        text: 'Tu sesión ha expirado. Serás redirigido al inicio de sesión.',
+        confirmText: 'Entendido',
+        autoClose: 3000
+      })
+      
+      await logoutAndRedirect(router)
+      return
+    }
+    
     // Mantener la lista vacía si falla la carga
   } finally {
     hideLoading()
@@ -1009,6 +1016,25 @@ const rotateDbCredentials = async (db) => {
 }
 
 onMounted(async () => {
+  console.log('🚀 DatabaseList montado');
+  
+  // Verificar si hay token antes de hacer cualquier cosa
+  const token = localStorage.getItem('authToken');
+  console.log('🔑 Token presente:', token ? 'SÍ' : 'NO');
+  
+  if (!token) {
+    console.warn('⚠️ No hay token, redirigiendo a login...');
+    await showAlert({ 
+      icon: 'warning', 
+      title: '⚠️ Sesión No Iniciada', 
+      text: 'Debes iniciar sesión para acceder a esta página.',
+      confirmText: 'Ir a Login',
+      autoClose: 2000
+    });
+    await router.push('/login');
+    return;
+  }
+  
   // Sincronizar plan desde el backend
   await syncUserPlan()
   
