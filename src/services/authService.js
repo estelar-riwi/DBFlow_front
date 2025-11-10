@@ -93,6 +93,38 @@ export async function login(credentials) {
       // Construir objeto de usuario con los datos del token y la respuesta
       const userData = response.data.user || {};
       
+      // IMPORTANTE: Buscar el userId en TODAS las posibles ubicaciones
+      let userId = 
+        // Primero en la respuesta directa del backend
+        response.data.userId ||
+        response.data.UserId ||
+        response.data.id ||
+        response.data.user?.userId ||
+        response.data.user?.UserId ||
+        response.data.user?.id;
+      
+      // Si no está en la respuesta, buscar en el token decodificado
+      if (!userId && decodedToken) {
+        userId = 
+          decodedToken.sub || 
+          decodedToken.nameid || 
+          decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+          decodedToken.userId ||
+          decodedToken.UserId ||
+          decodedToken.id;
+      }
+      
+      // Guardar el userId si lo encontramos
+      if (userId) {
+        console.log('✅ userId encontrado:', userId);
+        localStorage.setItem('user_id', userId.toString());
+        userData.UserId = parseInt(userId);
+      } else {
+        console.error('❌ NO SE ENCONTRÓ userId en la respuesta del backend');
+        console.error('📋 Datos completos de la respuesta:', JSON.stringify(response.data, null, 2));
+        console.error('🔑 Token decodificado:', JSON.stringify(decodedToken, null, 2));
+      }
+      
       // Extraer información del token decodificado
       if (decodedToken) {
         // Buscar el nombre en diferentes campos del JWT
@@ -107,18 +139,6 @@ export async function login(credentials) {
                         decodedToken.email ||
                         decodedToken.Email ||
                         credentials.email;
-        
-        // Guardar el user_id si está disponible
-        const userId = decodedToken.sub || 
-                      decodedToken.nameid || 
-                      decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
-                      decodedToken.userId ||
-                      decodedToken.UserId;
-        
-        if (userId) {
-          localStorage.setItem('user_id', userId.toString());
-          userData.UserId = parseInt(userId);
-        }
       }
       
       // Asegurar que siempre tenga el email (del login si no viene en el token)
