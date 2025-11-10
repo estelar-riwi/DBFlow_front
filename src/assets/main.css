@@ -22,10 +22,7 @@ body {
   /* 🔑 PROPIEDADES SCROLL SNAP Y EFECTO SUAVE 🔑 */
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
-  overflow-y: scroll; 
-  
-  /* 🚨 ELIMINADA: La compensación se hace en home.css con margin/padding */
-  /* scroll-padding-top: 6.25rem; */ 
+  /* ❌ ELIMINADO: overflow-y: scroll; para evitar doble scroll */
 }
 
 
