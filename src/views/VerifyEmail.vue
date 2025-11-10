@@ -65,18 +65,31 @@ const userEmail = ref('');
 
 // Verificar automáticamente si hay un token en la URL
 onMounted(async () => {
+    console.log('🔍 VerifyEmail mounted');
+    console.log('📋 Route params:', JSON.stringify(route.params, null, 2));
+    console.log('📋 Route query:', JSON.stringify(route.query, null, 2));
+    console.log('📋 Route fullPath:', route.fullPath);
+    console.log('📋 Route path:', route.path);
+    
     // Cargar el email no verificado si está disponible
     const unverifiedEmail = localStorage.getItem('unverified_email');
     if (unverifiedEmail) {
         userEmail.value = unverifiedEmail;
+        console.log('📧 Email no verificado cargado:', unverifiedEmail);
     }
     
     const tokenFromParam = route.params.token;
     const tokenFromQuery = route.query.token;
     const token = tokenFromParam || tokenFromQuery;
     
+    console.log('🔑 Token desde params:', tokenFromParam);
+    console.log('🔑 Token desde query:', tokenFromQuery);
+    console.log('🔑 Token final seleccionado:', token);
+    console.log('📏 Longitud del token:', token?.length);
+    
     // Si el token viene en la query, reemplazamos la URL por la canónica (/verify-email/:token)
     if (tokenFromQuery && !tokenFromParam) {
+        console.log('🔄 Redirigiendo token de query a params');
         // Reemplaza la URL en el historial sin añadir una entrada nueva
         router.replace({ name: 'VerifyEmail', params: { token } });
     }
@@ -85,19 +98,38 @@ onMounted(async () => {
         isVerifying.value = true;
         verificationMessage.value = 'Verificando tu correo...';
         
+        console.log('✉️ Iniciando verificación con token:', token.substring(0, 20) + '...');
+        console.log('✉️ Token completo (para debug):', token);
+        
         try {
             const result = await verifyEmail(token);
             
+            console.log('📨 Resultado de verificación:', JSON.stringify(result, null, 2));
+            
             if (result.success) {
                 verificationSuccess.value = true;
-                verificationMessage.value = result.message;
+                verificationMessage.value = result.message || '✅ Email verificado exitosamente. Ya puedes iniciar sesión.';
                 // Limpiar el email no verificado del localStorage si la verificación fue exitosa
                 localStorage.removeItem('unverified_email');
+                
+                // Mostrar alerta de éxito y redirigir al login
+                await showAlert({
+                    icon: 'success',
+                    title: '¡Verificación exitosa!',
+                    text: 'Tu correo ha sido verificado correctamente. Ahora puedes iniciar sesión.',
+                    confirmText: 'Ir a Iniciar Sesión'
+                });
+                
+                router.push('/login');
             } else {
                 verificationSuccess.value = false;
-                verificationMessage.value = result.message;
+                verificationMessage.value = result.message || '❌ Enlace de verificación inválido o expirado.';
+                
+                console.error('❌ Error en verificación:', result.message);
+                console.error('❌ Errores detallados:', result.errors);
             }
         } catch (error) {
+            console.error('❌ Error inesperado en verificación:', error);
             verificationSuccess.value = false;
             verificationMessage.value = 'Error al verificar el correo';
         } finally {

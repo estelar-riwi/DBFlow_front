@@ -18,7 +18,7 @@ function parseJwt(token) {
 }
 
 // URL base - En desarrollo usa el proxy de Vite, en producción usa la variable de entorno
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://service.estelar.andrescortes.dev';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5030';
 
 console.log('🌐 AuthService API_BASE_URL:', API_BASE_URL);
 console.log('🏭 Modo:', import.meta.env.MODE);
@@ -36,6 +36,10 @@ export async function register(userData) {
       userName: userData.name,
       email: userData.email,
       password: userData.password
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     return {
       success: true,
@@ -43,9 +47,21 @@ export async function register(userData) {
       message: 'Registro exitoso. Por favor verifica tu correo.'
     };
   } catch (error) {
+    console.error('❌ Error en registro:', error.response?.status, error.response?.data);
+    
+    // Manejar error 409 (Conflict) - email ya registrado
+    if (error.response?.status === 409) {
+      return {
+        success: false,
+        message: 'Este correo electrónico ya está registrado. Por favor inicia sesión o usa otro correo.',
+        errors: error.response?.data?.errors || null
+      };
+    }
+    
+    // Manejar otros errores
     return {
       success: false,
-      message: error.response?.data?.message || 'Error al registrar usuario',
+      message: error.response?.data?.message || error.response?.data?.title || 'Error al registrar usuario',
       errors: error.response?.data?.errors || null
     };
   }
@@ -57,6 +73,10 @@ export async function login(credentials) {
     const response = await axios.post(`${API_URL}/Login`, {
       email: credentials.email,
       password: credentials.password
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     
     console.log('Respuesta completa del login:', response.data);
@@ -137,19 +157,52 @@ export async function login(credentials) {
       message: 'Inicio de sesión exitoso'
     };
   } catch (error) {
-    // Verificar si el error es por email no verificado
-    const errorMessage = error.response?.data?.message || error.response?.data || '';
+    console.error('❌ Error en login:', error.response?.status, error.response?.data);
+    
+    // Obtener el mensaje de error del backend
+    const errorData = error.response?.data;
+    const errorMessage = errorData?.message || errorData?.title || errorData || '';
+    
+    // Verificar si el error es específicamente por email no verificado
+    // Debe contener palabras clave específicas de verificación Y no ser un 404
     const isEmailNotVerified = 
-      errorMessage.toLowerCase().includes('verifica') ||
-      errorMessage.toLowerCase().includes('verificado') ||
-      errorMessage.toLowerCase().includes('verify') ||
-      errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('confirm');
+      error.response?.status !== 404 && // No es usuario no encontrado
+      (
+        errorMessage.toLowerCase().includes('email no verificado') ||
+        errorMessage.toLowerCase().includes('email not verified') ||
+        errorMessage.toLowerCase().includes('please verify your email') ||
+        errorMessage.toLowerCase().includes('verify your email address')
+      );
+    
+    // Manejar error 401 específicamente
+    if (error.response?.status === 401) {
+      return {
+        success: false,
+        emailNotVerified: isEmailNotVerified,
+        email: credentials.email,
+        message: isEmailNotVerified 
+          ? 'Por favor verifica tu correo electrónico antes de iniciar sesión.' 
+          : 'Credenciales incorrectas. Verifica tu email y contraseña.',
+        errors: error.response?.data?.errors || null
+      };
+    }
+    
+    // Manejar error 404 (usuario no encontrado)
+    if (error.response?.status === 404) {
+      return {
+        success: false,
+        emailNotVerified: false,
+        email: credentials.email,
+        message: 'No existe una cuenta con este correo electrónico. Por favor regístrate primero.',
+        errors: error.response?.data?.errors || null
+      };
+    }
     
     return {
       success: false,
       emailNotVerified: isEmailNotVerified,
-      email: credentials.email, // Guardar el email para usarlo en la página de verificación
-      message: error.response?.data?.message || 'Credenciales inválidas',
+      email: credentials.email,
+      message: errorMessage || 'Error al iniciar sesión',
       errors: error.response?.data?.errors || null
     };
   }
@@ -158,18 +211,64 @@ export async function login(credentials) {
 // GET /api/Access/Verify-Email
 export async function verifyEmail(token) {
   try {
+    console.log('🔑 verifyEmail llamado');
+    console.log('📝 Token recibido:', token);
+    console.log('📏 Longitud del token:', token?.length);
+    console.log('� Tipo de token:', typeof token);
+    console.log('�📡 URL del API:', API_URL);
+    console.log('📡 URL completa que se enviará:', `${API_URL}/Verify-Email?token=${token}`);
+    
+    // Asegurarnos de que el token existe y es una cadena
+    if (!token || typeof token !== 'string' || token.trim() === '') {
+      console.error('❌ Token inválido o vacío');
+      return {
+        success: false,
+        message: 'Token de verificación no válido. Por favor solicita un nuevo enlace.',
+        errors: null
+      };
+    }
+    
     const response = await axios.get(`${API_URL}/Verify-Email`, {
-      params: { token }
+      params: { token: token.trim() }
     });
+    
+    console.log('✅ Respuesta exitosa del backend:', response.data);
+    
     return {
       success: true,
       data: response.data,
-      message: 'Email verificado exitosamente'
+      message: response.data?.message || 'Email verificado exitosamente'
     };
   } catch (error) {
+    console.error('❌ Error completo:', error);
+    console.error('❌ Error en verifyEmail:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      config: {
+        url: error.config?.url,
+        params: error.config?.params
+      },
+      message: error.message
+    });
+    
+    // Extraer el mensaje de error del backend
+    let errorMessage = 'Enlace de verificación inválido o expirado. Por favor solicita un nuevo enlace.';
+    
+    if (error.response?.data) {
+      if (typeof error.response.data === 'string') {
+        errorMessage = error.response.data;
+      } else if (error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response.data.title) {
+        errorMessage = error.response.data.title;
+      }
+    }
+    
     return {
       success: false,
-      message: error.response?.data?.message || 'Error al verificar el email',
+      message: errorMessage,
       errors: error.response?.data?.errors || null
     };
   }
@@ -485,7 +584,7 @@ export async function checkEmailVerificationStatus() {
 axios.interceptors.request.use(
   (config) => {
     // No añadir token a las rutas de autenticación
-    const authRoutes = ['/Login', '/Register', '/Verify-Email', '/Forgot-Password', '/Reset-Password'];
+    const authRoutes = ['/Login', '/Register', '/Verify-Email', '/Resend-Verification', '/Forgot-Password', '/Reset-Password'];
     const isAuthRoute = authRoutes.some(route => config.url?.includes(route));
     
     if (isAuthRoute) {
