@@ -1,15 +1,55 @@
 <template>
   <LoadingOverlay />
-  <!-- <router-view /> -->
-  <TokenGenerator />
+  <transition name="page-transition" mode="out-in">
+    <router-view v-slot="{ Component }">
+      <component :is="Component" :key="$route.path" />
+    </router-view>
+  </transition>
 </template>
 
 <script>
 import LoadingOverlay from '@/components/LoadingOverlay.vue';
-import TokenGenerator from '@/components/TokenGenerator.vue';
 
 export default {
-  components: { LoadingOverlay, TokenGenerator }
+  components: { LoadingOverlay }
 }
 </script>
 
+<style>
+/* Transiciones de página globales */
+.page-transition-enter-active {
+  animation: pageEnter 0.5s ease-out;
+}
+
+.page-transition-leave-active {
+  animation: pageLeave 0.4s ease-in;
+  position: absolute;
+  width: 100%;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: scale(1.02) translateY(20px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes pageLeave {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+    filter: blur(5px);
+  }
+}
+</style>
