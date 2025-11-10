@@ -367,25 +367,45 @@ export function logout() {
  * Acepta opcionalmente una instancia de `router` (vue-router) para hacer push.
  */
 export async function logoutAndRedirect(router) {
+  console.log('🚪 Iniciando cierre de sesión...');
+  
   try {
     showLoading('Cerrando sesión...');
-  } catch (e) {}
+  } catch (e) {
+    console.warn('⚠️ No se pudo mostrar loading:', e);
+  }
 
   // Delay para que se vea la pantalla de carga
   await new Promise(resolve => setTimeout(resolve, 800));
 
   // Limpiar credenciales locales
+  console.log('🧹 Limpiando credenciales...');
   logout();
 
+  console.log('🔄 Redirigiendo a login...');
+  
   try {
     if (router && typeof router.push === 'function') {
-      await router.push({ name: 'Login' }).catch(() => {});
+      console.log('✅ Usando Vue Router para redirigir');
+      await router.push({ name: 'Login' }).catch((err) => {
+        console.error('Error al hacer push con router:', err);
+      });
     } else {
       // Fallback: navegar usando location (recarga completa)
+      console.log('✅ Usando window.location para redirigir');
       window.location.href = '/login';
     }
+  } catch (error) {
+    console.error('❌ Error al redirigir:', error);
+    // Último recurso: forzar recarga completa
+    window.location.href = '/login';
   } finally {
-    try { hideLoading(); } catch (e) {}
+    try { 
+      hideLoading(); 
+      console.log('✅ Cierre de sesión completado');
+    } catch (e) {
+      console.warn('⚠️ No se pudo ocultar loading:', e);
+    }
   }
 }
 
