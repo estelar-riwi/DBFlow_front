@@ -713,6 +713,9 @@ const createDb = async () => {
 const loadDatabases = async () => {
   try {
     showLoading('Cargando bases de datos...')
+    
+    console.log('📡 Intentando cargar bases de datos...');
+    
     const data = await getAllDatabases()
     
     console.log('📥 Bases de datos recibidas del backend:', data)
@@ -751,6 +754,9 @@ const loadDatabases = async () => {
     console.error('❌ Response:', error.response?.data)
     console.error('❌ Status:', error.response?.status)
     
+    // Ocultar loading inmediatamente
+    hideLoading()
+    
     // Si es un error 401, verificar si acabamos de iniciar sesión
     if (error.response?.status === 401) {
       console.warn('⚠️ Error 401 al cargar bases de datos');
@@ -767,27 +773,27 @@ const loadDatabases = async () => {
         
         await showAlert({
           icon: 'error',
-          title: '❌ Error de Autenticación',
-          text: 'No se pudieron cargar las bases de datos. El backend rechazó el token.\n\nPor favor contacta al administrador.',
+          title: '❌ Error de Configuración del Backend',
+          text: 'El backend está rechazando el token de autenticación.\n\nPosibles causas:\n• CORS no configurado correctamente\n• Token no incluye userId en los claims\n• Backend no permite peticiones desde este dominio\n\nContacta al equipo de backend con el archivo BACKEND_CONFIG_REQUIRED.md',
           confirmText: 'Entendido'
         });
         
-        return;
+        // No hacer return, continuar para que hideLoading se ejecute
+      } else {
+        // Si pasó más tiempo, cerrar sesión automáticamente
+        console.warn('⚠️ Token expirado - cerrando sesión');
+        
+        await showAlert({ 
+          icon: 'warning', 
+          title: '⚠️ Sesión Expirada', 
+          text: 'Tu sesión ha expirado. Serás redirigido al inicio de sesión.',
+          confirmText: 'Entendido',
+          autoClose: 3000
+        })
+        
+        await logoutAndRedirect(router)
+        return
       }
-      
-      // Si pasó más tiempo, cerrar sesión automáticamente
-      console.warn('⚠️ Token expirado - cerrando sesión');
-      
-      await showAlert({ 
-        icon: 'warning', 
-        title: '⚠️ Sesión Expirada', 
-        text: 'Tu sesión ha expirado. Serás redirigido al inicio de sesión.',
-        confirmText: 'Entendido',
-        autoClose: 3000
-      })
-      
-      await logoutAndRedirect(router)
-      return
     }
     
     // Mantener la lista vacía si falla la carga
