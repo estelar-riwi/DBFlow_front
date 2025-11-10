@@ -749,10 +749,34 @@ const loadDatabases = async () => {
   } catch (error) {
     console.error('❌ Error al cargar bases de datos:', error)
     console.error('❌ Response:', error.response?.data)
+    console.error('❌ Status:', error.response?.status)
     
-    // Si es un error 401, cerrar sesión automáticamente
+    // Si es un error 401, verificar si acabamos de iniciar sesión
     if (error.response?.status === 401) {
-      console.warn('⚠️ Error 401 al cargar bases de datos - Token expirado');
+      console.warn('⚠️ Error 401 al cargar bases de datos');
+      
+      // Verificar cuánto tiempo ha pasado desde el login
+      const loginTime = localStorage.getItem('login_time');
+      const now = Date.now();
+      const timeSinceLogin = loginTime ? (now - parseInt(loginTime)) : Infinity;
+      
+      // Si acabamos de iniciar sesión (menos de 10 segundos), no cerrar sesión aún
+      if (timeSinceLogin < 10000) {
+        console.log('⏰ Inicio de sesión reciente, no cerrando sesión automáticamente');
+        console.log('📋 Mostrando mensaje de error en lugar de cerrar sesión');
+        
+        await showAlert({
+          icon: 'error',
+          title: '❌ Error de Autenticación',
+          text: 'No se pudieron cargar las bases de datos. El backend rechazó el token.\n\nPor favor contacta al administrador.',
+          confirmText: 'Entendido'
+        });
+        
+        return;
+      }
+      
+      // Si pasó más tiempo, cerrar sesión automáticamente
+      console.warn('⚠️ Token expirado - cerrando sesión');
       
       await showAlert({ 
         icon: 'warning', 

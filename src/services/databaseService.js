@@ -21,17 +21,34 @@ function getAuthToken() {
  * @throws {Error} Si no se encuentra el userId
  */
 function getUserId() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const userId = localStorage.getItem('user_id') || 
-                 user.UserId || 
+  // Primero intentar obtener desde user_id directo
+  const userIdDirect = localStorage.getItem('user_id');
+  
+  if (userIdDirect) {
+    console.log('✅ userId encontrado en localStorage (directo):', userIdDirect);
+    return parseInt(userIdDirect);
+  }
+  
+  // Si no está, buscar en el objeto user
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    console.error('❌ No se encontró el objeto user en localStorage');
+    throw new Error('No se encontró el ID del usuario. Por favor, inicia sesión nuevamente.');
+  }
+  
+  const user = JSON.parse(userStr);
+  const userId = user.UserId || 
                  user.userId || 
                  user.id ||
                  user.ID;
   
   if (!userId) {
+    console.error('❌ Objeto user existe pero no tiene userId');
+    console.error('📋 Contenido del user:', user);
     throw new Error('No se encontró el ID del usuario. Por favor, inicia sesión nuevamente.');
   }
   
+  console.log('✅ userId encontrado en objeto user:', userId);
   return parseInt(userId);
 }
 
