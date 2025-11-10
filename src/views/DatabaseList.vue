@@ -2,18 +2,21 @@
 <div class="dashboard-view">
 <div class="view-header">
     <h1>Mis Bases de Datos</h1>
-    <button class="btn-primary" @click="openCreateModal">Crear Base de Datos</button>
+    <div style="display: flex; gap: 12px;">
+        <button class="btn-debug" @click="debugAuth" title="Verificar autenticación">🔍 Debug</button>
+        <button class="btn-primary" @click="openCreateModal">Crear Base de Datos</button>
+    </div>
 </div>
 
 <section class="quota-section reveal-on-scroll">
     <h3>Bases de Datos</h3>
     <div class="quota-grid">
-    <StatCard title="MYSQL" :value="`${countByEngine('MySQL')} / 2`" subtitle="Instancias usadas" logo="/logos/mysql.svg" cardColor="#00758F" />
-    <StatCard title="POSTGRESQL" :value="`${countByEngine('PostgreSQL')} / 2`" subtitle="Instancias usadas" logo="/logos/postgresql.svg" cardColor="#336791" />
-    <StatCard title="MONGODB" :value="`${countByEngine('MongoDB')} / 2`" subtitle="Instancias usadas" logo="/logos/mongodb.svg" cardColor="#47A248" />
-    <StatCard title="CASSANDRA" :value="`${countByEngine('Cassandra')} / 2`" subtitle="Instancias usadas" logo="/logos/cassandra.svg" cardColor="#1287B1" />
-    <StatCard title="SQL SERVER" :value="`${countByEngine('SQL Server')} / 2`" subtitle="Instancias usadas" logo="/logos/sqlserver.svg" cardColor="#8B5CF6" />
-    <StatCard title="REDIS" :value="`${countByEngine('Redis')} / 2`" subtitle="Instancias usadas" logo="/logos/redis.svg" cardColor="#DC382D" />
+    <StatCard title="MYSQL" :value="`${countByEngine('MySQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mysql.svg" cardColor="#00758F" />
+    <StatCard title="POSTGRESQL" :value="`${countByEngine('PostgreSQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/postgresql.svg" cardColor="#336791" />
+    <StatCard title="MONGODB" :value="`${countByEngine('MongoDB')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mongodb.svg" cardColor="#47A248" />
+    <StatCard title="CASSANDRA" :value="`${countByEngine('Cassandra')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/cassandra.svg" cardColor="#1287B1" />
+    <StatCard title="SQL SERVER" :value="`${countByEngine('SQL Server')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/sqlserver.svg" cardColor="#8B5CF6" />
+    <StatCard title="REDIS" :value="`${countByEngine('Redis')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/redis.svg" cardColor="#DC382D" />
     </div>
 </section>
 
@@ -43,33 +46,80 @@
             <th>Gestor</th>
             <th>Host</th>
             <th>Puerto</th>
-                            <th>Contraseña</th>
+            <th>Usuario</th>
+            <th>Contraseña</th>
             <th>Acciones</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="db in filteredDbs" :key="db.id">
             <td><span :class="'badge '+(db.status==='Activo'?'badge-success':'')">{{ db.status }}</span></td>
-            <td>{{ db.name }}</td>
+            <td>
+                <div class="password-wrapper">
+                    <span class="password">{{ db.name }}</span>
+                    <button 
+                      class="icon-btn" 
+                      @click="copyToClipboard(db.name)" 
+                      title="Copiar nombre"
+                      aria-label="Copiar nombre"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                </div>
+            </td>
             <td>{{ db.engine }}</td>
-            <td><span class="host">{{ db.host }}</span></td>
+            <td>
+                <div class="password-wrapper">
+                    <span class="host">{{ db.host }}</span>
+                    <button 
+                      class="icon-btn" 
+                      @click="copyToClipboard(db.host)" 
+                      title="Copiar host"
+                      aria-label="Copiar host"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                </div>
+            </td>
             <td>{{ db.port }}</td>
             <td>
                 <div class="password-wrapper">
-                    <span class="password">{{ showPasswords.has(db.id) ? db.password : masked(db.password) }}</span>
-                        <button class="icon-btn" @click="togglePassword(db.id)" :aria-label="showPasswords.has(db.id) ? 'Ocultar contraseña' : 'Mostrar contraseña'">
-                            <svg v-if="!showPasswords.has(db.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
-                            <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-6.94"/><path d="M1 1l22 22"/><path d="M10.58 10.58a2 2 0 1 0 2.83 2.83"/><path d="M9.88 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.82 21.82 0 0 1-3.12 4.56"/></svg>
-                        </button>
-                        <button class="icon-btn" @click="copyPassword(db.password)" aria-label="Copiar contraseña">
+                    <span class="password">{{ db.username || 'N/A' }}</span>
+                    <button 
+                      class="icon-btn" 
+                      @click="copyToClipboard(db.username)" 
+                      :disabled="!db.username"
+                      title="Copiar usuario"
+                      aria-label="Copiar usuario"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                </div>
+            </td>
+            <td>
+                <div class="password-wrapper">
+                    <span class="password">{{ db.passwordVisible ? db.password : masked(db.password) }}</span>
+                        <button 
+                          class="icon-btn" 
+                          @click="copyPasswordAndHide(db)" 
+                          :disabled="!db.passwordVisible"
+                          :title="!db.passwordVisible ? 'La contraseña ya fue copiada. Usa \'Ver\' para obtener una nueva.' : 'Copiar contraseña'"
+                          aria-label="Copiar contraseña"
+                        >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                         </button>
                 </div>
             </td>
             <td>
                 <div class="actions">
-                    <button class="action-btn">Ver</button>
-                    <button class="action-btn delete">Borrar</button>
+                    <button 
+                      class="action-btn" 
+                      @click="viewCredentials(db)" 
+                      title="⚠️ Al ver las credenciales se generará una nueva contraseña"
+                    >
+                      Ver
+                    </button>
+                    <button class="action-btn delete" @click="removeDatabase(db)" title="Eliminar base de datos">Borrar</button>
                 </div>
             </td>
         </tr>
@@ -80,6 +130,103 @@
     </table>
     </div>
 </section>
+
+<!-- Modal Ver Credenciales -->
+<div v-if="showCredentials" class="modal-overlay" @click.self="closeCredentials">
+    <div class="modal-content-glass credentials-modal">
+        <button class="modal-close-btn" @click="closeCredentials">×</button>
+        
+        <div class="step-content">
+            <h2 class="modal-title">🔑 Credenciales de {{ selectedDb?.name || 'Base de Datos' }}</h2>
+            <p class="modal-subtitle">Utiliza estos datos para conectarte a tu base de datos</p>
+            
+            <div class="credentials-container">
+                <!-- Host -->
+                <div class="credential-item">
+                    <span class="credential-label">🌐 Host:</span>
+                    <div class="credential-value-wrapper">
+                        <span class="credential-value">{{ currentCredentials?.host || 'N/A' }}</span>
+                        <button class="copy-btn" @click="copyToClipboard(currentCredentials?.host)" title="Copiar host">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Puerto -->
+                <div class="credential-item">
+                    <span class="credential-label">🔌 Puerto:</span>
+                    <div class="credential-value-wrapper">
+                        <span class="credential-value">{{ currentCredentials?.port || 'N/A' }}</span>
+                        <button class="copy-btn" @click="copyToClipboard(currentCredentials?.port)" title="Copiar puerto">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Usuario -->
+                <div class="credential-item">
+                    <span class="credential-label">👤 Usuario:</span>
+                    <div class="credential-value-wrapper">
+                        <span class="credential-value">{{ currentCredentials?.username || 'N/A' }}</span>
+                        <button class="copy-btn" @click="copyToClipboard(currentCredentials?.username)" title="Copiar usuario">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Contraseña -->
+                <div class="credential-item credential-password">
+                    <span class="credential-label">🔐 Contraseña:</span>
+                    <div class="credential-value-wrapper">
+                        <span class="credential-value password-value">{{ currentCredentials?.password || 'N/A' }}</span>
+                        <button class="copy-btn" @click="copyToClipboard(currentCredentials?.password)" title="Copiar contraseña">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Base de datos -->
+                <div class="credential-item">
+                    <span class="credential-label">💾 Base de datos:</span>
+                    <div class="credential-value-wrapper">
+                        <span class="credential-value">{{ currentCredentials?.databaseName || selectedDb?.name || 'N/A' }}</span>
+                        <button class="copy-btn" @click="copyToClipboard(currentCredentials?.databaseName || selectedDb?.name)" title="Copiar nombre de base de datos">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Advertencia importante -->
+            <div class="warning-box">
+                <span class="warning-icon">⚠️</span>
+                <div class="warning-content">
+                    <p class="warning-title">IMPORTANTE:</p>
+                    <p class="warning-text">Esta contraseña ha sido regenerada. Actualiza tus aplicaciones con las nuevas credenciales.</p>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn-outline" @click="closeCredentials">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal Crear -->
 <div v-if="showCreate" class="modal-overlay" @click.self="showCreate=false">
@@ -96,7 +243,10 @@
             v-for="engine in engineOptions" 
             :key="engine.name"
             class="engine-card"
-            :class="{ 'selected': newDb.engine === engine.name }"
+            :class="{ 
+              'selected': newDb.engine === engine.name,
+              'disabled': engine.name !== 'MySQL'
+            }"
             :style="{ '--engine-color': engine.color }"
             @click="selectEngine(engine.name)"
         >
@@ -106,7 +256,8 @@
             <h3>{{ engine.name }}</h3>
             <p class="engine-desc">{{ engine.description }}</p>
             <div class="engine-meta">
-            <span>Puerto: {{ engine.defaultPort }}</span>
+            <span v-if="engine.name === 'MySQL'" class="badge-available">✓ Disponible</span>
+            <span v-else class="badge-coming-soon">🔧 En proceso</span>
             </div>
         </div>
         </div>
@@ -167,16 +318,32 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import StatCard from '../components/StatCard.vue'
 import { showAlert } from '@/utils/notify'
+import { createDatabase, getDatabaseCredentials, deleteDatabase, getAllDatabases, rotateCredentials, getDatabasesCount } from '@/services/databaseService'
+import { showLoading, hideLoading } from '@/store/loading'
+import { showAuthStatusModal } from '@/utils/authDebug'
+import { debugToken } from '@/utils/tokenDebug'
+import { logoutAndRedirect } from '@/services/authService'
+import { getUserPlan, syncUserPlan } from '@/services/subscriptionService'
+import { getDatabaseLimit, canCreateDatabase } from '@/config/plans'
 
+const router = useRouter()
 const searchTerm = ref('')
 const filterEngine = ref('')
-const databases = ref([
-    { id: 1, name: 'db_proyecto_final', engine: 'MySQL', host: 'mysql.dbflow.dev', port: 3306, status: 'Activo', password: 'mysql-3x4mpL3!' },
-    { id: 2, name: 'db_blog_personal', engine: 'MongoDB', host: 'mongo.dbflow.dev', port: 27017, status: 'Activo', password: 'mongo-3x4mpL3!' },
-    { id: 3, name: 'db_ecommerce', engine: 'PostgreSQL', host: 'postgres.dbflow.dev', port: 5432, status: 'Activo', password: 'pg-3x4mpL3!' }
-])
+const databases = ref([])
+const userPlan = ref(getUserPlan()) // Plan del usuario
+const databaseLimit = ref(getDatabaseLimit(userPlan.value)) // Límite según el plan
+
+const databasesCount = ref({
+  mysql: 0,
+  postgresql: 0,
+  mongodb: 0,
+  cassandra: 0,
+  sqlserver: 0,
+  redis: 0
+})
 
 const filteredDbs = computed(() => {
 const term = searchTerm.value.toLowerCase()
@@ -186,11 +353,38 @@ return databases.value
     .filter(db => (term ? db.name.toLowerCase().includes(term) : true))
 })
 
-const countByEngine = (eng) => databases.value.filter(db => db.engine === eng).length
+const countByEngine = (eng) => {
+  // Mapear nombres de motor a las claves del objeto count
+  const engineMap = {
+    'MySQL': 'mysql',
+    'PostgreSQL': 'postgresql',
+    'MongoDB': 'mongodb',
+    'Cassandra': 'cassandra',
+    'SQL Server': 'sqlserver',
+    'Redis': 'redis'
+  }
+  
+  const key = engineMap[eng]
+  const apiCount = key ? databasesCount.value[key] || 0 : 0
+  
+  // Si el conteo de la API es 0, contar desde las bases de datos locales como fallback
+  if (apiCount === 0 && databases.value.length > 0) {
+    const localCount = databases.value.filter(db => db.engine === eng).length
+    console.log(`🔄 Usando conteo local para ${eng}: ${localCount}`)
+    return localCount
+  }
+  
+  return apiCount
+}
 
 const showCreate = ref(false)
 const createStep = ref(1)
 const newDb = ref({ name: '', engine: '' })
+
+// Estado del modal de credenciales
+const showCredentials = ref(false)
+const selectedDb = ref(null)
+const currentCredentials = ref(null)
 
 // Opciones de motores con metadata
 const engineOptions = ref([
@@ -251,6 +445,17 @@ const engineOptions = ref([
 ])
 
 const selectEngine = (engineName) => {
+  // Solo MySQL está disponible por ahora
+  if (engineName !== 'MySQL') {
+    showAlert({ 
+      icon: 'info', 
+      title: 'Próximamente', 
+      text: `${engineName} estará disponible próximamente. Por ahora solo MySQL está habilitado.`,
+      confirmText: 'Entendido'
+    })
+    return
+  }
+  
   newDb.value.engine = engineName
   createStep.value = 2
 }
@@ -271,15 +476,7 @@ const getConnectionString = (engineName, dbName) => {
   return engine.connectionString.replace('{dbname}', dbName || 'database_name')
 }
 
-// Password visibility states
-const showPasswords = ref(new Set())
-const togglePassword = (id) => {
-    const s = new Set(showPasswords.value)
-    if (s.has(id)) s.delete(id)
-    else s.add(id)
-    showPasswords.value = s
-}
-
+// Password masking
 const masked = (pwd = '') => '•'.repeat(Math.max(8, Math.min(12, pwd.length || 8)))
 
 const copyPassword = async (pwd = '') => {
@@ -298,36 +495,536 @@ const copyPassword = async (pwd = '') => {
     }
 }
 
+// Copiar contraseña y ocultarla permanentemente
+const copyPasswordAndHide = async (db) => {
+    // Si la contraseña no está visible, mostrar advertencia
+    if (!db.passwordVisible) {
+        await showAlert({ 
+            icon: 'warning', 
+            title: 'Contraseña no disponible', 
+            text: 'La contraseña ya fue copiada anteriormente. Usa el botón "Ver" para obtener una nueva contraseña.',
+            confirmText: 'Entendido'
+        })
+        return
+    }
+    
+    // Copiar la contraseña
+    try {
+        await navigator.clipboard.writeText(db.password)
+        await showAlert({ 
+            icon: 'success', 
+            title: 'Copiada', 
+            text: 'Contraseña copiada. Por seguridad, ahora está oculta permanentemente. Usa "Ver" para obtener una nueva.',
+            autoClose: 2500 
+        })
+        
+        // Ocultar la contraseña permanentemente después de copiarla
+        db.passwordVisible = false
+        
+        // Guardar en localStorage que esta contraseña ya fue copiada
+        const hiddenPasswords = JSON.parse(localStorage.getItem('hiddenPasswords') || '[]')
+        if (!hiddenPasswords.includes(db.id)) {
+            hiddenPasswords.push(db.id)
+            localStorage.setItem('hiddenPasswords', JSON.stringify(hiddenPasswords))
+        }
+    } catch (e) {
+        console.warn('Clipboard API no disponible, usando fallback', e)
+        const textarea = document.createElement('textarea')
+        textarea.value = db.password
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+        await showAlert({ 
+            icon: 'success', 
+            title: 'Copiada', 
+            text: 'Contraseña copiada. Por seguridad, ahora está oculta permanentemente.',
+            autoClose: 2500 
+        })
+        
+        // Ocultar la contraseña permanentemente después de copiarla
+        db.passwordVisible = false
+        
+        // Guardar en localStorage que esta contraseña ya fue copiada
+        const hiddenPasswords = JSON.parse(localStorage.getItem('hiddenPasswords') || '[]')
+        if (!hiddenPasswords.includes(db.id)) {
+            hiddenPasswords.push(db.id)
+            localStorage.setItem('hiddenPasswords', JSON.stringify(hiddenPasswords))
+        }
+    }
+}
+
 const openCreateModal = () => {
   newDb.value = { name: '', engine: '' }
   createStep.value = 1
   showCreate.value = true
 }
 
-const createDb = () => {
-if (!newDb.value.name || !newDb.value.engine) return
-
-const portByEngine = { MySQL: 3306, PostgreSQL: 5432, MongoDB: 27017, Cassandra: 9042, 'SQL Server': 1433, Redis: 6379 }
-const hostByEngine = { MySQL: 'mysql.dbflow.dev', PostgreSQL: 'postgres.dbflow.dev', MongoDB: 'mongo.dbflow.dev', Cassandra: 'cassandra.dbflow.dev', 'SQL Server': 'sqlserver.dbflow.dev', Redis: 'redis.dbflow.dev' }
-    const generatePassword = (engine) => (engine?.slice(0,2) || 'db') + '-' + Math.random().toString(36).slice(2, 10) + '!'
-
-databases.value.push({
-    id: Date.now(),
-    name: newDb.value.name,
-    engine: newDb.value.engine,
-    host: hostByEngine[newDb.value.engine] || 'db.dbflow.dev',
-    port: portByEngine[newDb.value.engine] || 8000,
-        status: 'Activo',
-        password: generatePassword(newDb.value.engine)
-})
-
-newDb.value = { name: '', engine: '' }
-createStep.value = 1
-showCreate.value = false
+// Función de debug para verificar autenticación
+const debugAuth = () => {
+  // Mostrar el modal profesional de estado de autenticación
+  showAuthStatusModal();
 }
 
-onMounted(() => {
-const observer = new IntersectionObserver(
+const createDb = async () => {
+  if (!newDb.value.name || !newDb.value.engine) {
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Campos incompletos', 
+      text: 'Por favor completa todos los campos',
+      confirmText: 'Entendido'
+    })
+    return
+  }
+
+  // Validar límite del plan antes de crear
+  const currentCount = countByEngine(newDb.value.engine)
+  const canCreate = canCreateDatabase(userPlan.value, currentCount)
+  
+  if (!canCreate) {
+    const planName = userPlan.value === 'free' ? 'Gratuito' : 
+                     userPlan.value === 'intermediate' ? 'Intermedio' : 'Avanzado'
+    
+    await showAlert({ 
+      icon: 'warning', 
+      title: '⚠️ Límite alcanzado', 
+      text: `Has alcanzado el límite de ${databaseLimit.value} bases de datos de ${newDb.value.engine} para tu plan ${planName}.\n\n¿Deseas actualizar tu plan para obtener más bases de datos?`,
+      confirmText: 'Ver planes',
+      showCancel: true,
+      cancelText: 'Cancelar'
+    }).then((result) => {
+      if (result && result.isConfirmed) {
+        router.push('/subscription')
+      }
+    })
+    return
+  }
+
+  try {
+    showLoading('Creando base de datos...')
+    
+    // Llamar a la API de MySQL con todos los campos requeridos
+    const response = await createDatabase({
+      databaseName: newDb.value.name,
+      engine: newDb.value.engine || 'MySQL' // Asegurar que siempre tenga engine
+    })
+    
+    console.log('Base de datos creada:', response)
+    
+    // Recargar las bases de datos y el conteo
+    await loadDatabases()
+    await loadDatabasesCount()
+    
+    // Resetear el formulario
+    newDb.value = { name: '', engine: '' }
+    createStep.value = 1
+    showCreate.value = false
+    
+    await showAlert({ 
+      icon: 'success', 
+      title: '¡Base de datos creada!', 
+      text: `La base de datos "${response.databaseName}" ha sido creada exitosamente`,
+      confirmText: 'Perfecto'
+    })
+  } catch (error) {
+    console.error('Error al crear base de datos:', error)
+    console.error('Response data:', error.response?.data)
+    console.error('Response status:', error.response?.status)
+    
+    // Si es un error 400, el payload es inválido
+    if (error.response?.status === 400) {
+      const errorDetail = error.response?.data?.errors 
+        || error.response?.data?.message 
+        || error.response?.data?.title
+        || 'El servidor rechazó la petición';
+      
+      let errorMessage = '❌ Error 400 - Bad Request\n\n';
+      
+      if (typeof errorDetail === 'object') {
+        errorMessage += 'Detalles del error:\n';
+        Object.keys(errorDetail).forEach(key => {
+          errorMessage += `• ${key}: ${JSON.stringify(errorDetail[key])}\n`;
+        });
+      } else {
+        errorMessage += errorDetail;
+      }
+      
+      errorMessage += '\n\nVerifica en la consola para más detalles.';
+      
+      await showAlert({ 
+        icon: 'error', 
+        title: 'Petición Inválida (400)', 
+        text: errorMessage,
+        confirmText: 'Entendido'
+      })
+      return
+    }
+    
+    // Si es un error 405, el método no está permitido (problema del backend)
+    if (error.response?.status === 405) {
+      await showAlert({ 
+        icon: 'error', 
+        title: 'Método no permitido (405)', 
+        text: 'El backend no acepta peticiones POST a este endpoint.\n\nVerifica:\n• Que el endpoint /api/Databases/MySQL acepte POST\n• Que CORS esté configurado correctamente\n• Que el backend esté corriendo en el puerto 5030',
+        confirmText: 'Entendido'
+      })
+      return
+    }
+    
+    // Si es un error 401, la base de datos PUEDE haberse creado de todos modos
+    // (problema de configuración del backend)
+    if (error.response?.status === 401) {
+      console.warn('⚠️ Error 401 - Token expirado. Recargando lista por si acaso...')
+      
+      // Intentar recargar las bases de datos de todos modos
+      try {
+        await loadDatabases()
+        await loadDatabasesCount()
+      } catch (reloadError) {
+        console.error('Error al recargar:', reloadError)
+      }
+      
+      // Preguntar al usuario si quiere cerrar sesión
+      const result = await showAlert({ 
+        icon: 'warning', 
+        title: '⚠️ Token expirado o inválido', 
+        text: 'Tu sesión ha expirado o el token de autenticación no es válido.\n\n¿Deseas cerrar sesión e iniciar sesión nuevamente?',
+        confirmText: 'Sí, cerrar sesión',
+        showCancel: true,
+        cancelText: 'Cancelar'
+      })
+      
+      if (result && result.isConfirmed) {
+        // Cerrar sesión y redirigir al login
+        await logoutAndRedirect(router)
+      }
+      
+      return
+    }
+    
+    const errorMessage = error.response?.data?.message 
+      || error.response?.data?.title
+      || error.response?.data?.errors
+      || error.message
+      || 'Error al crear la base de datos'
+    
+    await showAlert({ 
+      icon: 'error', 
+      title: `Error al crear base de datos (${error.response?.status || 'RED'})`, 
+      text: typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage,
+      confirmText: 'Entendido'
+    })
+  } finally {
+    hideLoading()
+  }
+}
+
+// Cargar bases de datos desde la API
+const loadDatabases = async () => {
+  try {
+    showLoading('Cargando bases de datos...')
+    const data = await getAllDatabases()
+    
+    console.log('📥 Bases de datos recibidas del backend:', data)
+    
+    // Obtener las contraseñas que ya fueron copiadas (ocultas permanentemente)
+    const hiddenPasswords = JSON.parse(localStorage.getItem('hiddenPasswords') || '[]')
+    
+    // Solo actualizar si hay datos
+    if (data && Array.isArray(data)) {
+      // Mapear la respuesta de la API al formato esperado
+      databases.value = data.map(db => ({
+        id: db.id,
+        name: db.databaseName || db.name,
+        engine: db.engine || 'MySQL', // Usar el engine de la API
+        host: db.host || 'mysql.dbflow.dev',
+        port: db.port || 3306,
+        status: db.status || 'Activo',
+        username: db.username,
+        password: db.password || '••••••••',
+        // Si la contraseña ya fue copiada antes, mantenerla oculta
+        passwordVisible: !hiddenPasswords.includes(db.id)
+      }))
+      
+      console.log('✅ Bases de datos mapeadas:', databases.value)
+      console.log('📊 Total de bases de datos:', databases.value.length)
+      
+      // Contar por motor
+      const countByEngineLocal = databases.value.reduce((acc, db) => {
+        acc[db.engine] = (acc[db.engine] || 0) + 1
+        return acc
+      }, {})
+      console.log('📊 Conteo local por motor:', countByEngineLocal)
+    }
+  } catch (error) {
+    console.error('❌ Error al cargar bases de datos:', error)
+    console.error('❌ Response:', error.response?.data)
+    // Mantener la lista vacía si falla la carga
+  } finally {
+    hideLoading()
+  }
+}
+
+// Cargar el conteo de bases de datos
+const loadDatabasesCount = async () => {
+  try {
+    const count = await getDatabasesCount()
+    console.log('📊 Conteo de bases de datos recibido:', count)
+    console.log('📊 Tipo de respuesta:', typeof count)
+    console.log('📊 Claves de la respuesta:', count ? Object.keys(count) : 'null')
+    
+    // Actualizar el conteo - manejar diferentes formatos de respuesta
+    if (count) {
+      databasesCount.value = {
+        mysql: count.mysql || count.MySQL || count.Mysql || 0,
+        postgresql: count.postgresql || count.PostgreSQL || count.Postgresql || 0,
+        mongodb: count.mongodb || count.MongoDB || count.Mongodb || 0,
+        cassandra: count.cassandra || count.Cassandra || 0,
+        sqlserver: count.sqlserver || count.sqlServer || count.SQLServer || count['SQL Server'] || 0,
+        redis: count.redis || count.Redis || 0
+      }
+      console.log('✅ Conteo actualizado:', databasesCount.value)
+    }
+  } catch (error) {
+    console.error('❌ Error al cargar conteo de bases de datos:', error)
+    console.error('❌ Detalles del error:', error.response?.data || error.message)
+    // Mantener el conteo en 0 si falla
+  }
+}
+
+// Eliminar base de datos
+const removeDatabase = async (db) => {
+  const result = await showAlert({ 
+    icon: 'warning', 
+    title: '¿Eliminar base de datos?', 
+    text: `¿Estás seguro de eliminar la base de datos "${db.name}"? Esta acción no se puede deshacer.`,
+    confirmText: 'Sí, eliminar',
+    showCancel: true,
+    cancelText: 'Cancelar'
+  })
+  
+  // Verificar si el usuario confirmó (isConfirmed === true)
+  if (!result || !result.isConfirmed) {
+    return
+  }
+  
+  try {
+    showLoading('Eliminando base de datos...')
+    await deleteDatabase(db.id)
+    
+    // Limpiar el localStorage de contraseñas ocultas para esta BD
+    const hiddenPasswords = JSON.parse(localStorage.getItem('hiddenPasswords') || '[]')
+    const updatedHidden = hiddenPasswords.filter(id => id !== db.id)
+    localStorage.setItem('hiddenPasswords', JSON.stringify(updatedHidden))
+    
+    // Recargar las bases de datos y el conteo
+    await loadDatabases()
+    await loadDatabasesCount()
+    
+    await showAlert({ 
+      icon: 'success', 
+      title: '¡Base de datos eliminada!', 
+      text: `La base de datos "${db.name}" ha sido eliminada exitosamente`,
+      confirmText: 'Entendido'
+    })
+  } catch (error) {
+    console.error('Error al eliminar base de datos:', error)
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Error al eliminar', 
+      text: error.response?.data?.message || 'Error al eliminar la base de datos',
+      confirmText: 'Entendido'
+    })
+  } finally {
+    hideLoading()
+  }
+}
+
+// Ver credenciales de una base de datos
+const viewCredentials = async (db) => {
+  // Advertir al usuario que se van a rotar las credenciales
+  console.log('🚀 Iniciando viewCredentials para:', db);
+  
+  const confirmResult = await showAlert({
+    icon: 'info',
+    title: '⚠️ Nota Importante',
+    text: 'Al ver las credenciales, se generará una nueva contraseña. ¿Deseas continuar?',
+    showCancel: true,
+    confirmText: 'Sí, continuar'
+  });
+
+  console.log('📋 Resultado de confirmación:', confirmResult);
+
+  if (!confirmResult?.isConfirmed) {
+    console.log('❌ Usuario canceló la operación');
+    return;
+  }
+
+  try {
+    console.log('✅ Usuario confirmó, mostrando loading...');
+    showLoading('Generando nuevas credenciales...')
+    
+    console.log('🔍 Solicitando credenciales para DB:', db)
+    
+    const credentials = await getDatabaseCredentials(db.id)
+    
+    console.log('✅ Credenciales recibidas:', credentials)
+    
+    // Actualizar el usuario en la base de datos local, pero NO marcar la contraseña como visible
+    // La contraseña solo se verá en el modal, no en la tabla
+    const dbIndex = databases.value.findIndex(d => d.id === db.id)
+    if (dbIndex !== -1) {
+      databases.value[dbIndex].password = credentials.password
+      databases.value[dbIndex].username = credentials.username
+      // NO actualizar passwordVisible - mantener la contraseña oculta en la tabla
+    }
+    
+    // Guardar las credenciales y la DB seleccionada
+    currentCredentials.value = credentials
+    selectedDb.value = db
+    
+    // Cerrar loading y mostrar el modal
+    hideLoading();
+    showCredentials.value = true
+    
+    console.log('✅ Modal de credenciales abierto');
+  } catch (error) {
+    console.error('❌ Error al obtener credenciales:', error)
+    console.error('Response status:', error.response?.status)
+    console.error('Response data:', error.response?.data)
+    
+    let errorMessage = 'Error al obtener credenciales';
+    
+    if (error.response?.status === 400) {
+      const errorDetail = error.response?.data?.errors || error.response?.data?.message || error.response?.data;
+      errorMessage = '❌ Error 400 - Bad Request\n\n';
+      
+      if (typeof errorDetail === 'object') {
+        errorMessage += 'El servidor rechazó la petición:\n';
+        Object.keys(errorDetail).forEach(key => {
+          errorMessage += `• ${key}: ${JSON.stringify(errorDetail[key])}\n`;
+        });
+      } else {
+        errorMessage += errorDetail;
+      }
+    } else if (error.response?.status === 404) {
+      errorMessage = 'No se encontró la base de datos.\n\nPuede que haya sido eliminada.';
+    } else if (error.response?.status === 403) {
+      errorMessage = 'No tienes permisos para acceder a estas credenciales.';
+    } else {
+      errorMessage = error.response?.data?.message || error.message || 'Error desconocido';
+    }
+    
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Error al obtener credenciales', 
+      text: errorMessage,
+      confirmText: 'Entendido'
+    })
+  } finally {
+    console.log('🧹 Limpieza: cerrando loading en finally...');
+    hideLoading()
+    console.log('✅ ViewCredentials completado');
+  }
+}
+
+// Cerrar modal de credenciales
+const closeCredentials = () => {
+  showCredentials.value = false
+  selectedDb.value = null
+  currentCredentials.value = null
+}
+
+// Copiar al portapapeles
+const copyToClipboard = async (text) => {
+  if (!text) return
+  
+  try {
+    await navigator.clipboard.writeText(String(text))
+    await showAlert({ 
+      icon: 'success', 
+      title: 'Copiado', 
+      text: 'Copiado al portapapeles',
+      autoClose: 1200 
+    })
+  } catch (e) {
+    console.warn('Clipboard API no disponible, usando fallback', e)
+    const textarea = document.createElement('textarea')
+    textarea.value = String(text)
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    await showAlert({ 
+      icon: 'success', 
+      title: 'Copiado', 
+      text: 'Copiado al portapapeles',
+      autoClose: 1200 
+    })
+  }
+}
+
+// Rotar credenciales (generar nueva contraseña)
+const rotateDbCredentials = async (db) => {
+  const result = await showAlert({ 
+    icon: 'info', 
+    title: '¿Rotar credenciales?', 
+    text: `¿Deseas generar una nueva contraseña para "${db.name}"? La contraseña anterior dejará de funcionar.`,
+    confirmText: 'Sí, generar nueva',
+    showCancel: true,
+    cancelText: 'Cancelar'
+  })
+  
+  // Verificar si el usuario confirmó (isConfirmed === true)
+  if (!result || !result.isConfirmed) {
+    return
+  }
+  
+  try {
+    showLoading('Rotando credenciales...')
+    const newCredentials = await rotateCredentials(db.id)
+    
+    console.log('Nuevas credenciales:', newCredentials)
+    
+    // Recargar las bases de datos para obtener la nueva contraseña
+    await loadDatabases()
+    
+    await showAlert({ 
+      icon: 'success', 
+      title: '¡Credenciales actualizadas!', 
+      text: `Nueva contraseña generada para "${db.name}"`,
+      confirmText: 'Entendido'
+    })
+  } catch (error) {
+    console.error('Error al rotar credenciales:', error)
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Error', 
+      text: error.response?.data?.message || 'Error al rotar credenciales',
+      confirmText: 'Entendido'
+    })
+  } finally {
+    hideLoading()
+  }
+}
+
+onMounted(async () => {
+  // Sincronizar plan desde el backend
+  await syncUserPlan()
+  
+  // Recargar plan actualizado
+  userPlan.value = getUserPlan()
+  databaseLimit.value = getDatabaseLimit(userPlan.value)
+  
+  console.log('📋 Plan actual del usuario:', userPlan.value)
+  console.log('🔢 Límite de bases de datos:', databaseLimit.value)
+  
+  // Cargar bases de datos y conteo al montar el componente
+  await loadDatabases()
+  await loadDatabasesCount()
+  
+  // Observer para animaciones
+  const observer = new IntersectionObserver(
     (entries) => {
     entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -336,9 +1033,9 @@ const observer = new IntersectionObserver(
     })
     },
     { threshold: 0.1 }
-)
-const reveals = document.querySelectorAll('.reveal-on-scroll')
-reveals.forEach((el) => observer.observe(el))
+  )
+  const reveals = document.querySelectorAll('.reveal-on-scroll')
+  reveals.forEach((el) => observer.observe(el))
 })
 </script>
 
@@ -411,8 +1108,13 @@ box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
 .password-wrapper { display: flex; align-items: center; gap: 8px; }
 .password { font-family: monospace; letter-spacing: 1px; color: #e2e8f0; }
-.icon-btn { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: #9aa0a6; border-radius: 8px; padding: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
-.icon-btn:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+.icon-btn { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: #9aa0a6; border-radius: 8px; padding: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+.icon-btn:hover:not(:disabled) { border-color: rgba(255,255,255,0.3); color: #fff; }
+.icon-btn:disabled { 
+  opacity: 0.4; 
+  cursor: not-allowed; 
+  border-color: rgba(255,255,255,0.08);
+}
 .icon-btn svg { width: 18px; height: 18px; }
 
 .badge { background: rgba(255,255,255,0.06); color:#ddd; border:1px solid rgba(255,255,255,0.12); padding:4px 10px; border-radius:999px; font-size:.8rem; white-space: nowrap; }
@@ -537,14 +1239,10 @@ font-size: 0.95rem;
   font-weight: 700;
   margin: 0 0 8px 0;
   color: #fff;
-  background: linear-gradient(135deg, #00bfff 0%, #0080ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .modal-subtitle {
-  color: #94a3b8;
+  color: #fff;
   margin: 0 0 32px 0;
   font-size: 1rem;
 }
@@ -613,6 +1311,22 @@ font-size: 0.95rem;
   opacity: 0.2;
 }
 
+/* Tarjetas deshabilitadas */
+.engine-card.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.engine-card.disabled:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.engine-card.disabled::before {
+  opacity: 0 !important;
+}
+
 .engine-icon {
   width: 42px;
   height: 42px;
@@ -659,6 +1373,29 @@ font-size: 0.95rem;
   font-family: monospace;
   position: relative;
   z-index: 1;
+}
+
+/* Badges de estado */
+.badge-available {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.badge-coming-soon {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
 }
 
 /* Formulario del paso 2 */
@@ -783,20 +1520,51 @@ font-size: 0.95rem;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #00bfff 0%, #0080ff 100%);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 191, 255, 0.3);
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2),
+              0 0 40px rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 191, 255, 0.4);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
+              0 0 60px rgba(255, 255, 255, 0.2),
+              0 0 90px rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+.btn-debug {
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.btn-debug:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 .btn-outline {
@@ -870,6 +1638,174 @@ font-size: 0.95rem;
   .btn-outline {
     width: 100%;
   }
+  
+  .credential-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .credential-value-wrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .credential-value {
+    text-align: left;
+  }
+  
+  .credential-label {
+    min-width: auto;
+  }
+}
+
+/* ============================================
+   MODAL DE CREDENCIALES
+   ============================================ */
+.credentials-modal {
+  max-width: 580px;
+}
+
+.credentials-container {
+  background: rgba(15, 15, 17, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.credential-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border-left: 3px solid #00bfff;
+  transition: all 0.2s ease;
+}
+
+.credential-item:last-child {
+  margin-bottom: 0;
+}
+
+.credential-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.credential-password {
+  background: rgba(0, 191, 255, 0.08);
+  border: 1.5px solid rgba(0, 191, 255, 0.3);
+  border-left: 3px solid #00bfff;
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.15);
+}
+
+.credential-password:hover {
+  background: rgba(0, 191, 255, 0.12);
+  box-shadow: 0 0 25px rgba(0, 191, 255, 0.2);
+}
+
+.credential-label {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 130px;
+  letter-spacing: 0.3px;
+}
+
+.credential-password .credential-label {
+  color: #00bfff;
+  font-weight: 700;
+}
+
+.credential-value-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.credential-value {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  word-break: break-all;
+  text-align: right;
+  font-family: 'Roboto Mono', monospace;
+}
+
+.password-value {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.copy-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  background: rgba(0, 191, 255, 0.15);
+  border-color: rgba(0, 191, 255, 0.4);
+  color: #00bfff;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+}
+
+.copy-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.warning-box {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.warning-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-title {
+  margin: 0 0 4px 0;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.4px;
+}
+
+.warning-text {
+  margin: 0;
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1.4;
 }
 
 </style>

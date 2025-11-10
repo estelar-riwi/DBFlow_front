@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { showLoading, hideLoading } from '@/store/loading';
+import { clearSubscriptionInfo } from './subscriptionService';
 
 // Función para decodificar el JWT y extraer el payload
 function parseJwt(token) {
@@ -17,7 +18,10 @@ function parseJwt(token) {
 }
 
 // URL base - En desarrollo usa el proxy de Vite, en producción usa la variable de entorno
-const API_BASE_URL = import.meta.env.PROD ? (import.meta.env.VITE_API_URL || 'http://localhost:5030') : '';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://service.estelar.andrescortes.dev';
+
+console.log('🌐 AuthService API_BASE_URL:', API_BASE_URL);
+console.log('🏭 Modo:', import.meta.env.MODE);
 const API_URL = `${API_BASE_URL}/api/Access`;
 
 /**
@@ -93,6 +97,7 @@ export async function login(credentials) {
         
         if (userId) {
           localStorage.setItem('user_id', userId.toString());
+          userData.UserId = parseInt(userId);
         }
       }
       
@@ -101,8 +106,29 @@ export async function login(credentials) {
         userData.Email = credentials.email;
       }
       
+      // Extraer el plan de suscripción del backend
+      const subscriptionType = response.data.subscriptionType || 
+                               response.data.user?.subscriptionType || 
+                               decodedToken?.subscriptionType ||
+                               'free';
+      
+      const subscriptionStatus = response.data.subscriptionStatus || 
+                                 response.data.user?.subscriptionStatus || 
+                                 'active';
+      
+      userData.subscriptionType = subscriptionType;
+      userData.subscriptionStatus = subscriptionStatus;
+      
+      // Guardar el plan de suscripción en localStorage
+      localStorage.setItem('user_plan', subscriptionType);
+      
       console.log('Guardando usuario:', userData);
+      console.log('📋 Plan de suscripción:', subscriptionType);
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Verificar que se guardó correctamente
+      const tokenGuardado = localStorage.getItem('authToken');
+      console.log('✅ Token guardado en localStorage:', tokenGuardado ? 'SÍ (' + tokenGuardado.substring(0, 30) + '...)' : 'NO');
     }
     
     return {
@@ -111,8 +137,18 @@ export async function login(credentials) {
       message: 'Inicio de sesión exitoso'
     };
   } catch (error) {
+    // Verificar si el error es por email no verificado
+    const errorMessage = error.response?.data?.message || error.response?.data || '';
+    const isEmailNotVerified = 
+      errorMessage.toLowerCase().includes('verifica') ||
+      errorMessage.toLowerCase().includes('verificado') ||
+      errorMessage.toLowerCase().includes('verify') ||
+      errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('confirm');
+    
     return {
       success: false,
+      emailNotVerified: isEmailNotVerified,
+      email: credentials.email, // Guardar el email para usarlo en la página de verificación
       message: error.response?.data?.message || 'Credenciales inválidas',
       errors: error.response?.data?.errors || null
     };
@@ -134,6 +170,26 @@ export async function verifyEmail(token) {
     return {
       success: false,
       message: error.response?.data?.message || 'Error al verificar el email',
+      errors: error.response?.data?.errors || null
+    };
+  }
+}
+
+// POST /api/Access/Resend-Verification
+export async function resendVerificationEmail(email) {
+  try {
+    const response = await axios.post(`${API_URL}/Resend-Verification`, {
+      email: email
+    });
+    return {
+      success: true,
+      data: response.data,
+      message: 'Enlace de verificación reenviado a tu correo'
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.response?.data || 'Error al reenviar el enlace de verificación',
       errors: error.response?.data?.errors || null
     };
   }
@@ -187,6 +243,9 @@ export function logout() {
   try {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('user_id');
+    // Limpiar información de suscripción
+    clearSubscriptionInfo();
   } catch (e) {
     // No hacemos nada si localStorage no está disponible
   }
@@ -236,9 +295,45 @@ export function getAuthToken() {
   return localStorage.getItem('authToken');
 }
 
+// Función para verificar si el token está expirado
+export function isTokenExpired() {
+  const token = getAuthToken();
+  if (!token) return true;
+  
+  try {
+    const payload = parseJwt(token);
+    if (!payload || !payload.exp) {
+      // Si no tiene exp, asumimos que es válido (algunos backends no usan exp)
+      return false;
+    }
+    
+    const now = Math.floor(Date.now() / 1000); // Tiempo actual en segundos
+    const isExpired = now >= payload.exp;
+    
+    if (isExpired) {
+      console.warn('⚠️ Token expirado');
+      console.warn('Expiró:', new Date(payload.exp * 1000).toLocaleString());
+      console.warn('Ahora:', new Date(now * 1000).toLocaleString());
+    } else {
+      const timeLeft = payload.exp - now;
+      const minutesLeft = Math.floor(timeLeft / 60);
+      console.log(`✅ Token válido por ${minutesLeft} minutos más`);
+    }
+    
+    return isExpired;
+  } catch (e) {
+    console.error('Error al verificar expiración del token:', e);
+    return false; // Si hay error, asumimos que es válido para no bloquear
+  }
+}
+
 // Función para verificar si el usuario está autenticado
 export function isAuthenticated() {
-  return !!getAuthToken();
+  const hasToken = !!getAuthToken();
+  
+  // Por ahora, solo verificamos que exista el token
+  // La verificación de expiración se hará en las peticiones individuales
+  return hasToken;
 }
 
 // Función para obtener el usuario actual
@@ -247,14 +342,54 @@ export function getCurrentUser() {
   return userStr ? JSON.parse(userStr) : null;
 }
 
+/**
+ * Actualiza la información del usuario en localStorage
+ */
+export function updateUserInfo(userData) {
+  const currentUser = getCurrentUser()
+  if (!currentUser) return
+  
+  const updatedUser = {
+    ...currentUser,
+    ...userData
+  }
+  
+  localStorage.setItem('user', JSON.stringify(updatedUser))
+  
+  // Si se actualiza el tipo de suscripción, también actualizar user_plan
+  if (userData.subscriptionType) {
+    localStorage.setItem('user_plan', userData.subscriptionType)
+  }
+  
+  console.log('✅ Usuario actualizado:', updatedUser)
+}
+
+/**
+ * Obtiene el plan de suscripción actual del usuario
+ */
+export function getUserSubscriptionType() {
+  const user = getCurrentUser()
+  return user?.subscriptionType || localStorage.getItem('user_plan') || 'free'
+}
+
 // Función para actualizar el perfil del usuario
 export async function updateProfile(profileData) {
   try {
-    // Nota: Ajusta el endpoint según tu backend
-    // Asumiendo que hay un endpoint PUT /api/Access/UpdateProfile
-    const response = await axios.put(`${API_URL}/UpdateProfile`, {
+    const token = getAuthToken();
+    
+    if (!token) {
+      throw new Error('No hay token de autenticación');
+    }
+    
+    // Usar el endpoint correcto: PUT /api/Users/Profile
+    const response = await axios.put(`${API_BASE_URL}/api/Users/Profile`, {
       userName: profileData.userName,
       email: profileData.email
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     });
 
     // Actualizar localStorage con los nuevos datos
@@ -263,29 +398,41 @@ export async function updateProfile(profileData) {
     currentUser.Email = profileData.email;
     localStorage.setItem('user', JSON.stringify(currentUser));
 
+    console.log('✅ Perfil actualizado correctamente');
+
     return {
       success: true,
       data: response.data,
       message: 'Perfil actualizado exitosamente'
     };
   } catch (error) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Error al actualizar el perfil',
-      errors: error.response?.data?.errors || null
-    };
+    console.error('Error en updateProfile:', error);
+    // Lanzar el error para que sea capturado en el componente
+    throw error;
   }
 }
 
 // Función para cambiar la contraseña del usuario
 export async function changePassword(passwordData) {
   try {
-    // PUT /api/Access/ChangePassword
-    // El endpoint no requiere confirmPassword, solo currentPassword y newPassword
-    const response = await axios.put(`${API_URL}/ChangePassword`, {
+    const token = getAuthToken();
+    
+    if (!token) {
+      throw new Error('No hay token de autenticación');
+    }
+    
+    // Usar el endpoint correcto: PUT /api/Users/Change-Password
+    const response = await axios.put(`${API_BASE_URL}/api/Users/Change-Password`, {
       currentPassword: passwordData.currentPassword,
       newPassword: passwordData.newPassword
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     });
+
+    console.log('✅ Contraseña cambiada correctamente');
 
     return {
       success: true,
@@ -293,6 +440,7 @@ export async function changePassword(passwordData) {
       message: 'Contraseña actualizada exitosamente'
     };
   } catch (error) {
+    console.error('Error en changePassword:', error);
     return {
       success: false,
       message: error.response?.data?.message || 'Error al cambiar la contraseña. Verifica tu contraseña actual.',
@@ -301,16 +449,79 @@ export async function changePassword(passwordData) {
   }
 }
 
+/**
+ * Verificar el estado de verificación del email del usuario
+ * GET /api/Users/Profile para obtener información actualizada del usuario
+ */
+export async function checkEmailVerificationStatus() {
+  try {
+    const token = getAuthToken();
+    
+    if (!token) {
+      return { verified: false };
+    }
+    
+    const response = await axios.get(`${API_BASE_URL}/api/Users/Profile`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Verificar si el email está verificado en la respuesta
+    const isVerified = response.data?.emailVerified || response.data?.isEmailVerified || false;
+    
+    return {
+      verified: isVerified,
+      email: response.data?.email || response.data?.Email
+    };
+  } catch (error) {
+    console.error('Error al verificar estado del email:', error);
+    return { verified: false };
+  }
+}
+
 // Configurar interceptor para añadir token a todas las peticiones
 axios.interceptors.request.use(
   (config) => {
+    // No añadir token a las rutas de autenticación
+    const authRoutes = ['/Login', '/Register', '/Verify-Email', '/Forgot-Password', '/Reset-Password'];
+    const isAuthRoute = authRoutes.some(route => config.url?.includes(route));
+    
+    if (isAuthRoute) {
+      console.log('ℹ️ Interceptor: Ruta de autenticación, no se añade token', config.url);
+      return config;
+    }
+    
     const token = getAuthToken();
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('✅ Interceptor: Token añadido a la petición', config.url);
+    } else {
+      console.warn('⚠️ Interceptor: NO hay token para la petición', config.url);
     }
+    
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Interceptor de respuesta para manejar errores 401
+// Interceptor de respuesta para manejar errores 401
+axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      console.warn('⚠️ Error 401 - Token inválido o expirado');
+      console.warn('URL:', error.config?.url);
+      console.warn('Headers enviados:', error.config?.headers);
+      console.warn('Token en localStorage:', localStorage.getItem('authToken') ? 'SÍ' : 'NO');
+    }
     return Promise.reject(error);
   }
 );

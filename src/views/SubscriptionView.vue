@@ -125,7 +125,7 @@
 import StatCard from '@/components/StatCard.vue'
 import { ref, onMounted } from 'vue'
 import { showAlert } from '@/utils/notify'
-//import { createSubscription, getSubscriptionHistory } from '@/services/paymentService'
+import { createSubscription, getSubscriptionHistory } from '@/services/paymentService'
 import { getUserPlan, setUserPlan } from '@/services/subscriptionService'
 import { getAllPlans, getPlanConfig } from '@/config/plans'
 

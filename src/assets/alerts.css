@@ -1,76 +1,220 @@
-/* Alertas oscuras personalizadas para el tema del sitio */
+/* Alertas con estilo glassmorphism y efectos de luz */
 .custom-alert-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  animation: backdropFadeIn 0.25s ease-out;
 }
+
+@keyframes backdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .custom-alert-card {
-  background: linear-gradient(180deg, rgba(10,10,12,0.96), rgba(18,18,20,0.98));
-  color: #fff;
-  padding: 22px;
-  border-radius: 12px;
-  width: min(520px, 92%);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.04);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  position: relative;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 30px 35px;
+  border-radius: 16px;
+  
+  background: rgba(18, 18, 20, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 100px rgba(0, 191, 255, 0.05);
+  color: white;
+  
+  font-family: 'Roboto Mono', monospace;
+  animation: cardScaleIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+/* Estilo personalizado para la scrollbar */
+.custom-alert-card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-alert-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.custom-alert-card::-webkit-scrollbar-thumb {
+  background: rgba(0, 191, 255, 0.3);
+  border-radius: 4px;
+}
+
+.custom-alert-card::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 191, 255, 0.5);
+}
+
+@keyframes cardScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-30px);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
 .custom-alert-title {
-  font-size: 1.1rem;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1.6rem;
   font-weight: 700;
+  margin-top: 0;
   margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
+
 .custom-alert-text {
-  font-size: 0.98rem;
-  color: rgba(255,255,255,0.9);
-  margin-bottom: 18px;
-  white-space: pre-line;
+  font-family: 'Roboto Mono', monospace;
+  color: #94a3b8;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
   line-height: 1.6;
+  white-space: pre-line;
 }
+
 .custom-alert-actions {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
+
 .custom-alert-btn {
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 0;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
 }
+
 .custom-alert-btn--primary {
-  background: linear-gradient(90deg,#1f6feb,#009ee3);
-  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: white;
+  color: black;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Roboto Mono', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 
+              0 0 50px rgba(255, 255, 255, 0.4),
+              0 0 75px rgba(255, 255, 255, 0.3);
 }
+
+.custom-alert-btn--primary:hover {
+  background: white;
+  transform: scale(1.05);
+  box-shadow: 0 0 35px rgba(255, 255, 255, 0.8), 
+              0 0 70px rgba(255, 255, 255, 0.6),
+              0 0 105px rgba(255, 255, 255, 0.4),
+              0 0 140px rgba(255, 255, 255, 0.2);
+}
+
 .custom-alert-btn--secondary {
   background: transparent;
-  color: rgba(255,255,255,0.85);
-  border: 1px solid rgba(255,255,255,0.06);
+  color: #cbd5e1;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
+
+.custom-alert-btn--secondary:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
 .custom-alert-icon {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  margin-right: 12px;
+  margin-right: 16px;
+  flex-shrink: 0;
 }
+
 .custom-alert-row {
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
 }
-.custom-alert-icon--success { background: rgba(16,185,129,0.12); color: #10b981; }
-.custom-alert-icon--error { background: rgba(239,68,68,0.08); color: #ef4444; }
-.custom-alert-icon--info { background: rgba(59,130,246,0.08); color: #3b82f6; }
-.custom-alert-icon svg { width: 20px; height: 20px; }
+
+.custom-alert-icon--success { 
+  background: rgba(34, 197, 94, 0.15); 
+  color: #22c55e;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.custom-alert-icon--error { 
+  background: rgba(239, 68, 68, 0.15); 
+  color: #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.custom-alert-icon--info { 
+  background: rgba(255, 255, 255, 0.15); 
+  color: white;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.custom-alert-icon svg { 
+  width: 24px; 
+  height: 24px; 
+}
 
 /* Responsive small */
-@media (max-width:480px) {
-  .custom-alert-card { padding: 16px; border-radius: 10px; }
-  .custom-alert-title { font-size: 1rem; }
+@media (max-width: 480px) {
+  .custom-alert-card { 
+    padding: 20px 24px; 
+    border-radius: 12px; 
+  }
+  .custom-alert-title { 
+    font-size: 1.05rem; 
+  }
+  .custom-alert-text {
+    font-size: 0.9rem;
+  }
+  .custom-alert-icon {
+    width: 40px;
+    height: 40px;
+  }
+  .custom-alert-icon svg {
+    width: 20px;
+    height: 20px;
+  }
 }
+

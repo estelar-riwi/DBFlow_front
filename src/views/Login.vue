@@ -88,6 +88,11 @@ const handleLogin = async () => {
         if (result.success) {
             // Ocultar loading antes de mostrar el modal de éxito
             try { hideLoading(); } catch (e) {}
+            
+            // Verificar que el token se guardó
+            const tokenGuardado = localStorage.getItem('authToken');
+            console.log('🔍 Verificación post-login - Token guardado:', tokenGuardado ? 'SÍ' : 'NO');
+            
             // Alerta de éxito que se cierra automáticamente en 1.5 segundos
             showAlert({ 
                 icon: 'success', 
@@ -95,15 +100,37 @@ const handleLogin = async () => {
                 text: result.message,
                 autoClose: 1500 
             });
-            // Pequeño delay antes de redirigir (para que se vea la alerta)
-            await new Promise(resolve => setTimeout(resolve, 1600));
+            
+            // Esperar un poco más para asegurar que el token esté disponible
+            await new Promise(resolve => setTimeout(resolve, 1700));
+            
             // Redirigir al dashboard
             router.push('/dashboard');
         } else {
             // Ocultar loading antes de mostrar error
             try { hideLoading(); } catch (e) {}
-            errorMessage.value = result.message;
-            await showAlert({ icon: 'error', title: 'Error', text: result.message });
+            
+            // Verificar si el error es por email no verificado
+            if (result.emailNotVerified) {
+                // Guardar el email temporalmente para la página de verificación
+                localStorage.setItem('unverified_email', result.email || email.value);
+                
+                await showAlert({ 
+                    icon: 'warning', 
+                    title: 'Email No Verificado', 
+                    text: 'Tu cuenta existe pero aún no has verificado tu correo electrónico. Te redirigiremos a la página de verificación.',
+                    confirmText: 'Continuar',
+                    autoClose: 3000
+                });
+                
+                // Esperar un poco y redirigir a verificación
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                router.push('/verify-email');
+            } else {
+                // Error normal (credenciales incorrectas, etc.)
+                errorMessage.value = result.message;
+                await showAlert({ icon: 'error', title: 'Error', text: result.message });
+            }
         }
     } catch (error) {
         console.error('Error during login:', error);

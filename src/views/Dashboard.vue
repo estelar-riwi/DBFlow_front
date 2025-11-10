@@ -18,40 +18,75 @@
           <router-link to="/dashboard/subscription" exact-active-class="active">
             <span>Subscriptions</span>
           </router-link>
-          <router-link to="/dashboard/webhooks" exact-active-class="active">
-            <span>Webhooks</span>
-          </router-link>
       </nav>
       
       <div class="sidebar-footer">
         
         <div class="sidebar-profile-area" @click="openProfileModal">
           <div class="profile-avatar">
-            <span>{{ userInitial }}</span> </div>
+            <span>{{ userInitial }}</span> 
+          </div>
           <div class="profile-info">
             <strong>{{ firstName }}</strong>
-            <span class="profile-plan">{{ planDisplay }}</span>
+            <span class="profile-plan" :class="`plan-${currentPlan}`">
+              <i class="fas fa-crown" v-if="currentPlan !== 'free'"></i>
+              {{ planDisplay }}
+            </span>
           </div>
         </div>
         
-        <div style="display:flex; gap:8px; margin-top:12px;">
-          <button class="btn-logout" @click="onLogoutClick" title="Cerrar sesión" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;">
-            Cerrar sesión
-          </button>
-        </div>
+        <button class="btn-logout" @click="onLogoutClick" title="Cerrar sesión">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+          </svg>
+          <span>Cerrar sesión</span>
+        </button>
       </div>
     </aside>
 
+    <!-- Banner de verificación de email -->
+    <transition name="banner-slide">
+      <div v-if="showEmailVerificationBanner" class="email-verification-banner">
+        <div class="banner-content">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="banner-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+          </svg>
+          <div class="banner-text">
+            <strong>Verifica tu correo electrónico</strong>
+            <span>Se ha enviado un enlace de verificación a <strong>{{ pendingEmail }}</strong>. Por favor, revisa tu bandeja de entrada.</span>
+          </div>
+          <button class="banner-resend" @click="resendVerification" title="Reenviar correo">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+            Reenviar
+          </button>
+          <button class="banner-close" @click="dismissEmailBanner" title="Cerrar">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </transition>
+
     <main class="main-content">
-      <router-view />
+      <transition name="page-fade" mode="out-in">
+        <router-view v-slot="{ Component }">
+          <component :is="Component" :key="$route.fullPath" />
+        </router-view>
+      </transition>
     </main>
 
-    <div class="modal-overlay" v-if="isModalOpen" @click="closeProfileModal">
-      <div class="modal-card" @click.stop>
-        <button class="modal-close-btn" @click="closeProfileModal">×</button>
-        <h2>Editar Perfil</h2>
+    <transition name="modal-fade">
+      <div class="modal-overlay" v-if="isModalOpen" @click="closeProfileModal">
+        <transition name="modal-scale">
+          <div class="modal-card" v-if="isModalOpen" @click.stop>
+            <button class="modal-close-btn" @click="closeProfileModal">×</button>
+            <h2>Editar Perfil</h2>
         
-        <form @submit.prevent="handleProfileUpdate" class="modal-form" autocomplete="off">
+        <!-- Formulario de Información Personal -->
+        <div class="modal-form">
           
           <!-- Información de la Cuenta -->
           <div class="form-section">
@@ -78,12 +113,21 @@
                 required
               >
             </div>
+
+            <!-- Botón para guardar información personal -->
+            <div class="modal-actions">
+              <button type="button" class="btn-primary" @click="handleProfileUpdate">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                Guardar Información
+              </button>
+            </div>
           </div>
 
-          <!-- Cambiar Contraseña (Opcional) -->
+          <!-- Cambiar Contraseña -->
           <div class="form-section">
-            <h3 class="modal-subtitle">Cambiar Contraseña (Opcional)</h3>
-            <p class="form-hint">Deja estos campos en blanco si no deseas cambiar tu contraseña</p>
+            <h3 class="modal-subtitle">Cambiar Contraseña</h3>
             
             <div class="form-group">
               <label for="current-password">Contraseña Actual</label>
@@ -141,17 +185,28 @@
               </div>
               <small class="password-requirements">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula y 1 número</small>
             </div>
+
+            <!-- Botón para cambiar contraseña -->
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" @click="handlePasswordChange">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                Cambiar Contraseña
+              </button>
+            </div>
           </div>
 
-          <!-- Botones de Acción -->
+          <!-- Botón de Cerrar -->
           <div class="modal-actions">
-            <button type="button" class="btn-outline" @click="closeProfileModal">Cancelar</button>
-            <button type="submit" class="btn-primary">Guardar Cambios</button>
+            <button type="button" class="btn-outline" @click="closeProfileModal">Cerrar</button>
           </div>
-        </form>
+        </div>
 
+          </div>
+        </transition>
       </div>
-    </div>
+    </transition>
 
   </div>
 </template>
@@ -160,11 +215,17 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { RouterLink, RouterView, useRouter } from 'vue-router'; 
 import { showAlert } from '@/utils/notify';
-import { logoutAndRedirect, getCurrentUser, updateProfile, changePassword } from '@/services/authService';
+import { logoutAndRedirect, getCurrentUser, updateProfile, changePassword, checkEmailVerificationStatus, resendVerificationEmail } from '@/services/authService';
 import { showLoading, hideLoading } from '@/store/loading';
+import { getUserPlan, syncUserPlan } from '@/services/subscriptionService';
+import { getPlanConfig } from '@/config/plans';
 
 // --- Lógica del Modal y Perfil ---
 const isModalOpen = ref(false);
+
+// Banner de verificación de email
+const showEmailVerificationBanner = ref(false);
+const pendingEmail = ref('');
 
 // Obtener datos del usuario actual desde localStorage
 const user = getCurrentUser();
@@ -201,16 +262,11 @@ const newPassword = ref('');
 const showCurrentPassword = ref(false);
 const showNewPassword = ref(false);
 
-// Obtener el plan del usuario desde localStorage o JWT
-let userPlan = 'Gratuito'; // Valor por defecto
-if (user) {
-  userPlan = user.Plan || user.plan || 
-             user.SubscriptionType || user.subscriptionType ||
-             user['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
-             'Gratuito';
-}
+// Obtener el plan del usuario de forma dinámica
+const currentPlan = ref(getUserPlan());
+const planConfig = computed(() => getPlanConfig(currentPlan.value));
 
-const userSubscription = ref(userPlan);
+const userSubscription = ref(currentPlan.value);
 
 // Computed para mostrar solo el primer nombre en el sidebar
 const firstName = computed(() => {
@@ -224,17 +280,7 @@ const userInitial = computed(() => {
 
 // Computed para formatear el nombre del plan
 const planDisplay = computed(() => {
-  const planMap = {
-    'free': 'Plan Gratuito',
-    'gratuito': 'Plan Gratuito',
-    'intermediate': 'Plan Intermedio',
-    'intermedio': 'Plan Intermedio',
-    'advanced': 'Plan Avanzado',
-    'avanzado': 'Plan Avanzado'
-  };
-  
-  const planLower = userSubscription.value.toLowerCase();
-  return planMap[planLower] || `Plan ${userSubscription.value}`;
+  return planConfig.value?.displayName || 'Plan Gratuito';
 });
 
 const openProfileModal = () => {
@@ -250,6 +296,119 @@ const closeProfileModal = () => {
 
 const router = useRouter();
 
+// Función para cerrar el banner de verificación
+const dismissEmailBanner = () => {
+  showEmailVerificationBanner.value = false;
+  localStorage.removeItem('pendingEmailVerification');
+};
+
+// Función para reenviar el email de verificación
+const resendVerification = async () => {
+  const emailToSend = pendingEmail.value || profileEmail.value || userEmail;
+  
+  if (!emailToSend) {
+    await showAlert({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudo obtener el correo electrónico.'
+    });
+    return;
+  }
+
+  try {
+    showLoading('Reenviando correo de verificación...');
+    
+    const result = await resendVerificationEmail(emailToSend);
+    
+    hideLoading();
+
+    if (result.success) {
+      await showAlert({
+        icon: 'success',
+        title: '¡Correo Reenviado!',
+        text: `Se ha enviado un nuevo enlace de verificación a ${emailToSend}. Por favor, revisa tu bandeja de entrada y spam.`,
+        confirmText: 'Entendido',
+        autoClose: 5000
+      });
+    } else {
+      await showAlert({
+        icon: 'error',
+        title: 'Error',
+        text: result.message || 'No se pudo reenviar el correo de verificación.'
+      });
+    }
+  } catch (error) {
+    hideLoading();
+    await showAlert({
+      icon: 'error',
+      title: 'Error',
+      text: 'Ocurrió un error al reenviar el correo. Inténtalo de nuevo.'
+    });
+  }
+};
+
+// Función para verificar el estado del email periódicamente
+let emailCheckInterval = null;
+
+const checkEmailVerification = async () => {
+  if (!showEmailVerificationBanner.value) {
+    return;
+  }
+  
+  try {
+    const status = await checkEmailVerificationStatus();
+    
+    if (status.verified) {
+      console.log('✅ Email verificado correctamente');
+      // Ocultar el banner
+      showEmailVerificationBanner.value = false;
+      localStorage.removeItem('pendingEmailVerification');
+      
+      // Mostrar mensaje de éxito
+      await showAlert({
+        icon: 'success',
+        title: '¡Email Verificado!',
+        text: 'Tu correo electrónico ha sido verificado exitosamente.',
+        autoClose: 3000
+      });
+      
+      // Detener el intervalo
+      if (emailCheckInterval) {
+        clearInterval(emailCheckInterval);
+        emailCheckInterval = null;
+      }
+    }
+  } catch (error) {
+    console.error('Error al verificar email:', error);
+  }
+};
+
+// Verificar si hay un email pendiente de verificación al cargar
+onMounted(() => {
+  const pendingEmailStored = localStorage.getItem('pendingEmailVerification');
+  if (pendingEmailStored) {
+    pendingEmail.value = pendingEmailStored;
+    showEmailVerificationBanner.value = true;
+    
+    // Iniciar verificación periódica cada 10 segundos
+    emailCheckInterval = setInterval(checkEmailVerification, 10000);
+    
+    // Verificar inmediatamente al cargar
+    checkEmailVerification();
+  }
+  
+  // Sincronizar plan del usuario
+  syncUserPlan();
+});
+
+// Limpiar el intervalo cuando el componente se desmonte
+onBeforeUnmount(() => {
+  if (emailCheckInterval) {
+    clearInterval(emailCheckInterval);
+    emailCheckInterval = null;
+  }
+});
+
 async function onLogoutClick() {
   // Confirmar acción
   const result = await showAlert({ 
@@ -261,9 +420,16 @@ async function onLogoutClick() {
   });
   
   if (result && result.isConfirmed) {
-    // Delay para que se cierre el modal antes de mostrar la pantalla de carga
-    await new Promise(resolve => setTimeout(resolve, 200));
-    // Limpia credenciales y redirige al login (ya maneja showLoading internamente)
+    // Agregar clase de animación de salida
+    const dashboard = document.querySelector('.dashboard-layout');
+    if (dashboard) {
+      dashboard.classList.add('dashboard-exit');
+    }
+    
+    // Esperar a que termine la animación (600ms)
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    // Limpia credenciales y redirige al login
     await logoutAndRedirect(router);
   }
 }
@@ -289,109 +455,143 @@ const handleProfileUpdate = async () => {
     return;
   }
   
-  // 1. Validar y cambiar contraseña (si se está cambiando)
-  if (newPassword.value) {
-    if (!currentPassword.value) {
-      await showAlert({ icon: 'error', title: 'Error', text: 'Debes ingresar tu contraseña actual para cambiarla.' });
-      return;
-    }
-    
-    // Validar requisitos de contraseña
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!passwordRegex.test(newPassword.value)) {
-      await showAlert({ 
-        icon: 'error', 
-        title: 'Contraseña inválida', 
-        text: 'La contraseña debe tener:\n• Mínimo 8 caracteres\n• Al menos una mayúscula (A-Z)\n• Al menos una minúscula (a-z)\n• Al menos un número (0-9)', 
-        confirmText: 'Aceptar' 
-      });
-      return;
-    }
-    
-    // Intentar cambiar la contraseña
-    try {
-      showLoading('Cambiando contraseña...');
-      
-      const passwordResult = await changePassword({
-        currentPassword: currentPassword.value,
-        newPassword: newPassword.value
-      });
-
-      hideLoading();
-
-      if (!passwordResult.success) {
-        // Mensaje mejorado para cuando el endpoint no existe
-        const errorMsg = passwordResult.message || 'No se pudo cambiar la contraseña';
-        await showAlert({ 
-          icon: 'warning', 
-          title: 'Función no disponible', 
-          text: 'El cambio de contraseña desde el perfil estará disponible próximamente.\n\nPor ahora, puedes cambiar tu contraseña usando la opción "Olvidé mi contraseña" en el login.'
-        });
-        return;
-      }
-
-      // Contraseña cambiada exitosamente
-      await showAlert({ 
-        icon: 'success', 
-        title: 'Éxito', 
-        text: 'Contraseña actualizada correctamente',
-        autoClose: 1500
-      });
-
-      // Limpiar los campos de contraseña
-      currentPassword.value = '';
-      newPassword.value = '';
-      
-    } catch (error) {
-      hideLoading();
-      console.error('Error al cambiar contraseña:', error);
-      await showAlert({ 
-        icon: 'error', 
-        title: 'Error', 
-        text: 'Ocurrió un error al cambiar la contraseña'
-      });
-      return;
-    }
-  }
-
-  // 2. Actualizar datos del perfil
+  // Detectar si el email cambió
+  const currentUser = getCurrentUser();
+  const emailChanged = currentUser?.Email && 
+                       profileEmail.value.trim().toLowerCase() !== currentUser.Email.toLowerCase();
+  
+  // Actualizar solo el perfil (nombre y email)
   try {
     showLoading('Actualizando perfil...');
     
-    const result = await updateProfile({
+    const profileResult = await updateProfile({
       userName: profileName.value.trim(),
       email: profileEmail.value.trim()
     });
 
     hideLoading();
 
-    if (result.success) {
-      await showAlert({ 
-        icon: 'success', 
-        title: 'Éxito', 
-        text: 'Perfil actualizado correctamente',
-        autoClose: 1500
-      });
-      closeProfileModal();
-      
-      // Recargar la página para reflejar los cambios
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
-    } else {
+    if (!profileResult.success) {
       await showAlert({ 
         icon: 'error', 
         title: 'Error', 
-        text: result.message || 'No se pudo actualizar el perfil'
+        text: profileResult.message || 'No se pudo actualizar el perfil.'
+      });
+      return;
+    }
+
+    // Si el email cambió, mostrar mensaje de verificación
+    if (emailChanged) {
+      // Guardar el email pendiente de verificación
+      pendingEmail.value = profileEmail.value.trim();
+      localStorage.setItem('pendingEmailVerification', pendingEmail.value);
+      showEmailVerificationBanner.value = true;
+      
+      await showAlert({ 
+        icon: 'info', 
+        title: '¡Perfil Actualizado!', 
+        text: 'Tu información ha sido actualizada. Se ha enviado un enlace de verificación a tu nuevo correo electrónico. Por favor, verifica tu correo para completar el cambio.',
+        confirmText: 'Entendido'
+      });
+    } else {
+      // Solo se actualizó el nombre
+      await showAlert({ 
+        icon: 'success', 
+        title: '¡Éxito!', 
+        text: 'Tu información de perfil ha sido actualizada correctamente.',
+        autoClose: 2000
       });
     }
+
+    // Cerrar el modal
+    closeProfileModal();
+    
   } catch (error) {
     hideLoading();
     console.error('Error al actualizar perfil:', error);
     await showAlert({ 
       icon: 'error', 
       title: 'Error', 
-      text: 'Ocurrió un error al actualizar el perfil'
+      text: 'Ocurrió un error al actualizar el perfil. Inténtalo de nuevo.'
+    });
+  }
+};
+
+const handlePasswordChange = async () => {
+  // Validar que ambos campos de contraseña estén llenos
+  if (!currentPassword.value) {
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Error', 
+      text: 'Debes ingresar tu contraseña actual.' 
+    });
+    return;
+  }
+
+  if (!newPassword.value) {
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Error', 
+      text: 'Debes ingresar una nueva contraseña.' 
+    });
+    return;
+  }
+  
+  // Validar requisitos de contraseña
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  if (!passwordRegex.test(newPassword.value)) {
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Contraseña inválida', 
+      text: 'La contraseña debe tener:\n• Mínimo 8 caracteres\n• Al menos una mayúscula (A-Z)\n• Al menos una minúscula (a-z)\n• Al menos un número (0-9)', 
+      confirmText: 'Aceptar' 
+    });
+    return;
+  }
+  
+  // Intentar cambiar la contraseña
+  try {
+    showLoading('Cambiando contraseña...');
+    
+    const passwordResult = await changePassword({
+      currentPassword: currentPassword.value,
+      newPassword: newPassword.value
+    });
+
+    hideLoading();
+
+    if (!passwordResult.success) {
+      const errorMsg = passwordResult.message || 'No se pudo cambiar la contraseña';
+      await showAlert({ 
+        icon: 'error', 
+        title: 'Error', 
+        text: errorMsg
+      });
+      return;
+    }
+
+    // Contraseña cambiada exitosamente
+    await showAlert({ 
+      icon: 'success', 
+      title: '¡Éxito!', 
+      text: 'Tu contraseña ha sido actualizada correctamente.',
+      autoClose: 2000
+    });
+
+    // Limpiar los campos de contraseña
+    currentPassword.value = '';
+    newPassword.value = '';
+    
+    // Cerrar el modal
+    closeProfileModal();
+      
+  } catch (error) {
+    hideLoading();
+    console.error('Error al cambiar contraseña:', error);
+    await showAlert({ 
+      icon: 'error', 
+      title: 'Error', 
+      text: 'Ocurrió un error al cambiar la contraseña. Inténtalo de nuevo.'
     });
   }
 };
@@ -504,7 +704,13 @@ function handleMouseMove(e) {
     mouse.y = e.clientY;
 }
 let onResizeHandler = null; 
-onMounted(() => {
+onMounted(async () => {
+    // Sincronizar plan desde el backend
+    await syncUserPlan();
+    currentPlan.value = getUserPlan();
+    userSubscription.value = currentPlan.value;
+    console.log('📋 Plan sincronizado en Dashboard:', currentPlan.value);
+    
     const c = canvas.value;
     if (!c) return;
     initCanvas(c);
