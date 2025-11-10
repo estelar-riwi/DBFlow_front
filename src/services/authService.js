@@ -162,6 +162,9 @@ export async function login(credentials) {
       // Guardar el plan de suscripción en localStorage
       localStorage.setItem('user_plan', subscriptionType);
       
+      // Guardar timestamp del login para evitar cierres de sesión inmediatos
+      localStorage.setItem('login_time', Date.now().toString());
+      
       console.log('Guardando usuario:', userData);
       console.log('📋 Plan de suscripción:', subscriptionType);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -363,6 +366,7 @@ export function logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('login_time'); // Limpiar timestamp
     // Limpiar información de suscripción
     clearSubscriptionInfo();
   } catch (e) {
