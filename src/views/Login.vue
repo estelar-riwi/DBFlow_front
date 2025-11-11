@@ -163,8 +163,8 @@ function randRange(a, b) { return a + Math.random() * (b - a); }
 class Particle {
   constructor(x, y) {
     this.pos = { x, y };
-    // 🔑 CORRECCIÓN: Aumentamos la velocidad base (antes -0.1 a 0.1)
-    this.vel = { x: randRange(-0.4, 0.4), y: randRange(-0.4, 0.4) }; 
+    // Aumentamos la velocidad base para movimiento constante más visible
+    this.vel = { x: randRange(-0.8, 0.8), y: randRange(-0.8, 0.8) }; 
     this.colorWeight = randRange(0.15, 0.45); 
     this.size = randRange(0.8, 2.5);
   }

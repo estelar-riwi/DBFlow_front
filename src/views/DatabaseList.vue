@@ -2,9 +2,15 @@
 <div class="dashboard-view">
 <div class="view-header">
     <h1>Mis Bases de Datos</h1>
-    <div style="display: flex; gap: 12px;">
-        <button class="btn-debug" @click="debugAuth" title="Verificar autenticación">🔍 Debug</button>
-        <button class="btn-primary" @click="openCreateModal">Crear Base de Datos</button>
+    <div class="header-actions">
+        <button class="btn-debug" @click="debugAuth" title="Verificar autenticación">
+            <span class="desktop-text">🔍 Debug</span>
+            <span class="mobile-text">🔍</span>
+        </button>
+        <button class="btn-primary" @click="openCreateModal">
+            <span class="desktop-text">Crear Base de Datos</span>
+            <span class="mobile-text">+ Crear</span>
+        </button>
     </div>
 </div>
 
@@ -22,12 +28,12 @@
 
 <section class="instances-section reveal-on-scroll">
     <div class="toolbar">
-    <div class="toolbar-field" style="flex:1">
+    <div class="toolbar-field">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <input v-model="searchTerm" placeholder="Buscar por nombre..." />
+        <input v-model="searchTerm" placeholder="Buscar..." />
     </div>
     <select v-model="filterEngine" class="toolbar-select">
-        <option value="">Todos nuestros gestores de bases de datos</option>
+        <option value="">Todos los gestores</option>
         <option>MySQL</option>
         <option>PostgreSQL</option>
         <option>MongoDB</option>
@@ -38,96 +44,172 @@
     </div>
 
     <div class="db-table-container">
-    <table class="db-table">
+    <!-- Vista de tabla para desktop -->
+    <table class="db-table desktop-table">
         <thead>
         <tr>
-            <th>Estado</th>
-            <th>Nombre</th>
-            <th>Gestor</th>
-            <th>Host</th>
-            <th>Puerto</th>
-            <th>Usuario</th>
-            <th>Contraseña</th>
-            <th>Acciones</th>
+            <th class="col-priority-1">Estado</th>
+            <th class="col-priority-1">Nombre</th>
+            <th class="col-priority-2">Gestor</th>
+            <th class="col-priority-3">Host</th>
+            <th class="col-priority-4">Puerto</th>
+            <th class="col-priority-4">Usuario</th>
+            <th class="col-priority-5">Contraseña</th>
+            <th class="col-priority-1">Acciones</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="db in filteredDbs" :key="db.id">
-            <td><span :class="'badge '+(db.status==='Activo'?'badge-success':'')">{{ db.status }}</span></td>
-            <td>
-                <div class="password-wrapper">
-                    <span class="password">{{ db.name }}</span>
+            <td class="col-priority-1">
+                <span :class="'badge '+(db.status==='Activo'?'badge-success':'')">{{ db.status }}</span>
+            </td>
+            <td class="col-priority-1">
+                <div class="db-name-cell">
+                    <span class="db-name">{{ db.name }}</span>
                     <button 
-                      class="icon-btn" 
+                      class="icon-btn-small" 
                       @click="copyToClipboard(db.name)" 
                       title="Copiar nombre"
-                      aria-label="Copiar nombre"
                     >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     </button>
                 </div>
             </td>
-            <td>{{ db.engine }}</td>
-            <td>
-                <div class="password-wrapper">
-                    <span class="host">{{ db.host }}</span>
+            <td class="col-priority-2">
+                <span class="engine-badge">{{ db.engine }}</span>
+            </td>
+            <td class="col-priority-3">
+                <div class="compact-cell">
+                    <span class="cell-text" :title="db.host">{{ db.host }}</span>
                     <button 
-                      class="icon-btn" 
+                      class="icon-btn-small" 
                       @click="copyToClipboard(db.host)" 
-                      title="Copiar host"
-                      aria-label="Copiar host"
+                      title="Copiar"
                     >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     </button>
                 </div>
             </td>
-            <td>{{ db.port }}</td>
-            <td>
-                <div class="password-wrapper">
-                    <span class="password">{{ db.username || 'N/A' }}</span>
+            <td class="col-priority-4">{{ db.port }}</td>
+            <td class="col-priority-4">
+                <div class="compact-cell">
+                    <span class="cell-text">{{ db.username || 'N/A' }}</span>
                     <button 
-                      class="icon-btn" 
+                      class="icon-btn-small" 
                       @click="copyToClipboard(db.username)" 
                       :disabled="!db.username"
-                      title="Copiar usuario"
-                      aria-label="Copiar usuario"
+                      title="Copiar"
                     >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     </button>
                 </div>
             </td>
-            <td>
-                <div class="password-wrapper">
-                    <span class="password">{{ db.passwordVisible ? db.password : masked(db.password) }}</span>
-                        <button 
-                          class="icon-btn" 
-                          @click="copyPasswordAndHide(db)" 
-                          :disabled="!db.passwordVisible"
-                          :title="!db.passwordVisible ? 'La contraseña ya fue copiada. Usa \'Ver\' para obtener una nueva.' : 'Copiar contraseña'"
-                          aria-label="Copiar contraseña"
-                        >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                        </button>
+            <td class="col-priority-5">
+                <div class="compact-cell">
+                    <span class="cell-text">{{ db.passwordVisible ? db.password : masked(db.password) }}</span>
+                    <button 
+                      class="icon-btn-small" 
+                      @click="copyPasswordAndHide(db)" 
+                      :disabled="!db.passwordVisible"
+                      :title="!db.passwordVisible ? 'Ya copiada' : 'Copiar'"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
                 </div>
             </td>
-            <td>
-                <div class="actions">
+            <td class="col-priority-1">
+                <div class="actions-compact">
                     <button 
-                      class="action-btn" 
+                      class="action-btn-compact" 
                       @click="viewCredentials(db)" 
-                      title="⚠️ Al ver las credenciales se generará una nueva contraseña"
+                      title="Ver credenciales completas"
                     >
                       Ver
                     </button>
-                    <button class="action-btn delete" @click="removeDatabase(db)" title="Eliminar base de datos">Borrar</button>
+                    <button class="action-btn-compact delete" @click="removeDatabase(db)" title="Eliminar base de datos">Borrar</button>
                 </div>
             </td>
         </tr>
         <tr v-if="filteredDbs.length === 0">
-            <td colspan="6" class="empty-state">No se encontraron bases de datos</td>
+            <td colspan="8" class="empty-state">No se encontraron bases de datos</td>
         </tr>
         </tbody>
     </table>
+    
+    <!-- Vista de tarjetas para móvil -->
+    <div class="mobile-cards">
+        <div v-for="db in filteredDbs" :key="db.id" class="db-card">
+            <div class="card-header">
+                <span :class="'badge '+(db.status==='Activo'?'badge-success':'')">{{ db.status }}</span>
+                <span class="card-engine">{{ db.engine }}</span>
+            </div>
+            
+            <div class="card-body">
+                <div class="card-row">
+                    <span class="card-label">📝 Nombre</span>
+                    <div class="card-value-group">
+                        <span class="card-value">{{ db.name }}</span>
+                        <button class="icon-btn-card" @click="copyToClipboard(db.name)" title="Copiar nombre">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-row">
+                    <span class="card-label">🌐 Host</span>
+                    <div class="card-value-group">
+                        <span class="card-value">{{ db.host }}</span>
+                        <button class="icon-btn-card" @click="copyToClipboard(db.host)" title="Copiar host">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-row">
+                    <span class="card-label">🔌 Puerto</span>
+                    <span class="card-value-simple">{{ db.port }}</span>
+                </div>
+                
+                <div class="card-row">
+                    <span class="card-label">👤 Usuario</span>
+                    <div class="card-value-group">
+                        <span class="card-value">{{ db.username || 'N/A' }}</span>
+                        <button class="icon-btn-card" @click="copyToClipboard(db.username)" :disabled="!db.username" title="Copiar usuario">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-row">
+                    <span class="card-label">🔐 Contraseña</span>
+                    <div class="card-value-group">
+                        <span class="card-value">{{ db.passwordVisible ? db.password : masked(db.password) }}</span>
+                        <button 
+                          class="icon-btn-card" 
+                          @click="copyPasswordAndHide(db)" 
+                          :disabled="!db.passwordVisible"
+                          :title="!db.passwordVisible ? 'Ya copiada' : 'Copiar contraseña'"
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-actions">
+                <button class="action-btn" @click="viewCredentials(db)" title="Ver credenciales">
+                    Ver Credenciales
+                </button>
+                <button class="action-btn delete" @click="removeDatabase(db)" title="Eliminar">
+                    Borrar
+                </button>
+            </div>
+        </div>
+        
+        <div v-if="filteredDbs.length === 0" class="empty-state-mobile">
+            No se encontraron bases de datos
+        </div>
+    </div>
     </div>
 </section>
 
@@ -288,7 +370,7 @@
             <small class="form-hint">Solo se permiten letras, números y guiones bajos</small>
         </div>
 
-        <div class="connection-preview">
+        <div class="connection-preview" :class="`engine-${newDb.engine?.toLowerCase()}`">
             <h4>Vista Previa de Conexión</h4>
             <div class="preview-item">
             <span class="preview-label">Host:</span>
@@ -1233,7 +1315,29 @@ onMounted(async () => {
 
 <style scoped>
 .dashboard-view {
-width: 100%;
+  width: 100%;
+  padding: 0 20px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .dashboard-view {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-view {
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .dashboard-view {
+    padding: 0 10px;
+  }
 }
 
 .view-header {
@@ -1252,21 +1356,118 @@ width: 100%;
     margin: 0;
 }
 
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Mostrar texto completo en desktop, texto corto en móvil */
+.desktop-text {
+    display: inline;
+}
+
+.mobile-text {
+    display: none;
+}
+
 .view-subtitle { color:#94a3b8; margin-top:6px; font-size:.95rem; }
 
-.toolbar { display:flex; gap:12px; align-items:center; margin-bottom: 20px; flex-wrap: wrap; }
-.toolbar-field { display:flex; align-items:center; gap:8px; background:#0f0f10; border:1px solid #222; color:#9aa0a6; padding:8px 12px; border-radius:10px; transition: border-color 0.2s; }
-.toolbar-field:focus-within { border-color: #00bfff; }
-.toolbar-field input { background:transparent; border:none; outline:none; color:#fff; min-width:220px; }
-.toolbar-field svg { width:18px; height:18px; }
-.toolbar-select { background:#0f0f10; border:1px solid #222; color:#fff; padding:8px 12px; border-radius:10px; cursor: pointer; transition: border-color 0.2s; }
-.toolbar-select:hover { border-color: #444; }
+.toolbar { 
+  display: flex; 
+  gap: 12px; 
+  align-items: center; 
+  margin-bottom: 20px; 
+  flex-wrap: wrap; 
+}
 
-.quota-section { margin-bottom: 40px; }
+.toolbar-field { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  background: #0f0f10; 
+  border: 1px solid #222; 
+  color: #9aa0a6; 
+  padding: 8px 12px; 
+  border-radius: 10px; 
+  transition: border-color 0.2s;
+  flex: 1;
+  min-width: 220px;
+}
+
+.toolbar-field:focus-within { 
+  border-color: #00bfff; 
+}
+
+.toolbar-field input { 
+  background: transparent; 
+  border: none; 
+  outline: none; 
+  color: #fff; 
+  width: 100%;
+  flex: 1;
+}
+
+.toolbar-field svg { 
+  width: 18px; 
+  height: 18px; 
+  flex-shrink: 0;
+}
+
+.toolbar-select { 
+  background: #0f0f10; 
+  border: 1px solid #222; 
+  color: #fff; 
+  padding: 8px 12px; 
+  border-radius: 10px; 
+  cursor: pointer; 
+  transition: border-color 0.2s;
+  min-width: 200px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toolbar-select:hover { 
+  border-color: #444; 
+}
+
+.toolbar-select option {
+  white-space: normal;
+}
+
+.quota-section { 
+  margin-bottom: 40px; 
+}
+
 .quota-grid {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .quota-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .quota-section {
+    margin-bottom: 30px;
+  }
+  
+  .quota-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quota-section {
+    margin-bottom: 24px;
+  }
 }
 
 .instances-section {
@@ -1285,39 +1486,234 @@ h3 {
 }
 
 .db-table-container {
-background: #0f0f10;
-border: 1px solid rgba(255, 255, 255, 0.08);
-border-radius: 12px;
-overflow: hidden;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: #0f0f10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow-x: visible;
+  overflow-y: visible;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.db-table { width: 100%; border-collapse: collapse; }
-.db-table th, .db-table td { padding: 12px 14px; text-align: left; }
-.db-table thead th { background: rgba(255,255,255,0.03); font-size: .85rem; color: #cbd5e1; font-weight: 600; }
-.db-table tbody tr { border-top: 1px solid rgba(255,255,255,0.06); }
-.db-table tbody tr:hover { background: rgba(255,255,255,0.03); }
-
-.password-wrapper { display: flex; align-items: center; gap: 8px; }
-.password { font-family: monospace; letter-spacing: 1px; color: #e2e8f0; }
-.icon-btn { background: transparent; border: 1px solid rgba(255,255,255,0.12); color: #9aa0a6; border-radius: 8px; padding: 6px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
-.icon-btn:hover:not(:disabled) { border-color: rgba(255,255,255,0.3); color: #fff; }
-.icon-btn:disabled { 
-  opacity: 0.4; 
-  cursor: not-allowed; 
-  border-color: rgba(255,255,255,0.08);
+.db-table { 
+  width: 100%; 
+  border-collapse: collapse;
+  table-layout: auto;
 }
-.icon-btn svg { width: 18px; height: 18px; }
 
-.badge { background: rgba(255,255,255,0.06); color:#ddd; border:1px solid rgba(255,255,255,0.12); padding:4px 10px; border-radius:999px; font-size:.8rem; white-space: nowrap; }
-.badge-success { color:#22c55e; border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.08); }
-.host { color:#94a3b8; font-family: monospace; font-size: 0.9rem; }
+.db-table th, .db-table td { 
+  padding: 12px 10px; 
+  text-align: left;
+  vertical-align: middle;
+}
 
-.actions { display:flex; gap:8px; }
-.action-btn { background: transparent; color:#e5e7eb; border:1px solid rgba(255,255,255,0.15); padding:6px 10px; border-radius:8px; cursor:pointer; font-size:.85rem; }
-.action-btn:hover { border-color: rgba(255,255,255,0.35); }
-.action-btn.delete { color:#f87171; border-color: rgba(248,113,113,0.35); }
-.action-btn.delete:hover { border-color: rgba(248,113,113,0.6); background: rgba(248,113,113,0.06); }
+.db-table thead th { 
+  background: rgba(255,255,255,0.03); 
+  font-size: .85rem; 
+  color: #cbd5e1; 
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.db-table tbody tr { 
+  border-top: 1px solid rgba(255,255,255,0.06); 
+}
+
+.db-table tbody tr:hover { 
+  background: rgba(255,255,255,0.03); 
+}
+
+/* Celdas compactas con texto e icono */
+.compact-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+}
+
+.cell-text {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.db-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.db-name {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+.engine-badge {
+  background: rgba(0, 191, 255, 0.1);
+  color: #00bfff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Botones de iconos pequeños */
+.icon-btn-small {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #9aa0a6;
+  border-radius: 6px;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.icon-btn-small:hover:not(:disabled) {
+  border-color: rgba(0, 191, 255, 0.4);
+  background: rgba(0, 191, 255, 0.1);
+  color: #00bfff;
+}
+
+.icon-btn-small:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.icon-btn-small svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Acciones compactas */
+.actions-compact {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.action-btn-compact {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.action-btn-compact:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2),
+              0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+.action-btn-compact.delete {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+.action-btn-compact.delete:hover {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #ff6b6b;
+}
+
+/* Sistema de prioridades de columnas - Todas visibles en desktop */
+.col-priority-1,
+.col-priority-2,
+.col-priority-3,
+.col-priority-4,
+.col-priority-5 {
+  display: table-cell;
+}
+
+/* Ocultar columnas progresivamente según el tamaño de pantalla */
+
+/* Pantallas grandes (< 1400px): Ocultar contraseña */
+@media (max-width: 1400px) {
+  .col-priority-5 {
+    display: none;
+  }
+}
+
+/* Pantallas medianas (< 1200px): Ocultar puerto y usuario */
+@media (max-width: 1200px) {
+  .col-priority-4,
+  .col-priority-5 {
+    display: none;
+  }
+}
+
+/* Tablets (< 1024px): Ocultar host */
+@media (max-width: 1024px) {
+  .col-priority-3,
+  .col-priority-4,
+  .col-priority-5 {
+    display: none;
+  }
+  
+  .db-table th,
+  .db-table td {
+    padding: 12px 8px;
+  }
+}
+
+/* Tablets pequeños (< 900px): Ocultar gestor, solo esenciales */
+@media (max-width: 900px) {
+  .col-priority-2,
+  .col-priority-3,
+  .col-priority-4,
+  .col-priority-5 {
+    display: none;
+  }
+  
+  .db-table th,
+  .db-table td {
+    padding: 10px 6px;
+    font-size: 0.85rem;
+  }
+  
+  .action-btn-compact {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+  
+  .actions-compact {
+    gap: 6px;
+  }
+}
+
+.badge { 
+  background: rgba(255,255,255,0.06); 
+  color:#ddd; 
+  border:1px solid rgba(255,255,255,0.12); 
+  padding:4px 10px; 
+  border-radius:999px; 
+  font-size:.8rem; 
+  white-space: nowrap; 
+}
+
+.badge-success { 
+  color:#22c55e; 
+  border-color: rgba(34,197,94,0.35); 
+  background: rgba(34,197,94,0.08); 
+}
 
 .empty-state {
 text-align: center;
@@ -1327,13 +1723,425 @@ font-style: italic;
 font-size: 0.95rem;
 }
 
+/* ============================================
+   VISTA DE TARJETAS MÓVILES
+   ============================================ */
+
+/* Ocultar tarjetas en desktop, mostrar tabla */
+.mobile-cards {
+  display: none;
+}
+
+.desktop-table {
+  display: table;
+  width: 100%;
+}
+
+/* Tarjetas para móvil */
+.db-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.db-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-engine {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #00bfff;
+  background: rgba(0, 191, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-row:last-child {
+  border-bottom: none;
+}
+
+.card-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 500;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.card-value-simple {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  flex: 1;
+  text-align: right;
+}
+
+.card-value-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.card-value {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  font-family: 'Roboto Mono', monospace;
+  word-break: break-all;
+  text-align: right;
+}
+
+.icon-btn-card {
+  background: rgba(56, 139, 253, 0.1);
+  border: 1px solid rgba(56, 139, 253, 0.3);
+  color: #58a6ff;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn-card svg {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-btn-card:hover:not(:disabled) {
+  background: rgba(56, 139, 253, 0.2);
+  border-color: #58a6ff;
+  transform: scale(1.05);
+}
+
+.icon-btn-card:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-actions .action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  font-size: 0.85rem;
+}
+
+.empty-state-mobile {
+  text-align: center;
+  color: #94a3b8;
+  padding: 60px 20px;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* Responsive mejorado para header y toolbar */
+@media (max-width: 992px) {
+  .quota-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
 @media (max-width: 768px) {
-.view-header { flex-direction: column; align-items: stretch; gap: 16px; }
-.toolbar { flex-direction: column; width: 100%; }
-.toolbar-field { width: 100%; }
-.toolbar-field input { min-width: auto; width: 100%; }
-.toolbar-select { width: 100%; }
-.quota-grid { grid-template-columns: 1fr; }
+  .view-header { 
+    flex-direction: column; 
+    align-items: stretch; 
+    gap: 16px; 
+    margin-bottom: 24px;
+  }
+  
+  .view-header h1 {
+    font-size: 1.6rem;
+  }
+  
+  .header-actions {
+    width: 100%;
+  }
+  
+  /* Toolbar en columna para tablets */
+  .toolbar { 
+    flex-direction: column; 
+    width: 100%; 
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .toolbar-field { 
+    width: 100%;
+    min-width: auto;
+    flex: none;
+  }
+  
+  .toolbar-field input { 
+    width: 100%; 
+  }
+  
+  .toolbar-select { 
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .quota-grid { 
+    grid-template-columns: 1fr; 
+    gap: 12px;
+  }
+  
+  /* CAMBIAR A VISTA DE TARJETAS EN MÓVIL */
+  .desktop-table {
+    display: none !important;
+  }
+  
+  .mobile-cards {
+    display: block !important;
+  }
+  
+  .db-table-container {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .view-header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .btn-primary, .btn-debug {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+  
+  /* Ajustar tarjetas en pantallas medianas */
+  .db-card {
+    padding: 14px;
+  }
+  
+  .card-label {
+    font-size: 0.8rem;
+    min-width: 100px;
+  }
+  
+  .card-value {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-header h1 {
+    font-size: 1.2rem;
+  }
+  
+  h3 {
+    font-size: 0.75rem;
+  }
+  
+  /* Cambiar a texto corto en móviles pequeños */
+  .desktop-text {
+    display: none;
+  }
+  
+  .mobile-text {
+    display: inline;
+  }
+  
+  .btn-primary, .btn-debug {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    flex: 1;
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .toolbar-field {
+    padding: 10px 12px;
+  }
+  
+  .toolbar-select {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .db-table {
+    min-width: 700px;
+    font-size: 0.8rem;
+  }
+  
+  .db-table th,
+  .db-table td {
+    padding: 8px 10px;
+  }
+  
+  .action-btn {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+  }
+  
+  .badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+  
+  /* Ajustar tarjetas para móviles pequeños */
+  .db-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .card-header {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+  }
+  
+  .card-engine {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+  }
+  
+  .card-body {
+    gap: 10px;
+  }
+  
+  .card-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 6px 0;
+  }
+  
+  .card-label {
+    font-size: 0.75rem;
+    min-width: auto;
+  }
+  
+  .card-value-wrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .card-value {
+    font-size: 0.8rem;
+    text-align: left;
+  }
+  
+  .card-actions {
+    padding-top: 10px;
+    gap: 8px;
+  }
+  
+  .card-actions .action-btn {
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .view-header h1 {
+    font-size: 1.1rem;
+  }
+  
+  .btn-primary, .btn-debug {
+    padding: 9px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .toolbar-field {
+    padding: 8px 10px;
+  }
+  
+  .toolbar-field svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .toolbar-select {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+  
+  /* Tarjetas ultra-compactas */
+  .db-card {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+  }
+  
+  .card-header {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+  
+  .card-engine {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+  }
+  
+  .badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+  
+  .card-label {
+    font-size: 0.7rem;
+  }
+  
+  .card-value {
+    font-size: 0.75rem;
+  }
+  
+  .card-actions .action-btn {
+    font-size: 0.75rem;
+    padding: 7px;
+  }
 }
 
 /* ============================================
@@ -1495,12 +2303,15 @@ font-size: 0.95rem;
 
 .engine-card.selected {
   border-color: var(--engine-color, #00bfff);
-  background: linear-gradient(135deg, var(--engine-color, #00bfff) 0%, transparent 100%);
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.2), 0 0 20px var(--engine-color, rgba(0, 191, 255, 0.3));
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 2px var(--engine-color, rgba(0, 191, 255, 0.5)), 
+              0 0 30px var(--engine-color, rgba(0, 191, 255, 0.2)),
+              0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
 }
 
 .engine-card.selected::before {
-  opacity: 0.2;
+  opacity: 0.12;
 }
 
 /* Tarjetas deshabilitadas */
@@ -1641,6 +2452,73 @@ font-size: 0.95rem;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+/* Colores específicos por motor de base de datos */
+.connection-preview.engine-mysql {
+  background: rgba(0, 117, 143, 0.08);
+  border: 1px solid rgba(0, 117, 143, 0.3);
+}
+
+.connection-preview.engine-mysql h4 {
+  color: #00758F;
+}
+
+.connection-preview.engine-mysql .preview-code {
+  color: #00758F;
+}
+
+.connection-preview.engine-postgresql {
+  background: rgba(51, 103, 145, 0.08);
+  border: 1px solid rgba(51, 103, 145, 0.3);
+}
+
+.connection-preview.engine-postgresql h4 {
+  color: #336791;
+}
+
+.connection-preview.engine-postgresql .preview-code {
+  color: #5599cc;
+}
+
+.connection-preview.engine-mongodb {
+  background: rgba(71, 162, 72, 0.08);
+  border: 1px solid rgba(71, 162, 72, 0.3);
+}
+
+.connection-preview.engine-mongodb h4 {
+  color: #47A248;
+}
+
+.connection-preview.engine-mongodb .preview-code {
+  color: #47A248;
+}
+
+.connection-preview.engine-cassandra {
+  background: rgba(18, 135, 177, 0.08);
+  border: 1px solid rgba(18, 135, 177, 0.3);
+}
+
+.connection-preview.engine-cassandra h4 {
+  color: #1287B1;
+}
+
+.connection-preview.engine-cassandra .preview-code {
+  color: #1287B1;
+}
+
+.connection-preview.engine-redis {
+  background: rgba(220, 47, 2, 0.08);
+  border: 1px solid rgba(220, 47, 2, 0.3);
+}
+
+.connection-preview.engine-redis h4 {
+  color: #DC2F02;
+}
+
+.connection-preview.engine-redis .preview-code {
+  color: #DC2F02;
 }
 
 .connection-preview h4 {
@@ -1650,6 +2528,7 @@ font-size: 0.95rem;
   margin: 0 0 16px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transition: color 0.3s ease;
 }
 
 .preview-item {
@@ -1795,35 +2674,74 @@ font-size: 0.95rem;
   height: 18px;
 }
 
-/* Responsive para el modal */
+/* Responsive mejorado para modales */
 @media (max-width: 768px) {
+  .modal-overlay {
+    padding: 10px;
+  }
+  
   .modal-content-glass {
-    padding: 24px;
+    padding: 20px;
+    max-height: 95vh;
+    border-radius: 16px;
   }
 
   .modal-title {
     font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+  
+  .modal-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 24px;
   }
 
   .engine-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .engine-card {
+    padding: 12px;
+  }
+  
+  .engine-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .engine-card h3 {
+    font-size: 0.9rem;
+  }
+  
+  .engine-desc {
+    font-size: 0.7rem;
   }
 
   .preview-item {
     flex-direction: column;
     align-items: flex-start;
+    gap: 6px;
   }
 
   .preview-label {
     min-width: auto;
+    font-size: 0.8rem;
   }
 
   .preview-value {
     text-align: left;
+    font-size: 0.85rem;
+  }
+  
+  .preview-code {
+    font-size: 0.75rem;
+    padding: 6px 10px;
   }
 
   .modal-actions {
     flex-direction: column-reverse;
+    gap: 10px;
   }
 
   .btn-primary,
@@ -1835,6 +2753,7 @@ font-size: 0.95rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+    padding: 8px 12px;
   }
   
   .credential-value-wrapper {
@@ -1844,10 +2763,166 @@ font-size: 0.95rem;
   
   .credential-value {
     text-align: left;
+    font-size: 0.85rem;
+    word-break: break-word;
   }
   
   .credential-label {
     min-width: auto;
+    font-size: 0.8rem;
+  }
+  
+  .password-value {
+    font-size: 0.9rem;
+  }
+  
+  .warning-box {
+    padding: 10px 12px;
+  }
+  
+  .warning-title {
+    font-size: 0.8rem;
+  }
+  
+  .warning-text {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content-glass {
+    padding: 16px;
+  }
+  
+  .modal-close-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    top: 12px;
+    right: 12px;
+  }
+  
+  .modal-title {
+    font-size: 1.2rem;
+    padding-right: 30px;
+  }
+  
+  .modal-subtitle {
+    font-size: 0.85rem;
+  }
+  
+  .engine-card {
+    padding: 10px;
+  }
+  
+  .engine-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .engine-card h3 {
+    font-size: 0.85rem;
+  }
+  
+  .engine-desc {
+    font-size: 0.65rem;
+  }
+  
+  .connection-preview {
+    padding: 14px;
+  }
+  
+  .connection-preview h4 {
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+  
+  .preview-code {
+    font-size: 0.7rem;
+    padding: 6px 8px;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
+  }
+  
+  .form-group input,
+  .form-group select {
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+  
+  .credential-item {
+    padding: 8px 10px;
+  }
+  
+  .credential-label {
+    font-size: 0.75rem;
+  }
+  
+  .credential-value {
+    font-size: 0.8rem;
+  }
+  
+  .password-value {
+    font-size: 0.85rem;
+  }
+  
+  .copy-btn {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .copy-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .modal-content-glass {
+    padding: 12px;
+  }
+  
+  .modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .modal-subtitle {
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+  }
+  
+  .engine-card {
+    padding: 8px;
+  }
+  
+  .engine-icon {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 8px;
+  }
+  
+  .engine-card h3 {
+    font-size: 0.8rem;
+    margin-bottom: 4px;
+  }
+  
+  .engine-desc {
+    font-size: 0.6rem;
+    margin-bottom: 6px;
+  }
+  
+  .badge-available,
+  .badge-coming-soon {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+  }
+  
+  .btn-primary,
+  .btn-outline {
+    padding: 10px 16px;
+    font-size: 0.9rem;
   }
 }
 
@@ -2000,243 +3075,6 @@ font-size: 0.95rem;
   line-height: 1.4;
 }
 
-/* ========================================================================= */
-/* =================== RESPONSIVE COMPLETO - DATABASE LIST ================= */
-/* ========================================================================= */
 
-@media (max-width: 1200px) {
-  .quota-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 14px 16px;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 1024px) {
-  .view-header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .btn-create-db {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-  
-  .quota-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .db-table {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .view-header h1 {
-    font-size: 1.6rem;
-  }
-  
-  .btn-create-db {
-    width: 100%;
-    text-align: center;
-  }
-  
-  .quota-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .quota-card {
-    padding: 16px;
-  }
-  
-  .quota-card h4 {
-    font-size: 0.9rem;
-  }
-  
-  .quota-card .usage {
-    font-size: 1.6rem;
-  }
-  
-  /* Tabla responsive con scroll */
-  .db-table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .db-table {
-    min-width: 900px;
-    font-size: 0.85rem;
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 12px 14px;
-  }
-  
-  .action-btn {
-    font-size: 0.8rem;
-    padding: 5px 10px;
-  }
-  
-  /* Scrollbar personalizado */
-  .db-table-container::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  .db-table-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-  }
-  
-  .db-table-container::-webkit-scrollbar-thumb {
-    background: rgba(0, 191, 255, 0.3);
-    border-radius: 10px;
-  }
-  
-  .db-table-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 191, 255, 0.5);
-  }
-}
-
-@media (max-width: 640px) {
-  .view-header h1 {
-    font-size: 1.4rem;
-  }
-  
-  .btn-create-db {
-    font-size: 0.85rem;
-    padding: 10px 16px;
-  }
-  
-  .quota-card {
-    padding: 14px;
-  }
-  
-  .quota-card h4 {
-    font-size: 0.85rem;
-  }
-  
-  .quota-card .usage {
-    font-size: 1.4rem;
-  }
-  
-  .db-table {
-    min-width: 800px;
-    font-size: 0.8rem;
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 10px 12px;
-  }
-  
-  .db-table th {
-    font-size: 0.75rem;
-  }
-  
-  .status-badge {
-    padding: 3px 8px;
-    font-size: 0.7rem;
-  }
-  
-  .action-btn {
-    font-size: 0.75rem;
-    padding: 4px 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .view-header h1 {
-    font-size: 1.2rem;
-  }
-  
-  .btn-create-db {
-    font-size: 0.8rem;
-    padding: 9px 14px;
-  }
-  
-  .quota-card {
-    padding: 12px;
-  }
-  
-  .quota-card h4 {
-    font-size: 0.8rem;
-  }
-  
-  .quota-card .usage {
-    font-size: 1.3rem;
-  }
-  
-  .db-table {
-    min-width: 700px;
-    font-size: 0.75rem;
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 8px 10px;
-  }
-  
-  .db-table th {
-    font-size: 0.7rem;
-  }
-  
-  .status-badge {
-    padding: 2px 6px;
-    font-size: 0.65rem;
-  }
-  
-  .action-btn {
-    font-size: 0.7rem;
-    padding: 3px 6px;
-  }
-}
-
-@media (max-width: 360px) {
-  .view-header h1 {
-    font-size: 1.1rem;
-  }
-  
-  .btn-create-db {
-    font-size: 0.75rem;
-    padding: 8px 12px;
-  }
-  
-  .quota-card {
-    padding: 10px;
-  }
-  
-  .quota-card h4 {
-    font-size: 0.75rem;
-  }
-  
-  .quota-card .usage {
-    font-size: 1.2rem;
-  }
-  
-  .db-table {
-    min-width: 650px;
-    font-size: 0.7rem;
-  }
-  
-  .db-table th,
-  .db-table td {
-    padding: 7px 8px;
-  }
-  
-  .db-table th {
-    font-size: 0.65rem;
-  }
-  
-  .action-btn {
-    font-size: 0.65rem;
-    padding: 3px 5px;
-  }
-}
 
 </style>
