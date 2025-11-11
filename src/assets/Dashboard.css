@@ -2,7 +2,7 @@
 /* ========================== ESTILOS DEL DASHBOARD (NUEVO DISEÑO) ========= */
 /* ========================================================================= */
 
-/* --- Animación de transición entre vistas --- */
+/* --- Animaciones Futuristas --- */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -20,6 +20,44 @@
     }
     to {
         opacity: 1;
+    }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), 
+                    0 0 40px rgba(255, 255, 255, 0.1);
+    }
+    50% { 
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), 
+                    0 0 60px rgba(255, 255, 255, 0.2),
+                    0 0 90px rgba(255, 255, 255, 0.1);
+    }
+}
+
+@keyframes border-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(30deg); }
+}
+
+@keyframes subtle-float {
+    0%, 100% { 
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% { 
+        transform: translate(2px, -2px) rotate(0.5deg);
+    }
+    50% { 
+        transform: translate(-1px, 2px) rotate(-0.5deg);
+    }
+    75% { 
+        transform: translate(-2px, -1px) rotate(0.3deg);
     }
 }
 
@@ -338,22 +376,57 @@
 }
 
 .quota-card {
-    /* 🚨 NUEVO: Fondo sólido */
     background: #111;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 10px; /* Bordes más suaves */
+    border-radius: 10px;
     padding: 20px;
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), 
                 0 0 40px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
-/* 🚨 NUEVO: Efecto Hover */
+/* Fondo de cuadrícula futurista */
+.quota-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+/* Efecto de brillo al hover */
+.quota-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.05),
+        transparent
+    );
+    transform: translateX(-100%) translateY(-100%) rotate(30deg);
+    transition: transform 0.6s ease;
+}
+
 .quota-card:hover {
     transform: translateY(-3px);
     border-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.4), 
                 0 0 60px rgba(255, 255, 255, 0.2);
+}
+
+.quota-card:hover::after {
+    transform: translateX(100%) translateY(100%) rotate(30deg);
 }
 
 .quota-card h4 {
@@ -370,11 +443,24 @@
 
 /* --- Estilos de la Tabla de Bases de Datos --- */
 .db-table-container {
-    /* 🚨 NUEVO: Fondo sólido */
     background: #111;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    overflow: hidden; /* Para los bordes redondeados */
+    overflow: hidden;
+    position: relative;
+}
+
+/* Fondo de cuadrícula en la tabla */
+.db-table-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+    opacity: 0.3;
 }
 
 .db-table {
@@ -469,6 +555,26 @@
     white-space: nowrap;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.2), 
                 0 0 40px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Fondo de cuadrícula en botones */
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 15px 15px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover::before {
+    opacity: 0.4;
 }
 
 .btn-primary:hover {
@@ -1142,6 +1248,51 @@
 }
 
 /* ========================================================================= */
+/* =================== MEJORAS PARA DISPOSITIVOS TÁCTILES ================== */
+/* ========================================================================= */
+
+/* Prevenir zoom al hacer focus en inputs en iOS */
+@supports (-webkit-touch-callout: none) {
+    .modal-form input,
+    .modal-form select,
+    .modal-form textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Mejor área táctil para elementos interactivos */
+.modal-form input,
+.modal-form button,
+.toggle-password {
+    min-height: 44px; /* Tamaño mínimo recomendado por Apple */
+}
+
+/* Smooth scrolling para el modal */
+.modal-card {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* Prevenir selección de texto accidental */
+.modal-close-btn,
+.toggle-password,
+.btn-primary,
+.btn-secondary,
+.btn-outline {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+
+/* Mejorar la visibilidad del focus en móvil */
+.modal-form input:focus {
+    outline: none;
+    border-color: #00bfff;
+    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.2), 
+                0 0 20px rgba(0, 191, 255, 0.15);
+}
+
+/* ========================================================================= */
 /* =================== ANIMACIÓN DE ENTRADA (LOGIN) ======================== */
 /* ========================================================================= */
 
@@ -1587,18 +1738,178 @@
     
     .modal-card {
         padding: 20px 16px;
+        max-height: 85vh;
+        overflow-y: auto;
+        border-radius: 20px 20px 0 0;
+        position: fixed;
+        bottom: 0;
+        top: auto;
+        transform: translateY(0) !important;
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    .modal-card h2 {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        position: sticky;
+        top: 0;
+        background: rgba(18, 18, 20, 0.98);
+        padding: 10px 0;
+        margin-top: -10px;
+        z-index: 10;
+        backdrop-filter: blur(20px);
+    }
+    
+    .modal-close-btn {
+        position: sticky;
+        top: 10px;
+        z-index: 11;
+        font-size: 1.8rem;
+        background: rgba(255, 255, 255, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-subtitle {
+        font-size: 0.95rem;
+        padding-top: 20px;
+    }
+    
+    .form-group label {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
     }
     
     .modal-form input {
-        font-size: 0.85rem;
-        padding: 9px 10px;
+        font-size: 0.9rem;
+        padding: 12px 14px;
+        border-radius: 12px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    .modal-form input:focus {
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+    
+    .password-wrapper input {
+        padding-right: 50px;
+    }
+    
+    .toggle-password {
+        right: 8px;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+    
+    .toggle-password svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .modal-actions {
+        margin-top: 20px;
+        padding-top: 20px;
+        flex-direction: column;
+        gap: 12px;
+        position: sticky;
+        bottom: 0;
+        background: rgba(18, 18, 20, 0.98);
+        padding-bottom: 10px;
+        margin-bottom: -10px;
+        backdrop-filter: blur(20px);
     }
     
     .btn-primary,
     .btn-secondary,
     .btn-outline {
-        font-size: 0.8rem;
-        padding: 8px 14px;
+        font-size: 0.9rem;
+        padding: 12px 20px;
+        width: 100%;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-primary svg,
+    .btn-secondary svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    /* Animación mejorada para móvil */
+    .modal-scale-enter-active {
+        animation: modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .modal-scale-leave-active {
+        animation: modalSlideDown 0.3s ease-in;
+    }
+    
+    @keyframes modalSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes modalSlideDown {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+    }
+    
+    /* Mejora del scroll en móvil */
+    .modal-card::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .modal-card::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .modal-card::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+    }
+    
+    .password-requirements {
+        font-size: 0.75rem;
+        line-height: 1.5;
+    }
+    
+    /* Mejora del overlay en móvil */
+    .modal-overlay {
+        align-items: flex-end;
+        background-color: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(12px);
+        padding: 0;
+    }
+    
+    /* Asegurar que el modal se vea bien en landscape */
+    @media (max-height: 500px) {
+        .modal-card {
+            max-height: 95vh;
+            border-radius: 16px;
+        }
     }
 }
 
@@ -1667,32 +1978,58 @@
     }
     
     .modal-card {
-        padding: 18px 12px;
+        padding: 16px 14px;
+        max-height: 88vh;
     }
     
     .modal-card h2 {
         font-size: 1.2rem;
         margin-bottom: 15px;
+        padding: 8px 0;
+    }
+    
+    .modal-close-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 1.6rem;
     }
     
     .modal-subtitle {
         font-size: 0.9rem;
     }
     
+    .form-group {
+        margin-bottom: 14px;
+    }
+    
     .form-group label {
         font-size: 0.8rem;
+        margin-bottom: 6px;
     }
     
     .modal-form input {
-        font-size: 0.8rem;
-        padding: 8px 10px;
+        font-size: 0.85rem;
+        padding: 11px 12px;
+    }
+    
+    .modal-form input:focus {
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+    
+    .password-requirements {
+        font-size: 0.7rem;
+    }
+    
+    .modal-actions {
+        gap: 10px;
+        padding-top: 16px;
     }
     
     .btn-primary,
     .btn-secondary,
     .btn-outline {
-        font-size: 0.75rem;
-        padding: 7px 12px;
+        font-size: 0.85rem;
+        padding: 11px 18px;
     }
 }
 
@@ -1763,18 +2100,73 @@
     }
     
     .modal-card {
-        padding: 16px 10px;
+        padding: 14px 12px;
+        max-height: 90vh;
     }
     
     .modal-card h2 {
         font-size: 1.1rem;
+        padding: 6px 0;
+    }
+    
+    .modal-close-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1.5rem;
+        top: 6px;
+    }
+    
+    .modal-subtitle {
+        font-size: 0.85rem;
+        padding-top: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 12px;
+    }
+    
+    .form-group label {
+        font-size: 0.75rem;
+    }
+    
+    .modal-form input {
+        font-size: 0.8rem;
+        padding: 10px 12px;
+    }
+    
+    .modal-form input:focus {
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+    
+    .password-wrapper input {
+        padding-right: 46px;
+    }
+    
+    .toggle-password {
+        width: 34px;
+        height: 34px;
+    }
+    
+    .password-requirements {
+        font-size: 0.68rem;
+    }
+    
+    .modal-actions {
+        gap: 8px;
+        padding-top: 14px;
     }
     
     .btn-primary,
     .btn-secondary,
     .btn-outline {
-        font-size: 0.7rem;
-        padding: 6px 10px;
+        font-size: 0.8rem;
+        padding: 10px 16px;
+    }
+    
+    .btn-primary svg,
+    .btn-secondary svg {
+        width: 18px;
+        height: 18px;
     }
 }
 /* ========================================================================= */

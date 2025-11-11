@@ -10,10 +10,10 @@
     </div>
 
       <nav class="main-nav">
-        <a href="#hero-section" :class="{ 'active': activeSection === 'hero-section' }">Inicio</a>
-        <a href="#features-section" :class="{ 'active': activeSection === 'features-section' }">Funcionalidades</a>
-        <a href="#pricing-section" :class="{ 'active': activeSection === 'pricing-section' }">Precios</a>
-        <a href="#faq-section" :class="{ 'active': activeSection === 'faq-section' }">Preguntas</a>
+        <a href="#hero-section" @click="smoothScrollToSection" :class="{ 'active': activeSection === 'hero-section' }">Inicio</a>
+        <a href="#features-section" @click="smoothScrollToSection" :class="{ 'active': activeSection === 'features-section' }">Funcionalidades</a>
+        <a href="#pricing-section" @click="smoothScrollToSection" :class="{ 'active': activeSection === 'pricing-section' }">Precios</a>
+        <a href="#faq-section" @click="smoothScrollToSection" :class="{ 'active': activeSection === 'faq-section' }">Preguntas</a>
       </nav>
       <div class="auth-buttons">
         
@@ -109,46 +109,64 @@
       <div class="pricing-cards">
         
     <div class="pricing-card reveal-on-scroll">
-            <h3>Plan Gratuito</h3>
-            <h1>$0<span>/siempre</span></h1>
-            <p>Perfecto para proyectos personales y pruebas iniciales.</p>
-            <ul>
-                <li>Hasta 2 Bases de Datos por gestor</li>
-                <li>Gestores: MySQL, Mongo, Postgre, etc.</li>
-                <li>Generación automática de Credenciales</li>
-                <li>Autenticación segura JWT</li>
-                <li>Soporte vía correo (Estándar)</li>
+            <div class="card-header">
+                <h3>Plan Gratuito</h3>
+                <div class="price-badge">
+                    <span class="currency">$</span>
+                    <span class="amount">0</span>
+                    <span class="period">/siempre</span>
+                </div>
+            </div>
+            <p class="card-description">Perfecto para proyectos personales y pruebas iniciales.</p>
+            <ul class="features-list">
+                <li><span class="check-icon">✓</span>2 Bases de Datos por gestor</li>
+                <li><span class="check-icon">✓</span>6 Gestores soportados (MySQL, PostgreSQL, MongoDB, SQL Server, Redis, Cassandra)</li>
+                <li><span class="check-icon">✓</span>Hasta 12 bases de datos en total</li>
+                <li><span class="check-icon">✓</span>Generación automática de credenciales</li>
+                <li><span class="check-icon">✓</span>Autenticación segura JWT</li>
             </ul>
-            <button class="btn-primary">Registrarse Gratis →</button>
+            <button class="btn-pricing">Registrarse Gratis →</button>
         </div>
 
     <div class="pricing-card popular reveal-on-scroll">
-            <div class="tag">Más Popular</div>
-            <h3>Plan Intermedio</h3>
-            <h1>$5.000<span>/mes COP</span></h1>
-            <p>Ideal para pequeños equipos y aplicaciones en crecimiento.</p>
-            <ul>
-                <li>Hasta 5 Bases de Datos por gestor</li>
-                <li>Webhooks para notificaciones y errores</li>
-                <li>Integración directa</li>
-                <li>Gestión centralizada de facturación</li>
-                <li>Rotación de credenciales bajo demanda</li>
+            <div class="popular-badge">Más Popular</div>
+            <div class="card-header">
+                <h3>Plan Intermedio</h3>
+                <div class="price-badge">
+                    <span class="currency">$</span>
+                    <span class="amount">5.000</span>
+                    <span class="period">/mes COP</span>
+                </div>
+            </div>
+            <p class="card-description">Ideal para pequeños equipos y aplicaciones en crecimiento.</p>
+            <ul class="features-list">
+                <li><span class="check-icon">✓</span>5 Bases de Datos por gestor</li>
+                <li><span class="check-icon">✓</span>Hasta 30 bases de datos en total</li>
+                <li><span class="check-icon">✓</span>Todos los gestores disponibles</li>
+                <li><span class="check-icon">✓</span>Gestión centralizada del ciclo de vida</li>
+                <li><span class="check-icon">✓</span>Panel de control avanzado</li>
             </ul>
-            <button class="btn-primary">Suscribirse →</button>
+            <button class="btn-pricing popular-btn">Suscribirse →</button>
         </div>
 
     <div class="pricing-card reveal-on-scroll">
-            <h3>Plan Avanzado</h3>
-            <h1>$10.000<span>/mes COP</span></h1>
-            <p>La solución completa para desarrolladores y proyectos de alta demanda.</p>
-            <ul>
-                <li>Hasta 10 Bases de Datos por gestor</li>
-                <li>Acceso a todos los Webhooks</li>
-                <li>Soporte prioritario y SLA</li>
-                <li>Auditoría completa de eventos (Logs)</li>
-                <li>Todos los beneficios del Plan Intermedio</li>
+            <div class="card-header">
+                <h3>Plan Avanzado</h3>
+                <div class="price-badge">
+                    <span class="currency">$</span>
+                    <span class="amount">10.000</span>
+                    <span class="period">/mes COP</span>
+                </div>
+            </div>
+            <p class="card-description">La solución completa para desarrolladores y proyectos de alta demanda.</p>
+            <ul class="features-list">
+                <li><span class="check-icon">✓</span>10 Bases de Datos por gestor</li>
+                <li><span class="check-icon">✓</span>Hasta 60 bases de datos en total</li>
+                <li><span class="check-icon">✓</span>Gestión completa del ciclo de vida (CRUD)</li>
+                <li><span class="check-icon">✓</span>Visualización de credenciales seguras</li>
+                <li><span class="check-icon">✓</span>Todos los beneficios del Plan Intermedio</li>
             </ul>
-            <button class="btn-primary">Suscribirse →</button>
+            <button class="btn-pricing">Suscribirse →</button>
         </div>
         
       </div>
@@ -161,22 +179,22 @@
       </p>
       <div class="faq-list">
         
-        <details>
+        <details class="reveal-on-scroll">
             <summary>¿Qué es DBflow y qué gestores de bases de datos soporta?</summary>
             <p>DBflow es una plataforma cloud para la gestión automatizada de bases de datos que te permite crear, administrar y escalar instancias de gestores populares como MySQL, PostgreSQL, MongoDB, SQL Server, Redis y Cassandra de manera centralizada.</p>
         </details>
         
-        <details>
+        <details class="reveal-on-scroll">
             <summary>¿Puedo probar DBflow antes de comprometerme con un plan de pago?</summary>
             <p>¡Sí! Al registrarte, accedes automáticamente al Plan Gratuito, que te permite crear y mantener activas hasta dos bases de datos por cada gestor (hasta 12 DBs en total) sin costo ni tarjeta de crédito.</p>
         </details>
         
-        <details>
+        <details class="reveal-on-scroll">
             <summary>¿Qué tan segura es mi información y cómo se aíslan mis bases de datos en DBflow?</summary>
             <p>Garantizamos seguridad blindada y aislamiento de datos entre clientes. Usamos cifrado de extremo a extremo, JWT (JSON Web Token) para la autenticación y generamos credenciales únicas y aisladas para cada instancia de base de datos que creas.</p>
         </details>
         
-        <details>
+        <details class="reveal-on-scroll">
             <summary>¿Puedo cambiar o cancelar mi plan de membresía en cualquier momento?</summary>
             <p>Absolutamente. Puedes actualizar o cancelar tu suscripción en cualquier momento desde el panel de control. Todos los pagos y la gestión de membresías se procesan de forma segura a través de Mercado Pago.</p>
         </details>
@@ -198,7 +216,7 @@
         <div class="cta-buttons">
             <a href="/register" class="btn-primary">Comienza con el Plan Gratuito</a>
             
-            <a href="#pricing-section" class="btn-primary">Ver Planes y Precios</a>
+            <a href="#pricing-section" @click="smoothScrollToSection" class="btn-primary">Ver Planes y Precios</a>
         </div>
       </div>
     </section>
@@ -218,10 +236,10 @@
       <div class="footer-links">
         <div class="footer-col">
           <h4>Product</h4>
-          <a href="#features-section">Features</a>
-          <a href="#pricing-section">Pricing</a>
-          <a href="#faq-section">Security</a>
-          <a href="#features-section">Integrations</a>
+          <a href="#features-section" @click="smoothScrollToSection">Features</a>
+          <a href="#pricing-section" @click="smoothScrollToSection">Pricing</a>
+          <a href="#faq-section" @click="smoothScrollToSection">Security</a>
+          <a href="#features-section" @click="smoothScrollToSection">Integrations</a>
         </div>
         <div class="footer-col">
           <h4>Company</h4>
@@ -456,6 +474,37 @@ function handleScroll() {
 }
 // ----------------------------------------------------
 
+// --- SMOOTH SCROLL CON OFFSET DINÁMICO ---
+function getScrollOffset() {
+  const header = document.querySelector('.main-header')
+  if (!header) return 120
+  
+  // Obtiene la altura real del header + el top (15px) + margen adicional
+  const headerHeight = header.offsetHeight
+  const headerTop = 15
+  const extraMargin = 20
+  
+  return headerHeight + headerTop + extraMargin
+}
+
+function smoothScrollToSection(event) {
+  event.preventDefault()
+  const targetId = event.currentTarget.getAttribute('href')
+  const targetElement = document.querySelector(targetId)
+  
+  if (targetElement) {
+    const headerOffset = getScrollOffset()
+    const elementPosition = targetElement.getBoundingClientRect().top
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+    
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    })
+  }
+}
+// ----------------------------------------------------
+
 
 // --- LÓGICA DE SCROLL SPY (ACTUALIZADA) ---
 const activeSection = ref(null) 
@@ -479,25 +528,21 @@ function setupIntersectionObservers() {
     { ref: footerSection, id: 'footer-section' },
   ]
 
-  // Compensación de 90px (del home.css) + 15px (top del header) = 105px
-  const headerHeight = 105; 
+  // Usar el offset dinámico
+  const headerHeight = getScrollOffset()
   
   const options = {
     root: null, 
-    rootMargin: `-${headerHeight}px 0px 0px 0px`, 
-    threshold: 0 
+    rootMargin: `-${headerHeight}px 0px -50% 0px`, 
+    threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5]
   }
 
   sections.forEach(section => {
     if (section.ref.value) {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            // Lógica para manejar el Scroll Spy
-            const rect = entry.target.getBoundingClientRect();
-            if (rect.top <= headerHeight && rect.bottom > headerHeight) {
-                activeSection.value = section.id
-            }
+          if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+            activeSection.value = section.id
           }
         })
       }, options)
@@ -532,6 +577,13 @@ function setupRevealAnimations() {
 }
 // ------------------------------------------------
 
+// --- ACTUALIZAR SCROLL OFFSET DINÁMICO ---
+function updateScrollOffset() {
+  const offset = getScrollOffset()
+  document.documentElement.style.setProperty('--scroll-offset', `${offset}px`)
+}
+// ------------------------------------------------
+
 let onResizeHandler = null; 
 onMounted(() => {
   const c = canvas.value
@@ -544,10 +596,14 @@ onMounted(() => {
   onResizeHandler = () => {
     resizeCanvas(c)
     generateParticlesFromText(c, pixelSteps)
+    updateScrollOffset() // Actualizar offset al cambiar tamaño
   }
   
   window.addEventListener('resize', onResizeHandler)
   window.addEventListener('scroll', handleScroll) 
+  
+  // Inicializar scroll offset
+  updateScrollOffset() 
 
   c.addEventListener('mousemove', (e) => {
     const rect = c.getBoundingClientRect()

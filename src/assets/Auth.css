@@ -1,6 +1,24 @@
 /* Estilos para las páginas de Login y Register (Totalmente Transparente) */
 
 /* ---------------------------------------------------------------------- */
+/* --- ANIMACIONES --- */
+/* ---------------------------------------------------------------------- */
+@keyframes subtle-float {
+    0%, 100% { 
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% { 
+        transform: translate(2px, -2px) rotate(0.5deg);
+    }
+    50% { 
+        transform: translate(-1px, 2px) rotate(-0.5deg);
+    }
+    75% { 
+        transform: translate(-2px, -1px) rotate(0.3deg);
+    }
+}
+
+/* ---------------------------------------------------------------------- */
 /* --- CONTENEDOR PRINCIPAL --- */
 /* ---------------------------------------------------------------------- */
 .auth-page-wrap {
@@ -12,6 +30,19 @@
     background-color: transparent; /* Mantenemos transparente */
     position: relative;
     font-family: 'Inter', sans-serif;
+}
+
+/* Canvas de fondo con animación */
+.canvas-container-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    animation: subtle-float 20s ease-in-out infinite;
+}
+
+.canvas-container-bg canvas {
+    width: 100%;
+    height: 100%;
 }
 
 /* ---------------------------------------------------------------------- */
