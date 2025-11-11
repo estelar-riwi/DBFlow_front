@@ -14,7 +14,8 @@
               <span>DBFlow</span>
             </div>
             <div class="card-number">
-              {{ cardNumber || '#### #### #### ####' }}
+              <!-- El formato se actualizará automáticamente por el evento 'change' -->
+              {{ formattedCardNumber || '#### #### #### ####' }}
             </div>
             <div class="card-details">
               <div class="card-holder">
@@ -31,7 +32,8 @@
             <div class="card-stripe"></div>
             <div class="card-cvv-box">
               <span class="label">CVV</span>
-              <div class="cvv-value">{{ cardCvv }}</div>
+              <!-- El CVV no se muestra en el mockup, sino el número de caracteres -->
+              <div class="cvv-value" :data-value="cardCvv">{{ '•'.repeat(cardCvv.length) || '•••' }}</div>
             </div>
             <div class="card-logo-back">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -41,41 +43,83 @@
           </div>
         </div>
 
-        <!-- Formulario de Pago (Campos de MP) -->
-        <form @submit.prevent="processPayment" class="payment-form">
-          <div class="form-group">
-            <label for="cardNumber-container">Número de Tarjeta</label>
-            <!-- 🚨 CONTENEDOR DE MP -->
-            <div id="cardNumber-container" class="mp-field-container"></div>
-          </div>
-          <div class="form-group">
-            <label for="cardHolder-container">Nombre del Titular</label>
-            <!-- 🚨 CONTENEDOR DE MP -->
-            <div id="cardHolder-container" class="mp-field-container"></div>
-          </div>
-          <div class="form-group">
-            <label for="email">Email de Pago</label>
-            <!-- Este sigue siendo tu input normal para el email del pagador -->
-            <input type="email" id="email" v-model="userEmail" @focus="isFlipped = false" 
-                   placeholder="Tu correo" required>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="expirationDate-container">Expiración</label>
-              <!-- 🚨 CONTENEDOR DE MP -->
-              <div id="expirationDate-container" class="mp-field-container"></div>
-            </div>
-            <div class="form-group">
-              <label for="securityCode-container">CVV</label>
-              <!-- 🚨 CONTENEDOR DE MP -->
-              <div id="securityCode-container" class="mp-field-container"></div>
-            </div>
-          </div>
-          <button type="submit" class="btn-submit-payment" :disabled="isProcessing">
-            <span v-if="isProcessing">Procesando...</span>
-            <span v-else>Pagar {{ planPrice }} COP</span>
-          </button>
-        </form>
+        <!-- INICIO DE FORMULARIO -->
+        <!-- INICIO DE FORMULARIO -->
+<form @submit.prevent="processPayment" class="payment-form">
+  <div class="form-group">
+    <label for="cardNumber">Número de Tarjeta</label>
+    <div id="cardNumber-container" class="mp-field-container">
+      <input 
+        type="text" 
+        id="cardNumber"
+        v-model="cardNumber"
+        placeholder="#### #### #### ####"
+        maxlength="19"
+      />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="cardHolder">Nombre del Titular</label>
+    <div id="cardHolder-container" class="mp-field-container">
+      <input 
+        type="text" 
+        id="cardHolder"
+        v-model="cardHolder"
+        placeholder="Nombre Completo"
+      />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="email">Email de Pago</label>
+    <input 
+      type="email" 
+      id="email" 
+      v-model="userEmail" 
+      placeholder="Tu correo" 
+      required 
+    />
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="expiration">Expiración</label>
+      <div id="expirationDate-container" class="mp-field-container">
+        <input 
+          type="text"
+          id="expiration"
+          v-model="cardExpiry"
+          placeholder="MM/YY"
+          maxlength="5"
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="cvv">CVV</label>
+      <div id="securityCode-container" class="mp-field-container">
+        <input 
+          type="password"
+          id="cvv"
+          v-model="cardCvv"
+          placeholder="•••"
+          maxlength="4"
+          @focus="isFlipped = true" 
+          @blur="isFlipped = false"
+        />
+      </div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn-submit-payment" :disabled="isProcessing">
+    <span v-if="isProcessing">Procesando...</span>
+    <span v-else>Pagar {{ planPrice }} COP</span>
+  </button>
+</form>
+<!-- FIN DE FORMULARIO -->
+
+        <!-- FIN DE FORMULARIO -->
       </div>
       <router-link to="/subscription" class="back-link">
         &larr; Volver a Planes
@@ -85,23 +129,54 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getPlanConfig } from '@/config/plans';
-import { showAlert } from '@/utils/notify';
-import { getUserId, getUserEmail } from '@/services/subscriptionService'; 
-import { createSubscription } from '@/services/paymentService'; 
 
-// ... (Tu configuración y variables reactivas como PlanId, PlanPrice, etc. van aquí)
+// --------------------------------------------------------------------------------
+// SIMULACIONES DE SERVICIOS
+// --------------------------------------------------------------------------------
 
-// 🚨 CONFIGURACIÓN: Reemplaza con tus IDs reales de Mercado Pago
-const MERCADO_PAGO_PLAN_IDS = {
-  INTERMEDIO: '9037b9deb5ef45e485d0fc4029e4c759', // ID real que creaste en MP
-  AVANZADO: 'TU_MP_PLAN_ID_AVANZADO',   // ID real que creaste en MP
+// Simulación de una utilidad de notificación
+const showAlert = ({ title, text, icon }) => {
+    console.log(`[ALERTA - ${icon.toUpperCase()}] ${title}: ${text}`);
+    if (icon === 'error') {
+      console.error(text);
+    } else {
+      alert(`${title}: ${text}`);
+    }
 };
 
-// 🚨 CONFIGURACIÓN: Reemplaza con tu clave pública
-const VITE_MP_PUBLIC_KEY = 'TEST-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'; 
+// SIMULACIÓN de carga de configuración del plan
+const getPlanConfig = (id) => {
+    const plans = {
+        'intermediate': { displayName: 'Plan Intermedio', price: 5000 },
+        'advanced': { displayName: 'Plan Avanzado', price: 10000 },
+    };
+    return plans[id];
+};
+
+// SIMULACIÓN de funciones de usuario
+const getUserEmail = () => 'marianartpo08@gmail.com'; 
+const getUserId = () => 'user-test-12345'; 
+const createSubscription = async (data) => {
+    console.log("Simulando llamada a Backend con datos:", data);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    return { success: true, message: "Subscription pending confirmation" };
+};
+
+
+// -----------------------------------------------------------------
+// 🚨 CONFIGURACIÓN NECESARIA PARA PRUEBAS (REEMPLAZA ESTOS VALORES)
+// -----------------------------------------------------------------
+
+const MERCADO_PAGO_PLAN_IDS = {
+  INTERMEDIO: '13165c6cd72d46569fbf1660c1bd9f8e', 
+  AVANZADO: 'b13a7ed8966f49ecb28668db916d18c1',   
+};
+
+const VITE_MP_PUBLIC_KEY = 'TEST-c2e3323c-f22a-4eb3-a9a2-6f2310f4a331'; 
+
+// -----------------------------------------------------------------
 
 const route = useRoute();
 const router = useRouter();
@@ -112,12 +187,18 @@ const planConfig = getPlanConfig(planId);
 const planName = computed(() => planConfig?.displayName || 'Desconocido');
 const planPrice = computed(() => planConfig?.price.toLocaleString('es-CO') || '0');
 
-// Estado del formulario (SOLO para el mockup visual, no para el tokenizador de MP)
+// Estado del formulario para el mockup visual
 const cardNumber = ref('');
 const cardHolder = ref('');
 const cardExpirationMonth = ref(''); 
 const cardExpirationYear = ref('');
 const cardCvv = ref('');
+
+// Función para formatear el número de tarjeta con espacios
+const formattedCardNumber = computed(() => {
+    if (!cardNumber.value) return '#### #### #### ####';
+    return cardNumber.value.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+});
 
 const cardExpiry = computed(() => {
     const month = cardExpirationMonth.value.padEnd(2, 'M');
@@ -125,7 +206,7 @@ const cardExpiry = computed(() => {
     return `${month}/${year}`;
 });
 
-// Datos del usuario
+
 const userEmail = ref(getUserEmail() || ''); 
 const mpPlanId = computed(() => 
   planId === 'intermediate' ? MERCADO_PAGO_PLAN_IDS.INTERMEDIO :
@@ -145,8 +226,13 @@ const initMercadoPago = () => {
         mp = new window.MercadoPago(VITE_MP_PUBLIC_KEY, {
           locale: 'es-CO'
         });
-        console.log("MercadoPago SDK inicializado.");
-        mountCardFields();
+        console.log("✅ MercadoPago SDK inicializado.");
+        
+        // 🔑 Doble protección para asegurar que los DIVs existan antes de montar
+        nextTick(() => {
+            setTimeout(mountCardFields, 0); // Permite un ciclo de evento completo
+        });
+        
       } catch (error) {
         console.error("Error al inicializar MercadoPago:", error);
         showAlert({ icon: 'error', title: 'Error MP', text: 'No se pudo cargar el SDK de pagos. Revisa la clave pública.' });
@@ -157,51 +243,16 @@ const initMercadoPago = () => {
 const mountCardFields = () => {
     // 1. Crear la instancia de fields
     cardField = mp.fields.create({
-        cardholderName: { 
-            placeholder: 'Nombre Completo', 
-            style: { 
-                'font-size': '1rem', 
-                'color': '#e2e8f0', 
-                'padding': '12px 16px',
-                'background': 'rgba(255,255,255,0.05)',
-                'border-radius': '8px',
-                'border': '1px solid rgba(255,255,255,0.15)',
-            }
-        },
-        cardNumber: {
-            placeholder: '#### #### #### ####',
-            style: { 
-                'font-size': '1rem', 
-                'color': '#e2e8f0', 
-                'padding': '12px 16px',
-                'background': 'rgba(255,255,255,0.05)',
-                'border-radius': '8px',
-                'border': '1px solid rgba(255,255,255,0.15)',
-            }
-        },
-        securityCode: { 
-            placeholder: '123',
-            style: { 
-                'font-size': '1rem', 
-                'color': '#e2e8f0', 
-                'padding': '12px 16px',
-                'background': 'rgba(255,255,255,0.05)',
-                'border-radius': '8px',
-                'border': '1px solid rgba(255,255,255,0.15)',
-            }
-        },
-        expirationDate: { 
-            placeholder: 'MM / YY',
-            mode: 'short',
-            style: { 
-                'font-size': '1rem', 
-                'color': '#e2e8f0', 
-                'padding': '12px 16px',
-                'background': 'rgba(255,255,255,0.05)',
-                'border-radius': '8px',
-                'border': '1px solid rgba(255,255,255,0.15)',
-            }
-        },
+        cardholderName: { placeholder: 'Nombre Completo' },
+        cardNumber: { placeholder: '#### #### #### ####' },
+        securityCode: { placeholder: '123' },
+        expirationDate: { placeholder: 'MM / YY', mode: 'short' },
+    }, {
+        style: {
+             'font-size': '1rem', 
+             'color': '#e2e8f0', 
+             'background-color': 'transparent', 
+        }
     });
 
     // 2. Montar los campos en los DIVs correspondientes
@@ -210,9 +261,10 @@ const mountCardFields = () => {
         cardField.mount('cardNumber', '#cardNumber-container');
         cardField.mount('securityCode', '#securityCode-container');
         cardField.mount('expirationDate', '#expirationDate-container');
+        console.log("✅ Campos de Mercado Pago montados exitosamente.");
 
-        // Escucha eventos para actualizar el mockup
-        cardField.on('focus', ({ field, fieldElement }) => {
+        // 3. 🔑 USAR cardField.addEvent para mayor compatibilidad
+        cardField.addEvent('focus', ({ field }) => {
             if (field === 'securityCode') {
                 isFlipped.value = true;
             } else {
@@ -220,33 +272,40 @@ const mountCardFields = () => {
             }
         });
         
-        cardField.on('change', ({ field, fieldElement }) => {
+        cardField.addEvent('change', ({ field, fieldElement }) => {
              if (field === 'cardNumber') {
-                // Actualiza el mockup visual (removiendo espacios solo para el mockup)
-                cardNumber.value = fieldElement.value.replace(/ /g, '');
+               // Limpiamos espacios para el mockup, si es necesario
+               cardNumber.value = fieldElement.value.replace(/\s/g, ''); 
              }
              if (field === 'cardholderName') {
-                cardHolder.value = fieldElement.value;
+               cardHolder.value = fieldElement.value.toUpperCase(); 
              }
              if (field === 'securityCode') {
-                cardCvv.value = fieldElement.value;
+               cardCvv.value = fieldElement.value;
              }
              if (field === 'expirationDate') {
-                const parts = fieldElement.value.split(' / ');
-                cardExpirationMonth.value = parts[0] || '';
-                cardExpirationYear.value = parts[1] || '';
+               const parts = fieldElement.value.split(' / ');
+               cardExpirationMonth.value = parts[0] || '';
+               cardExpirationYear.value = parts[1] ? parts[1].slice(-2) : ''; 
              }
         });
 
     } catch (e) {
-        console.error("Error al montar los campos de Mercado Pago:", e);
+        console.error("❌ Error CRÍTICO al montar los campos de Mercado Pago:", e);
     }
 };
 
 onMounted(() => {
+  // Verificamos si la ruta tiene un planId válido antes de cargar MP
+  if (!planId || !planConfig) {
+      showAlert({ icon: 'error', title: 'Error', text: 'Plan de suscripción no válido.' });
+      return router.push('/subscription'); // Redirigir si no hay plan
+  }
+
   if (window.MercadoPago) {
     initMercadoPago();
   } else {
+    // Carga el SDK si no está disponible
     const script = document.createElement('script');
     script.src = 'https://sdk.mercadopago.com/js/v2';
     script.onload = initMercadoPago;
@@ -257,26 +316,40 @@ onMounted(() => {
 onBeforeUnmount(() => {
     // Limpia los campos al salir del componente
     if (cardField) {
+        // En el caso de fields, usamos unmount() en la instancia de fields
         cardField.unmount();
     }
 });
 
-// --- LÓGICA DE PAGO (TOKENIZACIÓN AHORA ES AUTOMÁTICA) ---
+// --- LÓGICA DE PAGO (TOKENIZACIÓN) ---
 const processPayment = async () => {
-  if (!mp || isProcessing.value) return;
+  // 🔑 Aseguramos que 'mp.fields' exista antes de llamar a 'createCardToken'
+  if (!mp || !mp.fields || isProcessing.value || !mpPlanId.value) {
+     showAlert({ icon: 'warning', title: 'Advertencia', text: 'El SDK no está listo o el PlanId es inválido.' });
+     return;
+  }
   
   isProcessing.value = true;
   
   let cardTokenId = null;
   try {
-    // 1. Validar campos con el SDK
-    const cardToken = await cardField.createCardToken();
+    // 1. Validar campos y crear el CardToken con el SDK
+    // ✅ LLAMADA CORRECTA: mp.fields.createCardToken()
+    const cardToken = await mp.fields.createCardToken();
 
     if (cardToken.error) {
-        throw new Error(cardToken.error.message || "Error al tokenizar la tarjeta. Datos inválidos o faltantes.");
+        let errorMessage = "Error desconocido al tokenizar. Intenta nuevamente.";
+        if (cardToken.error.cause && cardToken.error.cause.length > 0) {
+            errorMessage = cardToken.error.cause[0].description || cardToken.error.cause[0].code;
+        } else if (cardToken.error.message) {
+            errorMessage = cardToken.error.message;
+        }
+
+        throw new Error(`Validación de Tarjeta fallida: ${errorMessage}`);
     }
 
     cardTokenId = cardToken.id;
+    console.log("Token de Tarjeta generado:", cardTokenId);
 
     // 2. Preparar la solicitud al Backend
     const userId = getUserId(); 
@@ -289,23 +362,23 @@ const processPayment = async () => {
       PlanId: mpPlanId.value, 
       Email: userEmail.value,
       CardTokenId: cardTokenId, 
-      BackUrl: `${window.location.origin}/subscription?status=approved&plan=${planId}`, 
+      BackUrl: `${window.location.origin}/dashboard/subscription?status=approved&plan=${planId}`, 
       UserId: userId, 
     };
     
-    // 3. Llamar al Endpoint del Backend
+    // 3. Llamar al Endpoint del Backend (createSubscription)
     const result = await createSubscription(subscriptionRequest); 
     
     localStorage.setItem('pending_plan', planId); 
     
     showAlert({
       icon: 'success',
-      title: 'Suscripción en proceso!',
-      text: 'Tu pago está siendo procesado. Serás redirigido para la confirmación.',
+      title: 'Suscripción iniciada!',
+      text: 'Tu pago está siendo procesado. Serás redirigido para verificar el estado.',
       confirmButtonText: 'Aceptar'
     });
 
-    router.push('/dashboard/subscription'); // Redirigir a la vista de suscripción
+    router.push('/dashboard/subscription'); 
 
   } catch (error) {
     console.error('❌ Error al procesar el pago o generar el token:', error);
@@ -319,13 +392,12 @@ const processPayment = async () => {
     isProcessing.value = false;
   }
 };
-// Las funciones de formato ya no son necesarias porque MP maneja el formato del input
 </script>
 
 <style scoped>
-/* ============================= ESTILOS ORIGINALES ======================= */
-/* NOTA: Se ajustó el estilo para los inputs de expiración en el form-row */
-/* ------------------------------------------------------------------------ */
+/* ============================= ESTILOS CSS ======================= */
+/* Usando fuentes Google Fonts para mayor compatibilidad de maqueta */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
 
 .payment-view {
   display: flex;
@@ -334,6 +406,7 @@ const processPayment = async () => {
   min-height: 100vh;
   padding: 40px 20px;
   background: #0f172a;
+  font-family: 'Inter', sans-serif; 
 }
 
 .payment-container {
@@ -447,6 +520,9 @@ const processPayment = async () => {
   border-radius: 4px;
   margin-left: auto;
   font-family: 'Roboto Mono', monospace;
+  /* 🚨 Para que solo se muestre en el mockup */
+  /* -webkit-text-security: disc; 
+  text-security: disc; */
 }
 .card-logo-back {
   margin-top: auto;
@@ -466,12 +542,6 @@ const processPayment = async () => {
 .form-group { margin-bottom: 20px; }
 .form-row { display: flex; gap: 20px; }
 .form-row .form-group { flex: 1; }
-/* Ajuste para los dos campos de expiración dentro del mismo form-group */
-.flex-expiry-input {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px; /* Pequeña separación entre MM y YY */
-}
 
 
 label {
@@ -496,6 +566,49 @@ input:focus {
   border-color: #38bdf8;
   box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
 }
+
+/* ------------------------------------------------------------------ */
+/* 🚨 ESTILOS CRÍTICOS PARA LA VISIBILIDAD Y FOCO */
+/* ------------------------------------------------------------------ */
+
+.mp-field-container {
+    width: 100%;
+    /* Estilos de apariencia del contenedor */
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    
+    /* 💥 Visibilidad: Fuerza la altura y padding para que el iframe sea visible */
+    height: 48px; 
+    padding: 12px 16px; 
+    
+    /* 💥 FOCO/CLICK: Aseguramos que nada lo tape */
+    position: relative; 
+    z-index: 10; 
+
+    display: flex; 
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.mp-field-container:focus-within {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
+}
+
+/* Forzamos que el iframe inyectado use el espacio */
+.mp-field-container iframe {
+    width: 100% !important; 
+    height: 100% !important;
+    border: none !important;
+    background-color: transparent !important; 
+    z-index: 10; 
+}
+
+
+/* ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------ */
+
 
 .btn-submit-payment {
   width: 100%;
