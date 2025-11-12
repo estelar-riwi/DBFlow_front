@@ -1,0 +1,147 @@
+.legal-page,
+.doc-page {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  font-family: 'Roboto Mono', monospace;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.canvas-container-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.btn-back-home {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.btn-back-home:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(-5px);
+}
+
+.legal-container {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 80px 20px 60px;
+}
+
+.legal-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.legal-header h1 {
+  font-size: 2.5rem;
+  margin: 0 0 15px;
+  background: linear-gradient(135deg, #fff 0%, #999 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.update-date {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+.legal-content {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 40px;
+  backdrop-filter: blur(10px);
+}
+
+.legal-section {
+  margin-bottom: 40px;
+}
+
+.legal-section:last-child {
+  margin-bottom: 0;
+}
+
+.legal-section h2 {
+  font-size: 1.5rem;
+  margin: 0 0 15px;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+}
+
+.legal-section p {
+  line-height: 1.8;
+  color: #aaa;
+  margin-bottom: 15px;
+}
+
+.legal-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.legal-section li {
+  padding: 8px 0 8px 25px;
+  position: relative;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+.legal-section li::before {
+  content: '•';
+  position: absolute;
+  left: 10px;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .legal-header h1 {
+    font-size: 2rem;
+  }
+  
+  .legal-content {
+    padding: 25px;
+  }
+  
+  .legal-section h2 {
+    font-size: 1.3rem;
+  }
+}

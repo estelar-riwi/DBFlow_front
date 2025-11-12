@@ -1,13 +1,13 @@
 <template>
-<div class="auth-page-wrap">
+<div class="auth-page-wrap fade-in-view">
     
     <div class="canvas-container-bg" ref="container">
     <canvas ref="canvas" class="w-full h-full"></canvas>
     </div>
     
-    <router-link to="/" class="btn-back-home">← Volver al Inicio</router-link>
+    <router-link to="/" class="btn-back-home stagger-item" style="--stagger-index: 0;">← Volver al Inicio</router-link>
     
-    <div class="auth-card">
+    <div class="auth-card stagger-item" style="--stagger-index: 1;">
     
     <div class="logo">
         <div class="logo-icon"></div>
@@ -18,17 +18,17 @@
     <p class="auth-subtitle">Start managing your databases now.</p>
 
     <form @submit.prevent="handleRegister" class="auth-form" novalidate>
-        <div class="form-group">
-        <label for="name">Full Name</label>
+        <div class="form-group stagger-child" style="--child-index: 0;">
+        <label for="name">Nombre Completo</label>
         <input type="text" id="name" v-model="name" required placeholder="John Doe">
         </div>
 
-        <div class="form-group">
+        <div class="form-group stagger-child" style="--child-index: 1;">
         <label for="email">Correo</label>
         <input type="email" id="email" v-model="email" required placeholder="nombre@ejemplo.com">
         </div>
         
-        <div class="form-group">
+        <div class="form-group stagger-child" style="--child-index: 2;">
         <label for="password">Contraseña</label>
         <div class="password-wrapper">
             <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required placeholder="••••••••" minlength="8">
@@ -42,14 +42,46 @@
                             </svg>
                         </button>
         </div>
+        
+        <!-- Barra de fortaleza de contraseña -->
+        <div v-if="password" class="password-strength-container">
+            <div class="password-strength-bar">
+                <div 
+                    class="password-strength-fill" 
+                    :class="passwordStrength.class"
+                    :style="{ width: passwordStrength.percentage + '%' }"
+                ></div>
+            </div>
+            <div class="password-strength-text">
+                <span :class="passwordStrength.class">{{ passwordStrength.label }}</span>
+            </div>
+            <ul class="password-requirements">
+                <li :class="{ 'met': hasMinLength }">
+                    <span class="requirement-icon">{{ hasMinLength ? '✓' : '○' }}</span>
+                    Mínimo 8 caracteres
+                </li>
+                <li :class="{ 'met': hasUppercase }">
+                    <span class="requirement-icon">{{ hasUppercase ? '✓' : '○' }}</span>
+                    Una letra mayúscula
+                </li>
+                <li :class="{ 'met': hasLowercase }">
+                    <span class="requirement-icon">{{ hasLowercase ? '✓' : '○' }}</span>
+                    Una letra minúscula
+                </li>
+                <li :class="{ 'met': hasNumber }">
+                    <span class="requirement-icon">{{ hasNumber ? '✓' : '○' }}</span>
+                    Un número
+                </li>
+            </ul>
+        </div>
         </div>
 
-        <button type="submit" class="btn-primary btn-full-width" :disabled="isLoading">
+        <button type="submit" class="btn-primary btn-full-width stagger-child" style="--child-index: 3;" :disabled="isLoading">
             {{ isLoading ? 'Registrando...' : 'Registrarse' }}
         </button>
     </form>
     
-    <p class="auth-footer-text">
+    <p class="auth-footer-text stagger-child" style="--child-index: 4;">
         ¿Ya tienes una cuenta?
         <router-link to="/login" class="link-secondary">Iniciar Sesión</router-link>
     </p>
@@ -59,7 +91,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { showAlert } from '@/utils/notify';
 import { RouterLink, useRouter } from 'vue-router'; 
 import { register } from '@/services/authService';
@@ -74,6 +106,34 @@ const password = ref('');
 const showPassword = ref(false);
 const errorMessage = ref('');
 const isLoading = ref(false);
+
+// --- Validaciones de fortaleza de contraseña ---
+const hasMinLength = computed(() => password.value.length >= 8);
+const hasUppercase = computed(() => /[A-Z]/.test(password.value));
+const hasLowercase = computed(() => /[a-z]/.test(password.value));
+const hasNumber = computed(() => /\d/.test(password.value));
+
+const passwordStrength = computed(() => {
+  if (!password.value) {
+    return { percentage: 0, label: '', class: '' };
+  }
+
+  let strength = 0;
+  if (hasMinLength.value) strength += 25;
+  if (hasUppercase.value) strength += 25;
+  if (hasLowercase.value) strength += 25;
+  if (hasNumber.value) strength += 25;
+
+  if (strength <= 25) {
+    return { percentage: strength, label: 'Débil', class: 'weak' };
+  } else if (strength <= 50) {
+    return { percentage: strength, label: 'Regular', class: 'fair' };
+  } else if (strength <= 75) {
+    return { percentage: strength, label: 'Buena', class: 'good' };
+  } else {
+    return { percentage: strength, label: 'Fuerte', class: 'strong' };
+  }
+});
 
 const handleRegister = async () => {
     errorMessage.value = '';
@@ -340,4 +400,164 @@ onBeforeUnmount(() => {
 }
 .toggle-password svg { width: 20px; height: 20px; }
 .toggle-password:hover { background: rgba(255,255,255,0.08); }
+
+/* Barra de fortaleza de contraseña */
+.password-strength-container {
+    margin-top: 12px;
+}
+
+.password-strength-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.password-strength-fill {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 10px;
+}
+
+.password-strength-fill.weak {
+    background: linear-gradient(90deg, #ff4444, #ff6b6b);
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+}
+
+.password-strength-fill.fair {
+    background: linear-gradient(90deg, #ff8800, #ffaa00);
+    box-shadow: 0 0 10px rgba(255, 136, 0, 0.5);
+}
+
+.password-strength-fill.good {
+    background: linear-gradient(90deg, #00bfff, #00d4ff);
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.password-strength-fill.strong {
+    background: linear-gradient(90deg, #00ff88, #00ffaa);
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.password-strength-text {
+    margin-bottom: 10px;
+}
+
+.password-strength-text span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.password-strength-text span.weak {
+    color: #ff6b6b;
+}
+
+.password-strength-text span.fair {
+    color: #ffaa00;
+}
+
+.password-strength-text span.good {
+    color: #00bfff;
+}
+
+.password-strength-text span.strong {
+    color: #00ff88;
+}
+
+.password-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.password-requirements li {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s ease;
+}
+
+.password-requirements li.met {
+    color: #00ff88;
+}
+
+.requirement-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.password-requirements li.met .requirement-icon {
+    color: #00ff88;
+}
+
+.password-requirements li:not(.met) .requirement-icon {
+    color: #64748b;
+}
+
+/* ========================================================================= */
+/* =================== ANIMACIONES DE ENTRADA ESCALONADA =================== */
+/* ========================================================================= */
+
+/* Contenedor principal con fade-in */
+.fade-in-view {
+  animation: viewFadeIn 0.6s ease-out;
+}
+
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Elementos con animación escalonada */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: staggerFadeIn 0.6s ease-out forwards;
+  animation-delay: calc(var(--stagger-index) * 0.15s);
+}
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hijos con animación escalonada (campos del formulario) */
+.stagger-child {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: staggerChildFadeIn 0.5s ease-out forwards;
+  animation-delay: calc(0.3s + (var(--child-index) * 0.1s));
+}
+
+@keyframes staggerChildFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>

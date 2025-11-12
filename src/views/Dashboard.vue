@@ -741,7 +741,6 @@ onBeforeUnmount(() => {
     height: 100%;
     z-index: 1; /* Fondo */
     pointer-events: none;
-    animation: subtle-float 20s ease-in-out infinite;
 }
 </style>
 <style scoped>

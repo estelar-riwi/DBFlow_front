@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // URL base - En desarrollo usa el proxy de Vite, en producción usa la variable de entorno
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://service.estelar.andrescortes.dev';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5030';
 
 console.log('🌐 API_BASE_URL configurada:', API_BASE_URL);
 console.log('🏭 Modo:', import.meta.env.MODE);
@@ -360,6 +360,192 @@ export async function deletePostgreSQLDatabase(databaseId) {
     return response.data;
   } catch (error) {
     console.error('❌ Error al eliminar base de datos PostgreSQL:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
+}
+
+/* ========================================================================= */
+/* =================== FUNCIONES SQL SERVER ================================ */
+/* ========================================================================= */
+
+/**
+ * Crea una nueva base de datos SQL Server
+ * @param {Object} databaseData - Datos de la base de datos
+ * @param {string} databaseData.databaseName - Nombre de la base de datos
+ * @returns {Promise<Object>} Respuesta con id, host, port, username, password, databaseName
+ */
+export async function createSQLServerDatabase(databaseData) {
+  console.log('🗄️ ========== CREANDO BASE DE DATOS SQL SERVER ==========');
+  console.log('📝 Datos recibidos:', databaseData);
+  
+  const userId = getUserId();
+  const token = getAuthToken();
+  
+  console.log('🔑 Token disponible:', token ? 'SÍ (' + token.substring(0, 20) + '...)' : '❌ NO');
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  // NOTA IMPORTANTE: El backend valida el campo 'engine' y rechaza ciertos valores
+  // Basándome en la tabla de la BD que mostraste, el engine guardado es "SQL Server"
+  // Pero el backend podría estar validando contra un enum diferente
+  // Intentamos con todas las variaciones posibles:
+  
+  const engineVariations = [
+    "SqlServer",      // CamelCase sin espacio
+    "sqlserver",      // todo minúsculas
+    "SQLSERVER",      // todo mayúsculas  
+    "SQL Server",     // Con espacio (como aparece en la BD)
+    "SQLServer",      // Sin espacio mayúsculas
+    "Sql Server"      // Primera letra capital
+  ];
+  
+  // Por ahora usamos la primera (SqlServer)
+  const payload = {
+    userId: userId,
+    databaseName: databaseData.databaseName || databaseData.database_name,
+    engine: "SQL Server"  // Con espacio - como indicó el usuario
+  };
+  
+  console.log('📤 Enviando petición POST /api/Databases/SQLServer');
+  console.log('📦 Payload JSON:', JSON.stringify(payload, null, 2));
+  console.log('👤 UserId:', userId);
+  console.log('🌐 URL completa:', `${API_BASE_URL}/api/Databases/SQLServer`);
+  console.log('💡 Variaciones probadas: SQLServer ❌, SQL Server ❌, SqlServer ❌, probando: sqlserver');
+  
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/Databases/SQLServer`, payload);
+    console.log('✅ RESPUESTA DEL BACKEND:', response.data);
+    console.log('🔍 Engine en la respuesta:', response.data.engine);
+    console.log('🔍 Tipo de engine:', typeof response.data.engine);
+    console.log('🗄️ ========== FIN CREACIÓN SQL SERVER ==========');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al crear base de datos SQL Server:');
+    console.error('Status:', error.response?.status);
+    console.error('Status Text:', error.response?.statusText);
+    console.error('Error data:', error.response?.data);
+    console.error('Payload enviado:', payload);
+    console.error('');
+    console.error('🔍 DIAGNÓSTICO:');
+    console.error('Si ves "Engine inválido", el backend no acepta este valor.');
+    console.error('Valores probados hasta ahora:');
+    console.error('  ❌ "SQLServer"');
+    console.error('  ❌ "SQL Server"');
+    console.error('  ❌ "SqlServer"');
+    console.error('  🔄 "sqlserver" (minúsculas)');
+    console.error('');
+    console.error('NECESITAS CONTACTAR AL EQUIPO DEL BACKEND para saber:');
+    console.error('1. ¿Qué valor exacto acepta el campo "engine"?');
+    console.error('2. ¿Hay un enum definido? Si sí, ¿cuáles son los valores válidos?');
+    console.error('3. ¿O el campo debe omitirse completamente?');
+    throw error;
+  }
+}
+
+/**
+ * Obtiene las credenciales de una base de datos SQL Server específica
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<Object>} Credenciales: { id, host, port, username, password, databaseName }
+ */
+export async function getSQLServerCredentials(databaseId) {
+  console.log('🔐 Obteniendo credenciales de SQL Server para base de datos ID:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/SQLServer/${databaseId}/Credentials`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/Databases/SQLServer/${databaseId}/Credentials`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Credenciales SQL Server obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener credenciales SQL Server:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
+}
+
+/**
+ * Rota las credenciales de una base de datos SQL Server (genera nueva contraseña)
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<Object>} Nuevas credenciales: { id, host, port, username, password, databaseName }
+ */
+export async function rotateSQLServerCredentials(databaseId) {
+  console.log('🔄 Rotando credenciales SQL Server para base de datos:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/SQLServer/${databaseId}/RotateCredentials`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/Databases/SQLServer/${databaseId}/RotateCredentials`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Credenciales SQL Server rotadas exitosamente:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al rotar credenciales SQL Server:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
+}
+
+/**
+ * Elimina una base de datos SQL Server
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<void>}
+ */
+export async function deleteSQLServerDatabase(databaseId) {
+  console.log('🗑️ Eliminando base de datos SQL Server:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/SQLServer/${databaseId}`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.delete(
+      `${API_BASE_URL}/api/Databases/SQLServer/${databaseId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Base de datos SQL Server eliminada exitosamente:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al eliminar base de datos SQL Server:');
     console.error('Status:', error.response?.status);
     console.error('Error data:', error.response?.data);
     console.error('Database ID:', databaseId);

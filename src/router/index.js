@@ -47,6 +47,23 @@ const routes = [
     component: () => import('@/views/ConfirmEmail.vue') 
   },
   
+  // PÁGINAS INFORMATIVAS
+  {
+    path: '/documentation',
+    name: 'Documentation',
+    component: () => import('@/views/Documentation.vue')
+  },
+  {
+    path: '/terms-of-service',
+    name: 'TermsOfService',
+    component: () => import('@/views/TermsOfService.vue')
+  },
+  {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicy',
+    component: () => import('@/views/PrivacyPolicy.vue')
+  },
+  
   // RUTAS DEL DASHBOARD
   {
     path: '/dashboard', 

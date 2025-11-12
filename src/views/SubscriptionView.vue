@@ -1,6 +1,6 @@
 <template>
-  <div class="plan-facturacion-view">
-    <div class="view-header">
+  <div class="plan-facturacion-view fade-in-view">
+    <div class="view-header stagger-item" style="--stagger-index: 0">
       <div>
         <h1>Plan y Facturación</h1>
         <p class="view-subtitle">Administra tu suscripción y consulta tu historial de pagos.</p>
@@ -9,10 +9,11 @@
            o simplemente confiar en las tarjetas de plan. Por ahora, lo quitamos para enfocarnos en los planes. -->
     </div>
 
-    <h3>Tu Plan Actual</h3>
+    <h3 class="stagger-item" style="--stagger-index: 1">Tu Plan Actual</h3>
     <!-- Simulación del plan actual del usuario (esto vendría de una API real en el futuro) -->
-    <div class="current-plan-display">
+    <div class="current-plan-display stagger-item" style="--stagger-index: 2">
       <StatCard
+        class="stagger-child" style="--child-index: 0"
         :title="currentPlan.name"
         :value="currentPlan.price === 0 ? '$0 COP' : `$${currentPlan.price.toLocaleString('es-CO')} COP/mes`"
         :subtitle="currentPlan.dbsPerEngineText"
@@ -21,22 +22,25 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v18l7-5 7 5V3z"/></svg>
         </template>
       </StatCard>
-      <StatCard title="Próximo Cobro" value="N/A" subtitle="Sin fecha">
+      <StatCard 
+        class="stagger-child" style="--child-index: 1"
+        title="Próximo Cobro" value="N/A" subtitle="Sin fecha">
         <template #icon>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="6" width="18" height="13" rx="2" stroke-width="1.5"/><path d="M3 10h18" stroke-width="1.5"/></svg>
         </template>
       </StatCard>
     </div>
 
-    <h3>Cambiar Plan</h3>
-    <div class="plans-grid">
+    <h3 class="stagger-item" style="--stagger-index: 3">Cambiar Plan</h3>
+    <div class="plans-grid stagger-item" style="--stagger-index: 4">
       <div
-        v-for="plan in availablePlans"
+        v-for="(plan, index) in availablePlans"
         :key="plan.id"
-        :class="['plan-card', { 
+        :class="['plan-card', 'stagger-child', { 
           'plan-card-selected': currentPlan.id === plan.id,
           'plan-card-disabled': !plan.available && currentPlan.id !== plan.id
         }]"
+        :style="{ '--child-index': index }"
       >
         <div class="plan-header">
           <div class="plan-title-wrapper">
@@ -855,5 +859,62 @@ onMounted(async () => {
     font-size: 1.8rem;
   }
 }
+
+/* ========================================================================= */
+/* =================== ANIMACIONES DE ENTRADA ESCALONADA =================== */
+/* ========================================================================= */
+
+/* Contenedor principal con fade-in */
+.fade-in-view {
+  animation: viewFadeIn 0.5s ease-out;
+}
+
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Elementos con animación escalonada */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: staggerFadeIn 0.6s ease-out forwards;
+  animation-delay: calc(var(--stagger-index) * 0.1s);
+}
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hijos con animación escalonada */
+.stagger-child {
+  opacity: 0;
+  transform: translateY(15px) scale(0.95);
+  animation: staggerChildFadeIn 0.5s ease-out forwards;
+  animation-delay: calc(0.3s + (var(--child-index) * 0.08s));
+}
+
+@keyframes staggerChildFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 
 </style>
