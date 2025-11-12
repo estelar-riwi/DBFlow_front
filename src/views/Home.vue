@@ -10,15 +10,15 @@
     </div>
 
       <nav class="main-nav">
-        <a href="#hero-section" :class="{ 'active': activeSection === 'hero-section' }">Inicio</a>
-        <a href="#features-section" :class="{ 'active': activeSection === 'features-section' }">Funcionalidades</a>
-        <a href="#pricing-section" :class="{ 'active': activeSection === 'pricing-section' }">Precios</a>
-        <a href="#faq-section" :class="{ 'active': activeSection === 'faq-section' }">Preguntas</a>
+        <a href="#hero-section" @click="smoothScrollToSection" :class="{ 'active': activeSection === 'hero-section' }">Inicio</a>
+        <a href="#features-section" @click="smoothScrollToSection" :class="{ 'active': activeSection === 'features-section' }">Funcionalidades</a>
+        <a href="#pricing-section" @click="smoothScrollToSection" :class="{ 'active': activeSection === 'pricing-section' }">Precios</a>
+        <a href="#faq-section" @click="smoothScrollToSection" :class="{ 'active': activeSection === 'faq-section' }">Preguntas</a>
       </nav>
       <div class="auth-buttons">
         
         <router-link to="/login" custom v-slot="{ navigate }">
-          <a @click="navigate" role="link" class="btn-signin">Sign In</a>
+          <a @click="navigate" role="link" class="btn-signin">Iniciar Sesión</a>
         </router-link>
 
         <router-link to="/register" custom v-slot="{ navigate }">
@@ -109,46 +109,64 @@
       <div class="pricing-cards">
         
     <div class="pricing-card reveal-on-scroll">
-            <h3>Plan Gratuito</h3>
-            <h1>$0<span>/siempre</span></h1>
-            <p>Perfecto para proyectos personales y pruebas iniciales.</p>
-            <ul>
-                <li>Hasta 2 Bases de Datos por gestor</li>
-                <li>Gestores: MySQL, Mongo, Postgre, etc.</li>
-                <li>Generación automática de Credenciales</li>
-                <li>Autenticación segura JWT</li>
-                <li>Soporte vía correo (Estándar)</li>
+            <div class="card-header">
+                <h3>Plan Gratuito</h3>
+                <div class="price-badge">
+                    <span class="currency">$</span>
+                    <span class="amount">0</span>
+                    <span class="period">/siempre</span>
+                </div>
+            </div>
+            <p class="card-description">Perfecto para proyectos personales y pruebas iniciales.</p>
+            <ul class="features-list">
+                <li><span class="check-icon">✓</span>2 Bases de Datos por gestor</li>
+                <li><span class="check-icon">✓</span>6 Gestores soportados (MySQL, PostgreSQL, MongoDB, SQL Server, Redis, Cassandra)</li>
+                <li><span class="check-icon">✓</span>Hasta 12 bases de datos en total</li>
+                <li><span class="check-icon">✓</span>Generación automática de credenciales</li>
+                <li><span class="check-icon">✓</span>Autenticación segura JWT</li>
             </ul>
-            <button class="btn-primary">Registrarse Gratis →</button>
+            <router-link to="/register" class="btn-pricing">Registrarse Gratis →</router-link>
         </div>
 
     <div class="pricing-card popular reveal-on-scroll">
-            <div class="tag">Más Popular</div>
-            <h3>Plan Intermedio</h3>
-            <h1>$5.000<span>/mes COP</span></h1>
-            <p>Ideal para pequeños equipos y aplicaciones en crecimiento.</p>
-            <ul>
-                <li>Hasta 5 Bases de Datos por gestor</li>
-                <li>Webhooks para notificaciones y errores</li>
-                <li>Integración directa</li>
-                <li>Gestión centralizada de facturación</li>
-                <li>Rotación de credenciales bajo demanda</li>
+            <div class="popular-badge">Más Popular</div>
+            <div class="card-header">
+                <h3>Plan Intermedio</h3>
+                <div class="price-badge">
+                    <span class="currency">$</span>
+                    <span class="amount">5.000</span>
+                    <span class="period">/mes COP</span>
+                </div>
+            </div>
+            <p class="card-description">Ideal para pequeños equipos y aplicaciones en crecimiento.</p>
+            <ul class="features-list">
+                <li><span class="check-icon">✓</span>5 Bases de Datos por gestor</li>
+                <li><span class="check-icon">✓</span>Hasta 30 bases de datos en total</li>
+                <li><span class="check-icon">✓</span>Todos los gestores disponibles</li>
+                <li><span class="check-icon">✓</span>Gestión centralizada del ciclo de vida</li>
+                <li><span class="check-icon">✓</span>Panel de control avanzado</li>
             </ul>
-            <button class="btn-primary">Suscribirse →</button>
+            <button class="btn-pricing popular-btn">Suscribirse →</button>
         </div>
 
     <div class="pricing-card reveal-on-scroll">
-            <h3>Plan Avanzado</h3>
-            <h1>$10.000<span>/mes COP</span></h1>
-            <p>La solución completa para desarrolladores y proyectos de alta demanda.</p>
-            <ul>
-                <li>Hasta 10 Bases de Datos por gestor</li>
-                <li>Acceso a todos los Webhooks</li>
-                <li>Soporte prioritario y SLA</li>
-                <li>Auditoría completa de eventos (Logs)</li>
-                <li>Todos los beneficios del Plan Intermedio</li>
+            <div class="card-header">
+                <h3>Plan Avanzado</h3>
+                <div class="price-badge">
+                    <span class="currency">$</span>
+                    <span class="amount">10.000</span>
+                    <span class="period">/mes COP</span>
+                </div>
+            </div>
+            <p class="card-description">La solución completa para desarrolladores y proyectos de alta demanda.</p>
+            <ul class="features-list">
+                <li><span class="check-icon">✓</span>10 Bases de Datos por gestor</li>
+                <li><span class="check-icon">✓</span>Hasta 60 bases de datos en total</li>
+                <li><span class="check-icon">✓</span>Gestión completa del ciclo de vida (CRUD)</li>
+                <li><span class="check-icon">✓</span>Visualización de credenciales seguras</li>
+                <li><span class="check-icon">✓</span>Todos los beneficios del Plan Intermedio</li>
             </ul>
-            <button class="btn-primary">Suscribirse →</button>
+            <button class="btn-pricing">Suscribirse →</button>
         </div>
         
       </div>
@@ -161,22 +179,22 @@
       </p>
       <div class="faq-list">
         
-        <details>
+        <details class="reveal-on-scroll">
             <summary>¿Qué es DBflow y qué gestores de bases de datos soporta?</summary>
             <p>DBflow es una plataforma cloud para la gestión automatizada de bases de datos que te permite crear, administrar y escalar instancias de gestores populares como MySQL, PostgreSQL, MongoDB, SQL Server, Redis y Cassandra de manera centralizada.</p>
         </details>
         
-        <details>
+        <details class="reveal-on-scroll">
             <summary>¿Puedo probar DBflow antes de comprometerme con un plan de pago?</summary>
             <p>¡Sí! Al registrarte, accedes automáticamente al Plan Gratuito, que te permite crear y mantener activas hasta dos bases de datos por cada gestor (hasta 12 DBs en total) sin costo ni tarjeta de crédito.</p>
         </details>
         
-        <details>
+        <details class="reveal-on-scroll">
             <summary>¿Qué tan segura es mi información y cómo se aíslan mis bases de datos en DBflow?</summary>
             <p>Garantizamos seguridad blindada y aislamiento de datos entre clientes. Usamos cifrado de extremo a extremo, JWT (JSON Web Token) para la autenticación y generamos credenciales únicas y aisladas para cada instancia de base de datos que creas.</p>
         </details>
         
-        <details>
+        <details class="reveal-on-scroll">
             <summary>¿Puedo cambiar o cancelar mi plan de membresía en cualquier momento?</summary>
             <p>Absolutamente. Puedes actualizar o cancelar tu suscripción en cualquier momento desde el panel de control. Todos los pagos y la gestión de membresías se procesan de forma segura a través de Mercado Pago.</p>
         </details>
@@ -198,11 +216,11 @@
         <div class="cta-buttons">
             <a href="/register" class="btn-primary">Comienza con el Plan Gratuito</a>
             
-            <a href="#pricing-section" class="btn-primary">Ver Planes y Precios</a>
+            <a href="#pricing-section" @click="smoothScrollToSection" class="btn-primary">Ver Planes y Precios</a>
         </div>
       </div>
     </section>
-  <footer class="main-footer" id="footer-section" ref="footerSection">
+    <footer class="main-footer" id="footer-section" ref="footerSection">
     <div class="footer-top-content">
       <!-- Columna de marca -->
       <div class="footer-brand">
@@ -211,24 +229,53 @@
         <strong>DBFlow</strong>
         </div>
         <p class="brand-desc">Potenciando negocios con soluciones de automatización de bases de datos de vanguardia.</p>
-        <p class="quote">“Toma el control de tu éxito con DBFlow.”</p>
+        <p class="quote">"Toma el control de tu éxito con DBFlow."</p>
+        
+        <!-- Redes sociales -->
+        <div class="social-links">
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+          </a>
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+          </a>
+          <a href="https://discord.com" target="_blank" rel="noopener noreferrer" aria-label="Discord">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+            </svg>
+          </a>
+        </div>
       </div>
           
-      <!-- Columnas de enlaces -->
+      <!-- Navegación -->
       <div class="footer-links">
         <div class="footer-col">
-          <h4>Product</h4>
-          <a href="#features-section">Features</a>
-          <a href="#pricing-section">Pricing</a>
-          <a href="#faq-section">Security</a>
-          <a href="#features-section">Integrations</a>
+          <h4>Navegación</h4>
+          <a href="#hero-section" @click="smoothScrollToSection">Inicio</a>
+          <a href="#features-section" @click="smoothScrollToSection">Funcionalidades</a>
+          <a href="#pricing-section" @click="smoothScrollToSection">Precios</a>
+          <a href="#faq-section" @click="smoothScrollToSection">Preguntas</a>
         </div>
+        
         <div class="footer-col">
-          <h4>Company</h4>
-          <a href="#">About</a>
-          <a href="#">Blog</a>
-          <a href="#">Careers</a>
-          <a href="#">Contact</a>
+          <h4>Recursos</h4>
+          <router-link to="/documentation">Documentación</router-link>
+          <a href="#faq-section" @click="smoothScrollToSection">Soporte</a>
+        </div>
+        
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <router-link to="/terms-of-service">Términos de Servicio</router-link>
+          <router-link to="/privacy-policy">Política de Privacidad</router-link>
         </div>
       </div>
     </div>
@@ -236,7 +283,7 @@
     <div class="footer-divider"></div>
       
     <p class="copyright">
-      © 2025 DBFlow. All rights reserved.
+      © 2025 DBFlow. Todos los derechos reservados.
     </p>
   </footer>
   </div>
@@ -456,6 +503,37 @@ function handleScroll() {
 }
 // ----------------------------------------------------
 
+// --- SMOOTH SCROLL CON OFFSET DINÁMICO ---
+function getScrollOffset() {
+  const header = document.querySelector('.main-header')
+  if (!header) return 120
+  
+  // Obtiene la altura real del header + el top (15px) + margen adicional
+  const headerHeight = header.offsetHeight
+  const headerTop = 15
+  const extraMargin = 20
+  
+  return headerHeight + headerTop + extraMargin
+}
+
+function smoothScrollToSection(event) {
+  event.preventDefault()
+  const targetId = event.currentTarget.getAttribute('href')
+  const targetElement = document.querySelector(targetId)
+  
+  if (targetElement) {
+    const headerOffset = getScrollOffset()
+    const elementPosition = targetElement.getBoundingClientRect().top
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+    
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    })
+  }
+}
+// ----------------------------------------------------
+
 
 // --- LÓGICA DE SCROLL SPY (ACTUALIZADA) ---
 const activeSection = ref(null) 
@@ -479,25 +557,21 @@ function setupIntersectionObservers() {
     { ref: footerSection, id: 'footer-section' },
   ]
 
-  // Compensación de 90px (del home.css) + 15px (top del header) = 105px
-  const headerHeight = 105; 
+  // Usar el offset dinámico
+  const headerHeight = getScrollOffset()
   
   const options = {
     root: null, 
-    rootMargin: `-${headerHeight}px 0px 0px 0px`, 
-    threshold: 0 
+    rootMargin: `-${headerHeight}px 0px -50% 0px`, 
+    threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5]
   }
 
   sections.forEach(section => {
     if (section.ref.value) {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            // Lógica para manejar el Scroll Spy
-            const rect = entry.target.getBoundingClientRect();
-            if (rect.top <= headerHeight && rect.bottom > headerHeight) {
-                activeSection.value = section.id
-            }
+          if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+            activeSection.value = section.id
           }
         })
       }, options)
@@ -532,6 +606,13 @@ function setupRevealAnimations() {
 }
 // ------------------------------------------------
 
+// --- ACTUALIZAR SCROLL OFFSET DINÁMICO ---
+function updateScrollOffset() {
+  const offset = getScrollOffset()
+  document.documentElement.style.setProperty('--scroll-offset', `${offset}px`)
+}
+// ------------------------------------------------
+
 let onResizeHandler = null; 
 onMounted(() => {
   const c = canvas.value
@@ -544,10 +625,14 @@ onMounted(() => {
   onResizeHandler = () => {
     resizeCanvas(c)
     generateParticlesFromText(c, pixelSteps)
+    updateScrollOffset() // Actualizar offset al cambiar tamaño
   }
   
   window.addEventListener('resize', onResizeHandler)
   window.addEventListener('scroll', handleScroll) 
+  
+  // Inicializar scroll offset
+  updateScrollOffset() 
 
   c.addEventListener('mousemove', (e) => {
     const rect = c.getBoundingClientRect()

@@ -6,32 +6,7 @@ import axios from 'axios'
 import { updateUserInfo, getCurrentUser, getAuthToken } from './authService'
 
 // URL base - En desarrollo usa el proxy de Vite, en producción usa la variable de entorno
-const API_BASE_URL = import.meta.env.PROD ? (import.meta.env.VITE_API_URL || 'http://localhost:5030') : '';
-
-
-// --- NUEVAS FUNCIONES REQUERIDAS POR PaymentView.vue ---
-
-/**
- * Obtiene el ID del usuario logueado para enviarlo al backend.
- * @returns {number | string | null} UserId
- */
-export function getUserId() {
-  const user = getCurrentUser();
-  // Prioriza el UserId del objeto de usuario, si no, usa localStorage
-  return user?.UserId || localStorage.getItem('user_id') || null;
-}
-
-/**
- * Obtiene el email del usuario logueado para enviarlo a Mercado Pago.
- * @returns {string} Email del usuario
- */
-export function getUserEmail() {
-  const user = getCurrentUser();
-  // Prioriza el Email del objeto de usuario
-  return user?.Email || null;
-}
-
-// --- RESTO DE TU CÓDIGO (SIN CAMBIOS SIGNIFICATIVOS) ---
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5030';
 
 /**
  * Obtiene el plan actual del usuario desde localStorage
