@@ -69,7 +69,7 @@
         <button v-if="currentPlan.id === plan.id" class="btn-secondary" disabled>
           Plan Actual
         </button>
-        <button v-else class="btn-primary" @click="initiateCheckout(plan)" :disabled="isProcessing">
+        <button v-else class="btn-primary" @click.prevent="initiateCheckout(plan)" :disabled="isProcessing">
           <span v-if="isProcessing && selectedPlanId === plan.id">Redirigiendo...</span>
           <span v-else>Seleccionar Plan</span>
         </button>
@@ -117,19 +117,26 @@
 </template>
 
 <script setup>
+// En: /src/views/SubscriptionView.vue
+
 // --- IMPORTACIONES ---
 import { ref, onMounted } from 'vue';
 import StatCard from '@/components/StatCard.vue';
 import { showAlert } from '@/utils/notify';
-import { createPaymentPreference, getSubscriptionHistory } from '@/services/paymentService';
 import { getUserPlan, setUserPlan } from '@/services/subscriptionService';
 import { getAllPlans, getPlanConfig } from '@/config/plans';
+import { getCurrentUser } from '@/services/authService';
+
+// --- CORRECCIÓN: Se importan AMBAS funciones desde el MISMO archivo para evitar duplicados ---
+import { getSubscriptionHistory, initiateCheckoutPro } from '@/services/paymentService';
+
 
 // --- ESTADO REACTIVO DEL COMPONENTE ---
 const isProcessing = ref(false);
 const selectedPlanId = ref(null);
 const subscriptionHistory = ref([]);
 const loadingHistory = ref(false);
+
 
 // --- INICIALIZACIÓN DE PLANES ---
 const userPlanId = ref(getUserPlan());
@@ -155,6 +162,7 @@ const availablePlans = ref(allPlansConfig.map(plan => ({
   features: plan.features
 })));
 
+
 // --- LÓGICA DE NEGOCIO (MÉTODOS PRINCIPALES) ---
 const initiateCheckout = async (plan) => {
   if (isProcessing.value) return;
@@ -163,26 +171,29 @@ const initiateCheckout = async (plan) => {
   selectedPlanId.value = plan.id;
   
   try {
-    // TODO: Reemplazar con el ID del usuario autenticado real
-    const userId = 1;
+    const currentUser = getCurrentUser();
+    if (!currentUser || !currentUser.UserId) {
+      throw new Error('Usuario no autenticado. Por favor, inicia sesión nuevamente.');
+    }
     
-    const preference = await createPaymentPreference({
+    const userId = currentUser.UserId;
+    const userEmail = currentUser.Email;
+    
+    console.log('📝 Iniciando Checkout Pro para usuario:', userId, 'Email:', userEmail, 'Plan:', plan.id);
+    
+    // Llamada a la función importada
+    await initiateCheckoutPro({
       planId: plan.id,
       userId: userId,
+      email: userEmail,
     });
-
-    if (preference && preference.initPoint) {
-      localStorage.setItem('pending_plan', plan.id);
-      window.location.href = preference.initPoint;
-    } else {
-      throw new Error("No se recibió la URL de pago (initPoint).");
-    }
+    
   } catch (error) {
-    console.error('❌ Error al crear la preferencia de pago:', error);
+    console.error('❌ Error al iniciar checkout:', error);
     showAlert({
       icon: 'error',
       title: 'Error de Pago',
-      text: 'No se pudo iniciar el proceso de pago. Inténtalo de nuevo más tarde.',
+      text: error.message || 'No se pudo iniciar el proceso de pago. Inténtalo de nuevo más tarde.',
     });
     isProcessing.value = false;
     selectedPlanId.value = null;
@@ -201,6 +212,7 @@ const loadSubscriptionHistory = async () => {
     loadingHistory.value = false;
   }
 };
+
 
 // --- CICLO DE VIDA (LIFECYCLE HOOKS) ---
 onMounted(async () => {
@@ -225,11 +237,9 @@ onMounted(async () => {
   if (paymentStatus === 'approved' && pendingPlanId) {
     const planConfig = getPlanConfig(pendingPlanId);
 
-    // Código defensivo para evitar errores si el plan no se encuentra
     if (planConfig) {
       setUserPlan(pendingPlanId);
       
-      // Actualizar la UI inmediatamente
       currentPlan.value = {
         id: planConfig.id,
         name: planConfig.displayName,
@@ -247,9 +257,8 @@ onMounted(async () => {
         confirmText: 'Genial'
       });
 
-      await loadSubscriptionHistory(); // Recargar historial para mostrar el nuevo pago
+      await loadSubscriptionHistory();
     } else {
-      // Manejo de error si el plan no se encuentra en la configuración
       console.error(`Error crítico: No se encontró la configuración para el plan con ID '${pendingPlanId}' después del pago.`);
       showAlert({ 
         icon: 'error', 
@@ -258,12 +267,10 @@ onMounted(async () => {
       });
     }
     
-    // Limpiar localStorage y URL en cualquier caso de pago aprobado
     localStorage.removeItem('pending_plan');
     window.history.replaceState({}, document.title, window.location.pathname);
 
   } else if (paymentStatus) {
-    // Manejar otros estados de pago (rechazado, pendiente)
     if(paymentStatus === 'pending') showAlert({ icon: 'info', title: 'Pago Pendiente', text: 'Te notificaremos cuando el pago se haya completado.' });
     if(paymentStatus === 'rejected') showAlert({ icon: 'error', title: 'Pago Rechazado', text: 'Tu pago fue rechazado. Intenta con otro medio de pago.' });
       
@@ -271,6 +278,7 @@ onMounted(async () => {
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 });
+
 
 // --- FUNCIONES AUXILIARES (HELPERS) ---
 const formatDate = (dateString) => {
