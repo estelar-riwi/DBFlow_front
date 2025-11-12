@@ -1,16 +1,19 @@
 <template>
   <div class="plan-facturacion-view">
+    <!-- =================================== -->
+    <!--      Encabezado de la Vista         -->
+    <!-- =================================== -->
     <div class="view-header">
       <div>
         <h1>Plan y Facturación</h1>
         <p class="view-subtitle">Administra tu suscripción y consulta tu historial de pagos.</p>
       </div>
-      <!-- Podríamos tener un botón aquí para "Gestionar Suscripción" si el usuario ya tiene una pagada,
-           o simplemente confiar en las tarjetas de plan. Por ahora, lo quitamos para enfocarnos en los planes. -->
     </div>
 
+    <!-- =================================== -->
+    <!--      Sección del Plan Actual        -->
+    <!-- =================================== -->
     <h3>Tu Plan Actual</h3>
-    <!-- Simulación del plan actual del usuario (esto vendría de una API real en el futuro) -->
     <div class="current-plan-display">
       <StatCard
         :title="currentPlan.name"
@@ -28,14 +31,15 @@
       </StatCard>
     </div>
 
+    <!-- =================================== -->
+    <!--      Sección para Cambiar de Plan   -->
+    <!-- =================================== -->
     <h3>Cambiar Plan</h3>
     <div class="plans-grid">
       <div
         v-for="plan in availablePlans"
         :key="plan.id"
-        :class="['plan-card', { 
-          'plan-card-selected': currentPlan.id === plan.id
-        }]"
+        :class="['plan-card', { 'plan-card-selected': currentPlan.id === plan.id }]"
       >
         <div class="plan-header">
           <div class="plan-title-wrapper">
@@ -59,23 +63,19 @@
           </li>
         </ul>
 
-        <button
-          v-if="currentPlan.id === plan.id"
-          class="btn-secondary"
-          disabled
-        >
+        <button v-if="currentPlan.id === plan.id" class="btn-secondary" disabled>
           Plan Actual
         </button>
-        <button
-          v-else
-          class="btn-primary"
-          @click="subscribeToPlan(plan.id)"
-        >
-          Seleccionar Plan
+        <button v-else class="btn-primary" @click="initiateCheckout(plan)" :disabled="isProcessing">
+          <span v-if="isProcessing && selectedPlanId === plan.id">Redirigiendo...</span>
+          <span v-else>Seleccionar Plan</span>
         </button>
       </div>
     </div>
 
+    <!-- =================================== -->
+    <!--      Historial de Facturación       -->
+    <!-- =================================== -->
     <h3>Historial de Facturación</h3>
     <div class="db-table-container reveal-on-scroll">
       <table class="db-table">
@@ -89,13 +89,13 @@
         </thead>
         <tbody>
           <tr v-if="loadingHistory">
-            <td colspan="4" style="text-align: center; padding: 40px;">
-              <div style="color: #94a3b8;">Cargando historial...</div>
+            <td colspan="4" class="table-state-cell">
+              <div>Cargando historial...</div>
             </td>
           </tr>
           <tr v-else-if="subscriptionHistory.length === 0">
-            <td colspan="4" style="text-align: center; padding: 40px;">
-              <div style="color: #94a3b8;">No hay historial de suscripciones</div>
+            <td colspan="4" class="table-state-cell">
+              <div>No hay historial de suscripciones</div>
             </td>
           </tr>
           <tr v-else v-for="sub in subscriptionHistory" :key="sub.id">
@@ -103,7 +103,7 @@
             <td>{{ getPlanName(sub.planId) }}</td>
             <td>{{ formatAmount(sub.amount) }}</td>
             <td>
-              <span class="status-dot" :class="getStatusClass(sub.status)"></span> 
+              <span class="status-dot" :class="getStatusClass(sub.status)"></span>
               <span class="badge" :class="getBadgeClass(sub.status)">{{ getStatusText(sub.status) }}</span>
             </td>
           </tr>
@@ -114,32 +114,23 @@
 </template>
 
 <script setup>
-import StatCard from '@/components/StatCard.vue'
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { showAlert } from '@/utils/notify'
-import { createSubscription, getSubscriptionHistory } from '@/services/paymentService'
-import { getUserPlan, setUserPlan } from '@/services/subscriptionService'
-import { getAllPlans, getPlanConfig } from '@/config/plans'
+// --- IMPORTACIONES ---
+import { ref, onMounted } from 'vue';
+import StatCard from '@/components/StatCard.vue';
+import { showAlert } from '@/utils/notify';
+import { createPaymentPreference, getSubscriptionHistory } from '@/services/paymentService';
+import { getUserPlan, setUserPlan } from '@/services/subscriptionService';
+import { getAllPlans, getPlanConfig } from '@/config/plans';
 
-const router = useRouter()
+// --- ESTADO REACTIVO DEL COMPONENTE ---
+const isProcessing = ref(false);
+const selectedPlanId = ref(null);
+const subscriptionHistory = ref([]);
+const loadingHistory = ref(false);
 
-// --- DATOS DE PLANES Y ESTADO DEL USUARIO ---
-
-// ✅ IDs de Mercado Pago para cada plan
-const MERCADO_PAGO_PLAN_IDS = {
-  INTERMEDIO: '13165c6cd72d46569fbf1660c1bd9f8e', 
-  AVANZADO: 'b13a7ed8966f49ecb28668db916d18c1', 
-};
-
-// Historial de suscripciones
-const subscriptionHistory = ref([])
-const loadingHistory = ref(false)
-
-// Obtener el plan actual del usuario
-const userPlanId = ref(getUserPlan())
-const currentPlanConfig = getPlanConfig(userPlanId.value)
-
+// --- INICIALIZACIÓN DE PLANES ---
+const userPlanId = ref(getUserPlan());
+const currentPlanConfig = getPlanConfig(userPlanId.value);
 const currentPlan = ref({
   id: currentPlanConfig.id,
   name: currentPlanConfig.displayName,
@@ -149,8 +140,7 @@ const currentPlan = ref({
   dbsPerEngineText: `Hasta ${currentPlanConfig.databaseLimit} DBs por motor`,
 });
 
-// Mapear los planes del config a la estructura de la vista
-const allPlansConfig = getAllPlans()
+const allPlansConfig = getAllPlans();
 const availablePlans = ref(allPlansConfig.map(plan => ({
   id: plan.id,
   name: plan.displayName,
@@ -158,183 +148,174 @@ const availablePlans = ref(allPlansConfig.map(plan => ({
   priceText: plan.price === 0 ? 'Gratuito' : `${plan.price.toLocaleString('es-CO')} COP`,
   dbsPerEngine: plan.databaseLimit,
   dbsPerEngineText: `Hasta ${plan.databaseLimit} bases de datos por motor`,
-  mpPlanId: plan.id === 'intermediate' ? MERCADO_PAGO_PLAN_IDS.INTERMEDIO :
-            plan.id === 'advanced' ? MERCADO_PAGO_PLAN_IDS.AVANZADO : null,
-  available: true, // Todos los planes habilitados
+  available: true,
   features: plan.features
 })));
 
-// --- LÓGICA DE SUSCRIPCIÓN ---
-const subscribeToPlan = (planId) => {
-  router.push({ name: 'Payment', params: { planId } });
+// --- LÓGICA DE NEGOCIO (MÉTODOS PRINCIPALES) ---
+const initiateCheckout = async (plan) => {
+  if (isProcessing.value) return;
+
+  isProcessing.value = true;
+  selectedPlanId.value = plan.id;
+  
+  try {
+    // TODO: Reemplazar con el ID del usuario autenticado real
+    const userId = 1;
+    
+    const preference = await createPaymentPreference({
+      planId: plan.id,
+      userId: userId,
+    });
+
+    if (preference && preference.initPoint) {
+      localStorage.setItem('pending_plan', plan.id);
+      window.location.href = preference.initPoint;
+    } else {
+      throw new Error("No se recibió la URL de pago (initPoint).");
+    }
+  } catch (error) {
+    console.error('❌ Error al crear la preferencia de pago:', error);
+    showAlert({
+      icon: 'error',
+      title: 'Error de Pago',
+      text: 'No se pudo iniciar el proceso de pago. Inténtalo de nuevo más tarde.',
+    });
+    isProcessing.value = false;
+    selectedPlanId.value = null;
+  }
 };
 
-// --- FUNCIONES AUXILIARES PARA HISTORIAL ---
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('es-CO', { 
-    day: 'numeric', 
-    month: 'short', 
-    year: 'numeric' 
-  })
-}
-
-const formatAmount = (amount) => {
-  if (amount === 0 || amount === null || amount === undefined) return '$0 COP'
-  return `$${amount.toLocaleString('es-CO')} COP`
-}
-
-const getPlanName = (planId) => {
-  const plan = getPlanConfig(planId)
-  return plan ? plan.displayName : planId || 'Desconocido'
-}
-
-const getStatusText = (status) => {
-  const statusMap = {
-    'active': 'Activo',
-    'cancelled': 'Cancelado',
-    'expired': 'Expirado',
-    'pending': 'Pendiente',
-    'approved': 'Aprobado',
-    'completed': 'Completado'
-  }
-  return statusMap[status?.toLowerCase()] || status || 'Desconocido'
-}
-
-const getStatusClass = (status) => {
-  const statusLower = status?.toLowerCase()
-  if (statusLower === 'active' || statusLower === 'approved' || statusLower === 'completed') {
-    return 'status-active'
-  }
-  if (statusLower === 'pending') return 'status-pending'
-  if (statusLower === 'cancelled' || statusLower === 'expired') return 'status-cancelled'
-  return ''
-}
-
-const getBadgeClass = (status) => {
-  const statusLower = status?.toLowerCase()
-  if (statusLower === 'active' || statusLower === 'approved' || statusLower === 'completed') {
-    return 'badge-success'
-  }
-  if (statusLower === 'pending') return 'badge-warning'
-  if (statusLower === 'cancelled' || statusLower === 'expired') return 'badge-error'
-  return ''
-}
-
-// Cargar historial de suscripciones
 const loadSubscriptionHistory = async () => {
-  loadingHistory.value = true
+  loadingHistory.value = true;
   try {
-    const history = await getSubscriptionHistory()
-    subscriptionHistory.value = Array.isArray(history) ? history : []
-    console.log('📋 Historial cargado:', subscriptionHistory.value)
+    const history = await getSubscriptionHistory();
+    subscriptionHistory.value = Array.isArray(history) ? history : [];
   } catch (error) {
-    console.error('❌ Error al cargar historial:', error)
-    subscriptionHistory.value = []
+    console.error('❌ Error al cargar historial:', error);
+    subscriptionHistory.value = [];
   } finally {
-    loadingHistory.value = false
+    loadingHistory.value = false;
   }
-}
+};
 
-// --- LÓGICA DE REVELACIÓN EN SCROLL ---
+// --- CICLO DE VIDA (LIFECYCLE HOOKS) ---
 onMounted(async () => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible')
-        }
-      })
-    },
-    { threshold: 0.1 }
-  )
-  const reveals = document.querySelectorAll('.reveal-on-scroll')
-  reveals.forEach((el) => observer.observe(el))
+  // 1. Cargar datos iniciales
+  await loadSubscriptionHistory();
 
-  // Cargar historial de suscripciones
-  await loadSubscriptionHistory()
+  // 2. Inicializar animaciones de scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
 
-  // Si hay un pago exitoso (volviendo de Mercado Pago), actualizar el plan
-  const urlParams = new URLSearchParams(window.location.search)
-  const paymentStatus = urlParams.get('status')
-  const pendingPlan = localStorage.getItem('pending_plan')
+  // 3. Procesar el retorno desde la pasarela de pago
+  const urlParams = new URLSearchParams(window.location.search);
+  const paymentStatus = urlParams.get('status');
+  const pendingPlanId = localStorage.getItem('pending_plan');
   
-  if (paymentStatus === 'approved' && pendingPlan) {
-    setUserPlan(pendingPlan)
-    localStorage.removeItem('pending_plan')
-    
-    const planConfig = getPlanConfig(pendingPlan)
-    currentPlan.value = {
-      id: planConfig.id,
-      name: planConfig.displayName,
-      price: planConfig.price,
-      priceText: planConfig.price === 0 ? 'Gratuito' : `$${planConfig.price.toLocaleString('es-CO')} COP/mes`,
-      dbsPerEngine: planConfig.databaseLimit,
-      dbsPerEngineText: `Hasta ${planConfig.databaseLimit} DBs por motor`,
+  if (paymentStatus === 'approved' && pendingPlanId) {
+    const planConfig = getPlanConfig(pendingPlanId);
+
+    // Código defensivo para evitar errores si el plan no se encuentra
+    if (planConfig) {
+      setUserPlan(pendingPlanId);
+      
+      // Actualizar la UI inmediatamente
+      currentPlan.value = {
+        id: planConfig.id,
+        name: planConfig.displayName,
+        price: planConfig.price,
+        priceText: planConfig.price === 0 ? 'Gratuito' : `$${planConfig.price.toLocaleString('es-CO')} COP/mes`,
+        dbsPerEngine: planConfig.databaseLimit,
+        dbsPerEngineText: `Hasta ${planConfig.databaseLimit} DBs por motor`,
+      };
+      userPlanId.value = pendingPlanId;
+      
+      showAlert({ 
+        icon: 'success', 
+        title: '¡Pago exitoso!', 
+        text: `Tu plan ha sido actualizado a ${planConfig.displayName}.`,
+        confirmText: 'Genial'
+      });
+
+      await loadSubscriptionHistory(); // Recargar historial para mostrar el nuevo pago
+    } else {
+      // Manejo de error si el plan no se encuentra en la configuración
+      console.error(`Error crítico: No se encontró la configuración para el plan con ID '${pendingPlanId}' después del pago.`);
+      showAlert({ 
+        icon: 'error', 
+        title: 'Error al actualizar tu plan', 
+        text: 'El pago fue exitoso, pero tuvimos un problema al actualizar tu plan. Por favor, contacta a soporte.',
+      });
     }
-    userPlanId.value = pendingPlan
     
-    showAlert({ 
-      icon: 'success', 
-      title: '¡Pago exitoso!', 
-      text: `Tu plan ha sido actualizado a ${planConfig.displayName}`,
-      confirmText: 'Genial'
-    })
-    
-    // Recargar historial después del pago exitoso
-    await loadSubscriptionHistory()
+    // Limpiar localStorage y URL en cualquier caso de pago aprobado
+    localStorage.removeItem('pending_plan');
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+  } else if (paymentStatus) {
+    // Manejar otros estados de pago (rechazado, pendiente)
+    if(paymentStatus === 'pending') showAlert({ icon: 'info', title: 'Pago Pendiente', text: 'Te notificaremos cuando el pago se haya completado.' });
+    if(paymentStatus === 'rejected') showAlert({ icon: 'error', title: 'Pago Rechazado', text: 'Tu pago fue rechazado. Intenta con otro medio de pago.' });
+      
+    localStorage.removeItem('pending_plan');
+    window.history.replaceState({}, document.title, window.location.pathname);
   }
 });
+
+// --- FUNCIONES AUXILIARES (HELPERS) ---
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+const formatAmount = (amount) => {
+  if (amount === 0 || amount === null || amount === undefined) return '$0 COP';
+  return `$${amount.toLocaleString('es-CO')} COP`;
+};
+
+const getPlanName = (planId) => {
+  const plan = getPlanConfig(planId);
+  return plan ? plan.displayName : planId || 'Desconocido';
+};
+
+const getStatusText = (status) => {
+  const statusMap = { 'active': 'Activo', 'cancelled': 'Cancelado', 'expired': 'Expirado', 'pending': 'Pendiente', 'approved': 'Aprobado', 'completed': 'Completado' };
+  return statusMap[status?.toLowerCase()] || status || 'Desconocido';
+};
+
+const getStatusClass = (status) => {
+  const statusLower = status?.toLowerCase();
+  if (statusLower === 'active' || statusLower === 'approved' || statusLower === 'completed') return 'status-active';
+  if (statusLower === 'pending') return 'status-pending';
+  if (statusLower === 'cancelled' || statusLower === 'expired') return 'status-cancelled';
+  return '';
+};
+
+const getBadgeClass = (status) => {
+  const statusLower = status?.toLowerCase();
+  if (statusLower === 'active' || statusLower === 'approved' || statusLower === 'completed') return 'badge-success';
+  if (statusLower === 'pending') return 'badge-warning';
+  if (statusLower === 'cancelled' || statusLower === 'expired') return 'badge-error';
+  return '';
+};
 </script>
 
 <style scoped>
-/* ============================= GLASSMORPHISM THEME ======================= */
+/* =================================== */
+/*      Layout General y Títulos       */
+/* =================================== */
 .plan-facturacion-view {
   padding: 20px;
   min-height: 100vh;
 }
-
-.plan-facturacion-view h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-}
-
-.plan-facturacion-view h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 40px 0 20px 0;
-  color: #e2e8f0;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-}
-
-.view-subtitle { 
-  color:#94a3b8; 
-  margin-top:6px; 
-  font-size:.95rem; 
-}
-
-.badge { 
-  background: rgba(255,255,255,0.06); 
-  color:#ddd; 
-  border:1px solid rgba(255,255,255,0.12); 
-  padding:3px 8px; 
-  border-radius:999px; 
-  font-size:.8rem; 
-}
-
-.badge-success { 
-  color:#22c55e; 
-  border-color: rgba(34,197,94,0.35); 
-  background: rgba(34,197,94,0.08); 
-}
-
 .view-header {
   display: flex;
   justify-content: space-between;
@@ -342,8 +323,28 @@ onMounted(async () => {
   margin-bottom: 40px;
   padding: 20px 0;
 }
-
-/* Estilo para el plan actual - Glassmorphism */
+.plan-facturacion-view h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+}
+.plan-facturacion-view h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 40px 0 20px 0;
+  color: #e2e8f0;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+.view-subtitle {
+  color: #94a3b8;
+  margin-top: 6px;
+  font-size: .95rem;
+}
 .current-plan-display {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -351,9 +352,8 @@ onMounted(async () => {
   margin-bottom: 40px;
   opacity: 0;
   transform: translateY(20px);
-  animation: fadeInUp 0.6s ease forwards;
+  animation: fadeInUp .6s ease forwards;
 }
-
 @keyframes fadeInUp {
   to {
     opacity: 1;
@@ -361,32 +361,28 @@ onMounted(async () => {
   }
 }
 
-/* Grid de planes disponibles - Glassmorphism mejorado */
+/* =================================== */
+/*      Tarjetas de Planes (Plan Cards)  */
+/* =================================== */
 .plans-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
   margin-bottom: 50px;
 }
-
 .plan-card {
-  background: rgba(17, 17, 17, 0.6);
+  background: rgba(17, 17, 17, .6);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, .15);
   border-radius: 16px;
   padding: 30px;
   display: flex;
   flex-direction: column;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
+  transition: all .4s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .3), 0 0 0 1px rgba(255, 255, 255, .05), inset 0 1px 0 rgba(255, 255, 255, .1);
 }
-
 .plan-card::before {
   content: '';
   position: absolute;
@@ -394,199 +390,135 @@ onMounted(async () => {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.3), 
-    transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .3), transparent);
 }
-
 .plan-card:hover {
   transform: translateY(-8px);
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 
-    0 12px 48px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 0 60px rgba(255, 255, 255, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, .3);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, .4), 0 0 0 1px rgba(255, 255, 255, .1), 0 0 60px rgba(255, 255, 255, .15), inset 0 1px 0 rgba(255, 255, 255, .15);
 }
-
 .plan-card-selected {
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(17, 17, 17, 0.8);
-  box-shadow: 
-    0 12px 48px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.15),
-    0 0 80px rgba(255, 255, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, .4);
+  background: rgba(17, 17, 17, .8);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, .4), 0 0 0 1px rgba(255, 255, 255, .15), 0 0 80px rgba(255, 255, 255, .2), inset 0 1px 0 rgba(255, 255, 255, .2);
 }
-
 .plan-card-selected::after {
   content: '✓ Activo';
   position: absolute;
   top: 20px;
   right: 20px;
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, .15);
+  border: 1px solid rgba(34, 197, 94, .3);
   color: #22c55e;
   padding: 6px 12px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: .75rem;
   font-weight: 600;
-  text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+  text-shadow: 0 0 10px rgba(34, 197, 94, .5);
 }
-
-/* Tarjetas deshabilitadas - Glassmorphism */
-.plan-card-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  filter: grayscale(0.5);
-}
-
-.plan-card-disabled:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-}
-
 .plan-header {
   margin-bottom: 20px;
 }
-
 .plan-title-wrapper {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
 }
-
 .plan-header h4 {
   font-size: 1.6rem;
   margin: 0;
   font-weight: 700;
-  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+  background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 20px rgba(255, 255, 255, .3);
 }
-
-.badge-coming-soon {
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 12px;
-  background: rgba(255, 152, 0, 0.15);
-  border: 1px solid rgba(255, 152, 0, 0.3);
-  color: #ff9800;
-  font-size: 0.7rem;
-  font-weight: 600;
-  font-family: 'Roboto Mono', monospace;
-  white-space: nowrap;
-  text-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
-}
-
 .plan-price {
   font-size: 2.2rem;
   font-weight: 700;
-  color: white;
-  text-shadow: 
-    0 0 20px rgba(255, 255, 255, 0.4),
-    0 0 40px rgba(255, 255, 255, 0.2);
-  letter-spacing: -0.5px;
+  color: #fff;
+  letter-spacing: -.5px;
+  text-shadow: 0 0 20px rgba(255, 255, 255, .4), 0 0 40px rgba(255, 255, 255, .2);
 }
-
 .plan-price small {
   font-size: 1rem;
   color: #94a3b8;
   font-weight: 500;
 }
-
 .plan-description {
   color: #cbd5e1;
-  font-size: 0.95rem;
+  font-size: .95rem;
   margin-bottom: 25px;
   flex-grow: 1;
   line-height: 1.6;
 }
-
 .plan-features {
   list-style: none;
-  padding: 0;
-  margin-bottom: 30px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
   padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 30px;
+  background: rgba(255, 255, 255, .02);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, .05);
 }
-
 .plan-features li {
   display: flex;
   align-items: center;
   gap: 12px;
   color: #cbd5e1;
   margin-bottom: 12px;
-  font-size: 0.9rem;
+  font-size: .9rem;
 }
-
 .plan-features li:last-child {
   margin-bottom: 0;
 }
-
 .plan-features li svg {
   width: 20px;
   height: 20px;
   color: #22c55e;
-  filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.4));
+  filter: drop-shadow(0 0 8px rgba(34, 197, 94, .4));
   flex-shrink: 0;
 }
 
+/* =================================== */
+/*      Botones                      */
+/* =================================== */
 .btn-primary {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, .95);
   color: #111;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, .3);
   padding: 14px 28px;
   border-radius: 12px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 700;
   font-family: 'Roboto Mono', monospace;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
-  box-shadow: 
-    0 4px 16px rgba(255, 255, 255, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: .5px;
+  transition: all .3s cubic-bezier(.4, 0, .2, 1);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, .2), 0 0 0 1px rgba(255, 255, 255, .1), inset 0 1px 0 rgba(255, 255, 255, .5);
 }
-
 .btn-primary:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 
-    0 8px 24px rgba(255, 255, 255, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.2),
-    0 0 40px rgba(255, 255, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(255, 255, 255, .3), 0 0 0 1px rgba(255, 255, 255, .2), 0 0 40px rgba(255, 255, 255, .2), inset 0 1px 0 rgba(255, 255, 255, .6);
 }
-
 .btn-primary:active {
   transform: translateY(0);
 }
-
 .btn-primary:disabled {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, .1);
+  color: rgba(255, 255, 255, .3);
   cursor: not-allowed;
-  opacity: 0.5;
+  opacity: .5;
   box-shadow: none;
 }
-
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, .05);
   color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, .15);
   padding: 14px 28px;
   border-radius: 12px;
   font-size: 1rem;
@@ -595,73 +527,92 @@ onMounted(async () => {
   width: 100%;
   cursor: default;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: .5px;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
-.btn-disabled {
-  background: rgba(255, 152, 0, 0.08);
-  color: #ff9800;
-  border: 1px solid rgba(255, 152, 0, 0.25);
-  padding: 14px 28px;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: 'Roboto Mono', monospace;
-  width: 100%;
-  cursor: not-allowed;
-  opacity: 0.7;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-/* Tabla estilo glassmorphism unificado */
+/* =================================== */
+/*      Tabla de Datos de Historial      */
+/* =================================== */
 .db-table-container {
-  background: rgba(17, 17, 17, 0.6);
+  background: rgba(17, 17, 17, .6);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, .15);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   margin-bottom: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .3), 0 0 0 1px rgba(255, 255, 255, .05), inset 0 1px 0 rgba(255, 255, 255, .1);
 }
-
-.db-table { 
-  width: 100%; 
-  border-collapse: collapse; 
+.db-table {
+  width: 100%;
+  border-collapse: collapse;
 }
-
-.db-table th, .db-table td { 
-  padding: 16px 18px; 
-  text-align: left; 
+.db-table td,
+.db-table th {
+  padding: 16px 18px;
+  text-align: left;
 }
-
-.db-table thead th { 
-  background: rgba(255,255,255,0.05); 
-  font-size: .9rem; 
-  color: #cbd5e1; 
-  font-weight: 700; 
+.db-table thead th {
+  background: rgba(255, 255, 255, .05);
+  font-size: .9rem;
+  color: #cbd5e1;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  letter-spacing: .5px;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+.db-table tbody tr {
+  border-top: 1px solid rgba(255, 255, 255, .06);
+  transition: all .2s ease;
+}
+.db-table tbody tr:hover {
+  background: rgba(255, 255, 255, .05);
+}
+.table-state-cell {
+  text-align: center; 
+  padding: 40px;
+  color: #94a3b8;
 }
 
-.db-table tbody tr { 
-  border-top: 1px solid rgba(255,255,255,0.06); 
-  transition: all 0.2s ease;
+/* =================================== */
+/*      Badges e Indicadores de Estado */
+/* =================================== */
+.badge {
+  background: rgba(255, 255, 255, .06);
+  color: #ddd;
+  border: 1px solid rgba(255, 255, 255, .12);
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: .8rem;
 }
-
-.db-table tbody tr:hover { 
-  background: rgba(255,255,255,0.05); 
+.badge-coming-soon {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 12px;
+  background: rgba(255, 152, 0, .15);
+  border: 1px solid rgba(255, 152, 0, .3);
+  color: #ff9800;
+  font-size: .7rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(255, 152, 0, .5);
 }
-
+.badge-success {
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, .35);
+  background: rgba(34, 197, 94, .08);
+}
+.badge-warning {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, .35);
+  background: rgba(245, 158, 11, .08);
+}
+.badge-error {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, .35);
+  background: rgba(239, 68, 68, .08);
+}
 .status-dot {
   display: inline-block;
   width: 8px;
@@ -669,44 +620,27 @@ onMounted(async () => {
   border-radius: 50%;
   margin-right: 8px;
 }
-
 .status-dot.status-active {
   background: #22c55e;
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 10px rgba(34, 197, 94, .5);
 }
-
 .status-dot.status-pending {
   background: #f59e0b;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 10px rgba(245, 158, 11, .5);
 }
-
 .status-dot.status-cancelled {
   background: #ef4444;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 10px rgba(239, 68, 68, .5);
 }
 
-.badge-warning {
-  color: #f59e0b;
-  border-color: rgba(245, 158, 11, 0.35);
-  background: rgba(245, 158, 11, 0.08);
-}
-
-.badge-error {
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.35);
-  background: rgba(239, 68, 68, 0.08);
-}
-
-/* ========================================================================= */
-/* ============================= RESPONSIVE SUBSCRIPTION =================== */
-/* ========================================================================= */
-
+/* =================================== */
+/*      Media Queries (Responsividad)  */
+/* =================================== */
 @media (max-width: 1024px) {
   .plans-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
   .plan-card {
     max-width: 500px;
     margin: 0 auto;
@@ -714,72 +648,45 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
-  .subscription-header h1 {
+  .plan-facturacion-view h1 {
     font-size: 1.8rem;
   }
-  
-  .subscription-header p {
-    font-size: 0.9rem;
+  .plan-facturacion-view p {
+    font-size: .9rem;
   }
-  
   .plan-card {
     padding: 24px 20px;
   }
-  
   .db-table-container {
     overflow-x: auto;
   }
-  
   .db-table {
     min-width: 500px;
   }
 }
 
 @media (max-width: 480px) {
-  .subscription-header h1 {
+  .plan-facturacion-view h1 {
     font-size: 1.5rem;
   }
-  
-  .subscription-header p {
-    font-size: 0.85rem;
+  .plan-facturacion-view p {
+    font-size: .85rem;
   }
-  
   .plan-card {
     padding: 20px 16px;
   }
-  
-  .plan-card h3 {
+  .plan-card h4 {
     font-size: 1.3rem;
   }
-  
   .plan-price {
     font-size: 2rem;
   }
-  
-  .plan-price span {
-    font-size: 0.9rem;
+  .plan-price small {
+    font-size: .9rem;
   }
-  
-  .btn-primary,
-  .btn-secondary,
-  .btn-disabled {
-    font-size: 0.9rem;
+  .btn-primary, .btn-secondary {
+    font-size: .9rem;
     padding: 10px 20px;
   }
 }
-
-@media (max-width: 360px) {
-  .subscription-header h1 {
-    font-size: 1.3rem;
-  }
-  
-  .plan-card {
-    padding: 18px 14px;
-  }
-  
-  .plan-price {
-    font-size: 1.8rem;
-  }
-}
-
 </style>

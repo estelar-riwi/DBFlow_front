@@ -8,13 +8,13 @@
 }
 
 .btn-primary {
-    padding: 10px 20px; 
+    padding: 12px 24px; /* ✨ AUMENTADO: era 10px 20px */
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     color: white;
     border: 2px solid rgba(255, 255, 255, 0.3);
-    font-size: 0.85rem; 
+    font-size: 0.9rem; /* ✨ AUMENTADO: era 0.85rem */
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -60,7 +60,7 @@
 
 .btn-signin {
     color: white;
-    font-size: 0.85rem; 
+    font-size: 0.9rem; /* ✨ AUMENTADO: era 0.85rem */
     font-weight: 700;
     text-decoration: none;
     cursor: pointer; /* 🔑 CORRECCIÓN: Cursor añadido */
@@ -126,9 +126,10 @@
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
     display: flex;
     align-items: center;
-    gap: 30px; 
+    gap: 40px; /* ✨ AUMENTADO: era 30px */
     width: auto;
-    padding: 1px 24px; 
+    max-width: 95vw; /* Evita desbordamiento */
+    padding: 16px 40px; /* ✨ AUMENTADO: era 16px 32px */
     background: rgba(28, 28, 28, 0.7); 
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 99px;
@@ -146,25 +147,26 @@
     display: flex;
     align-items: center;
     gap: 1px; 
-    font-size: 1.2rem; /* 🔑 Reducido */
+    font-size: 1.4rem; /* ✨ AUMENTADO: era 1.2rem */
     font-weight: 700;
+    color: white;
+    text-decoration: none;
+    white-space: nowrap;
     font-family: 'Roboto Mono', monospace;
-    line-height: 1; /* 🔑 CORRECCIÓN: Alineación vertical */
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.6),
-                 0 0 40px rgba(255, 255, 255, 0.4);
 }
 
 /* 🔑 CORRECCIÓN: Estilo para la nueva imagen del logo */
 .new-logo-icon {
-    width: 75px;  /* Pequeño */
-    height: 75px; /* Pequeño */
+    width: 55px;  /* ✨ AUMENTADO: era 50px */
+    height: 55px; /* ✨ AUMENTADO: era 50px */
+    flex-shrink: 0; /* Evita que se comprima */
 }
 
 /* (Se eliminaron .logo-icon y .logo-icon::after) */
 
 .main-nav {
     display: flex;
-    gap: 25px; 
+    gap: 32px; /* ✨ AUMENTADO: era 25px */
 }
 
 .main-nav a {
@@ -211,7 +213,8 @@
 .auth-buttons {
     display: flex;
     align-items: center;
-    gap: 15px; 
+    gap: 15px;
+    flex-shrink: 0; /* No permite que los botones se compriman */
 }
 
 .auth-buttons .btn-primary {
@@ -640,35 +643,41 @@
     background: #000;
     padding-bottom: 80px; 
     text-align: center;
-    font-family: 'Roboto Mono', monospace; 
+    font-family: 'Roboto Mono', monospace;
+    position: relative;
 }
+
+/* ✨ NUEVO: Contenedor para mejor legibilidad */
 .faq-list {
     max-width: 850px; /* Un poco más ancho */
     margin: 0 auto;
     text-align: left;
+    position: relative;
+    z-index: 1;
 }
 
 /* --- Estilos de la Tarjeta <details> --- */
 details {
-    background: #111;
+    background: rgba(17, 17, 17, 0.95); /* ✨ Más opaco */
     border-radius: 10px; /* Bordes más suaves */
     margin-bottom: 12px;
     cursor: pointer;
     /* 🚨 NUEVO: Borde y transición para el glow */
-    border: 1px solid #222; 
+    border: 1px solid #333; /* ✨ Borde más visible */
     transition: background 0.2s, border-color 0.3s ease, box-shadow 0.3s ease;
     overflow: hidden; /* 🔑 CLAVE: para la animación de max-height */
+    backdrop-filter: blur(10px); /* ✨ NUEVO: Efecto glassmorphism */
 }
 details:hover {
-    background: #1a1a1a;
-    border-color: #333;
+    background: rgba(26, 26, 26, 0.95); /* ✨ Más opaco */
+    border-color: #444;
 }
 
 /* 🚨 NUEVO: Efecto de "Glow" cuando está abierto */
 details[open] {
-    background: #151515;
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05); /* Brillo blanco sutil */
+    background: rgba(21, 21, 21, 0.95); /* ✨ Más opaco */
+    border-color: rgba(255, 255, 255, 0.2); /* ✨ Más visible */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1); /* ✨ Brillo más visible */
 }
 
 /* --- Estilos de la Pregunta <summary> --- */
@@ -746,6 +755,14 @@ details[open] p {
 .cta-content {
     position: relative;
     z-index: 1;
+    /* ✨ NUEVO: Fondo semi-transparente para mejorar legibilidad */
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    padding: 60px 40px;
+    border-radius: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cta-section h2, .cta-section p {
@@ -755,11 +772,16 @@ details[open] p {
     font-size: 2rem;
     font-weight: 700;
     color: white;
+    /* ✨ NUEVO: Sombra de texto para mejor contraste */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8),
+                 0 0 30px rgba(0, 0, 0, 0.5);
 }
 .cta-section p {
-    color: #aaa;
+    color: #ccc; /* ✨ Más claro */
     margin: 20px auto 40px;
     max-width: 600px;
+    /* ✨ NUEVO: Sombra de texto para mejor contraste */
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
 }
 .cta-buttons {
     display: flex;
@@ -1147,15 +1169,28 @@ details[open] p {
         gap: 15px;
         padding: 8px 16px;
     }
-    .logo { font-size: 1.2rem; }
+    .logo { 
+        font-size: 1.1rem; 
+    }
     /* 🔑 CORRECCIÓN: Ajustamos el nuevo logo en responsive */
     .new-logo-icon { 
-        width: 28px; 
-        height: 28px; 
+        width: 40px; 
+        height: 40px; 
     }
-    .main-nav { gap: 15px; }
-    .main-nav a { font-size: 0.8rem; }
-    .auth-buttons { gap: 10px; }
+    .main-nav { 
+        gap: 15px; 
+    }
+    .main-nav a { 
+        font-size: 0.85rem; 
+    }
+    .auth-buttons { 
+        gap: 10px; 
+    }
+    .auth-buttons .btn-primary,
+    .auth-buttons .btn-signin {
+        font-size: 0.8rem;
+        padding: 7px 14px;
+    }
 
     .section-title { font-size: 2rem; }
     .section-subtitle { max-width: 90%; }
@@ -1167,6 +1202,34 @@ details[open] p {
 }
 
 @media (max-width: 768px) { /* Large Phone / Footer Stack */
+    .main-header {
+        gap: 12px;
+        padding: 8px 14px;
+    }
+    
+    .logo {
+        font-size: 1rem;
+    }
+    
+    .new-logo-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .main-nav a {
+        font-size: 0.8rem;
+    }
+    
+    .auth-buttons {
+        gap: 8px;
+    }
+    
+    .auth-buttons .btn-primary,
+    .auth-buttons .btn-signin {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+    }
+    
     .footer-top-content {
         flex-direction: column;
         align-items: flex-start;
@@ -1194,12 +1257,38 @@ details[open] p {
 
 @media (max-width: 640px) { /* Small Mobile / Nav Hide */
     .main-header {
-        width: 90vw;
+        width: 95vw;
+        padding: 8px 16px;
+        gap: 12px;
         justify-content: space-between;
     }
+    
+    .logo {
+        font-size: 1rem;
+    }
+    
+    .new-logo-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
     .main-nav {
         display: none; /* Ocultamos la navegación principal */
     }
+    
+    .auth-buttons {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    
+    .auth-buttons .btn-primary,
+    .auth-buttons .btn-signin {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        white-space: nowrap;
+    }
+    
     .hero-main-content {
         top: 55%;
         width: 90%;
@@ -1224,13 +1313,38 @@ details[open] p {
 }
 
 @media (max-width: 480px) { /* Extra Small Mobile */
+    .main-header {
+        width: 96vw;
+        padding: 6px 12px;
+        gap: 8px;
+    }
+    
+    .logo {
+        font-size: 0.9rem;
+    }
+    
+    .new-logo-icon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .auth-buttons {
+        gap: 6px;
+    }
+    
+    .auth-buttons .btn-primary,
+    .auth-buttons .btn-signin {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+    }
+    
     .main-title {
         font-size: 1.5rem;
     }
     .main-subtitle {
         font-size: 0.85rem;
     }
-    .btn-primary, .btn-outline, .btn-primary-large {
+    .btn-primary-large {
         font-size: 0.9rem;
         padding: 12px 20px;
     }
@@ -1261,20 +1375,30 @@ details[open] p {
 
 @media (max-width: 360px) { /* Very Small Screens */
     .main-header {
-        padding: 8px 12px;
+        width: 98vw;
+        padding: 5px 10px;
+        gap: 6px;
     }
+    
     .logo {
-        font-size: 1rem;
+        font-size: 0.85rem;
     }
+    
     .new-logo-icon {
         width: 24px;
         height: 24px;
     }
+    
+    .auth-buttons {
+        gap: 4px;
+    }
+    
     .auth-buttons .btn-primary, 
     .auth-buttons .btn-signin {
-        font-size: 0.8rem;
-        padding: 8px 14px;
+        font-size: 0.65rem;
+        padding: 4px 8px;
     }
+    
     .main-title {
         font-size: 1.3rem;
     }

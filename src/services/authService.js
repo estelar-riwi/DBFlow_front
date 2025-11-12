@@ -36,6 +36,10 @@ export async function register(userData) {
       userName: userData.name,
       email: userData.email,
       password: userData.password
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     return {
       success: true,
@@ -43,9 +47,21 @@ export async function register(userData) {
       message: 'Registro exitoso. Por favor verifica tu correo.'
     };
   } catch (error) {
+    console.error('❌ Error en registro:', error.response?.status, error.response?.data);
+    
+    // Manejar error 409 (Conflict) - email ya registrado
+    if (error.response?.status === 409) {
+      return {
+        success: false,
+        message: 'Este correo electrónico ya está registrado. Por favor inicia sesión o usa otro correo.',
+        errors: error.response?.data?.errors || null
+      };
+    }
+    
+    // Manejar otros errores
     return {
       success: false,
-      message: error.response?.data?.message || 'Error al registrar usuario',
+      message: error.response?.data?.message || error.response?.data?.title || 'Error al registrar usuario',
       errors: error.response?.data?.errors || null
     };
   }
@@ -57,6 +73,10 @@ export async function login(credentials) {
     const response = await axios.post(`${API_URL}/Login`, {
       email: credentials.email,
       password: credentials.password
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
     
     console.log('Respuesta completa del login:', response.data);
@@ -73,6 +93,38 @@ export async function login(credentials) {
       // Construir objeto de usuario con los datos del token y la respuesta
       const userData = response.data.user || {};
       
+      // IMPORTANTE: Buscar el userId en TODAS las posibles ubicaciones
+      let userId = 
+        // Primero en la respuesta directa del backend
+        response.data.userId ||
+        response.data.UserId ||
+        response.data.id ||
+        response.data.user?.userId ||
+        response.data.user?.UserId ||
+        response.data.user?.id;
+      
+      // Si no está en la respuesta, buscar en el token decodificado
+      if (!userId && decodedToken) {
+        userId = 
+          decodedToken.sub || 
+          decodedToken.nameid || 
+          decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+          decodedToken.userId ||
+          decodedToken.UserId ||
+          decodedToken.id;
+      }
+      
+      // Guardar el userId si lo encontramos
+      if (userId) {
+        console.log('✅ userId encontrado:', userId);
+        localStorage.setItem('user_id', userId.toString());
+        userData.UserId = parseInt(userId);
+      } else {
+        console.error('❌ NO SE ENCONTRÓ userId en la respuesta del backend');
+        console.error('📋 Datos completos de la respuesta:', JSON.stringify(response.data, null, 2));
+        console.error('🔑 Token decodificado:', JSON.stringify(decodedToken, null, 2));
+      }
+      
       // Extraer información del token decodificado
       if (decodedToken) {
         // Buscar el nombre en diferentes campos del JWT
@@ -87,18 +139,6 @@ export async function login(credentials) {
                         decodedToken.email ||
                         decodedToken.Email ||
                         credentials.email;
-        
-        // Guardar el user_id si está disponible
-        const userId = decodedToken.sub || 
-                      decodedToken.nameid || 
-                      decodedToken['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
-                      decodedToken.userId ||
-                      decodedToken.UserId;
-        
-        if (userId) {
-          localStorage.setItem('user_id', userId.toString());
-          userData.UserId = parseInt(userId);
-        }
       }
       
       // Asegurar que siempre tenga el email (del login si no viene en el token)
@@ -122,6 +162,9 @@ export async function login(credentials) {
       // Guardar el plan de suscripción en localStorage
       localStorage.setItem('user_plan', subscriptionType);
       
+      // Guardar timestamp del login para evitar cierres de sesión inmediatos
+      localStorage.setItem('login_time', Date.now().toString());
+      
       console.log('Guardando usuario:', userData);
       console.log('📋 Plan de suscripción:', subscriptionType);
       localStorage.setItem('user', JSON.stringify(userData));
@@ -137,19 +180,52 @@ export async function login(credentials) {
       message: 'Inicio de sesión exitoso'
     };
   } catch (error) {
-    // Verificar si el error es por email no verificado
-    const errorMessage = error.response?.data?.message || error.response?.data || '';
+    console.error('❌ Error en login:', error.response?.status, error.response?.data);
+    
+    // Obtener el mensaje de error del backend
+    const errorData = error.response?.data;
+    const errorMessage = errorData?.message || errorData?.title || errorData || '';
+    
+    // Verificar si el error es específicamente por email no verificado
+    // Debe contener palabras clave específicas de verificación Y no ser un 404
     const isEmailNotVerified = 
-      errorMessage.toLowerCase().includes('verifica') ||
-      errorMessage.toLowerCase().includes('verificado') ||
-      errorMessage.toLowerCase().includes('verify') ||
-      errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('confirm');
+      error.response?.status !== 404 && // No es usuario no encontrado
+      (
+        errorMessage.toLowerCase().includes('email no verificado') ||
+        errorMessage.toLowerCase().includes('email not verified') ||
+        errorMessage.toLowerCase().includes('please verify your email') ||
+        errorMessage.toLowerCase().includes('verify your email address')
+      );
+    
+    // Manejar error 401 específicamente
+    if (error.response?.status === 401) {
+      return {
+        success: false,
+        emailNotVerified: isEmailNotVerified,
+        email: credentials.email,
+        message: isEmailNotVerified 
+          ? 'Por favor verifica tu correo electrónico antes de iniciar sesión.' 
+          : 'Credenciales incorrectas. Verifica tu email y contraseña.',
+        errors: error.response?.data?.errors || null
+      };
+    }
+    
+    // Manejar error 404 (usuario no encontrado)
+    if (error.response?.status === 404) {
+      return {
+        success: false,
+        emailNotVerified: false,
+        email: credentials.email,
+        message: 'No existe una cuenta con este correo electrónico. Por favor regístrate primero.',
+        errors: error.response?.data?.errors || null
+      };
+    }
     
     return {
       success: false,
       emailNotVerified: isEmailNotVerified,
-      email: credentials.email, // Guardar el email para usarlo en la página de verificación
-      message: error.response?.data?.message || 'Credenciales inválidas',
+      email: credentials.email,
+      message: errorMessage || 'Error al iniciar sesión',
       errors: error.response?.data?.errors || null
     };
   }
@@ -158,18 +234,64 @@ export async function login(credentials) {
 // GET /api/Access/Verify-Email
 export async function verifyEmail(token) {
   try {
+    console.log('🔑 verifyEmail llamado');
+    console.log('📝 Token recibido:', token);
+    console.log('📏 Longitud del token:', token?.length);
+    console.log('� Tipo de token:', typeof token);
+    console.log('�📡 URL del API:', API_URL);
+    console.log('📡 URL completa que se enviará:', `${API_URL}/Verify-Email?token=${token}`);
+    
+    // Asegurarnos de que el token existe y es una cadena
+    if (!token || typeof token !== 'string' || token.trim() === '') {
+      console.error('❌ Token inválido o vacío');
+      return {
+        success: false,
+        message: 'Token de verificación no válido. Por favor solicita un nuevo enlace.',
+        errors: null
+      };
+    }
+    
     const response = await axios.get(`${API_URL}/Verify-Email`, {
-      params: { token }
+      params: { token: token.trim() }
     });
+    
+    console.log('✅ Respuesta exitosa del backend:', response.data);
+    
     return {
       success: true,
       data: response.data,
-      message: 'Email verificado exitosamente'
+      message: response.data?.message || 'Email verificado exitosamente'
     };
   } catch (error) {
+    console.error('❌ Error completo:', error);
+    console.error('❌ Error en verifyEmail:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      config: {
+        url: error.config?.url,
+        params: error.config?.params
+      },
+      message: error.message
+    });
+    
+    // Extraer el mensaje de error del backend
+    let errorMessage = 'Enlace de verificación inválido o expirado. Por favor solicita un nuevo enlace.';
+    
+    if (error.response?.data) {
+      if (typeof error.response.data === 'string') {
+        errorMessage = error.response.data;
+      } else if (error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response.data.title) {
+        errorMessage = error.response.data.title;
+      }
+    }
+    
     return {
       success: false,
-      message: error.response?.data?.message || 'Error al verificar el email',
+      message: errorMessage,
       errors: error.response?.data?.errors || null
     };
   }
@@ -244,6 +366,7 @@ export function logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('login_time'); // Limpiar timestamp
     // Limpiar información de suscripción
     clearSubscriptionInfo();
   } catch (e) {
@@ -268,25 +391,45 @@ export function logout() {
  * Acepta opcionalmente una instancia de `router` (vue-router) para hacer push.
  */
 export async function logoutAndRedirect(router) {
+  console.log('🚪 Iniciando cierre de sesión...');
+  
   try {
     showLoading('Cerrando sesión...');
-  } catch (e) {}
+  } catch (e) {
+    console.warn('⚠️ No se pudo mostrar loading:', e);
+  }
 
   // Delay para que se vea la pantalla de carga
   await new Promise(resolve => setTimeout(resolve, 800));
 
   // Limpiar credenciales locales
+  console.log('🧹 Limpiando credenciales...');
   logout();
 
+  console.log('🔄 Redirigiendo a login...');
+  
   try {
     if (router && typeof router.push === 'function') {
-      await router.push({ name: 'Login' }).catch(() => {});
+      console.log('✅ Usando Vue Router para redirigir');
+      await router.push({ name: 'Login' }).catch((err) => {
+        console.error('Error al hacer push con router:', err);
+      });
     } else {
       // Fallback: navegar usando location (recarga completa)
+      console.log('✅ Usando window.location para redirigir');
       window.location.href = '/login';
     }
+  } catch (error) {
+    console.error('❌ Error al redirigir:', error);
+    // Último recurso: forzar recarga completa
+    window.location.href = '/login';
   } finally {
-    try { hideLoading(); } catch (e) {}
+    try { 
+      hideLoading(); 
+      console.log('✅ Cierre de sesión completado');
+    } catch (e) {
+      console.warn('⚠️ No se pudo ocultar loading:', e);
+    }
   }
 }
 
@@ -485,7 +628,7 @@ export async function checkEmailVerificationStatus() {
 axios.interceptors.request.use(
   (config) => {
     // No añadir token a las rutas de autenticación
-    const authRoutes = ['/Login', '/Register', '/Verify-Email', '/Forgot-Password', '/Reset-Password'];
+    const authRoutes = ['/Login', '/Register', '/Verify-Email', '/Resend-Verification', '/Forgot-Password', '/Reset-Password'];
     const isAuthRoute = authRoutes.some(route => config.url?.includes(route));
     
     if (isAuthRoute) {
