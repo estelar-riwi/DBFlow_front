@@ -16,7 +16,7 @@
             <span>Mis Bases de Datos</span>
           </router-link>
           <router-link to="/dashboard/subscription" exact-active-class="active">
-            <span>Subscriptions</span>
+            <span>Planes</span>
           </router-link>
       </nav>
       

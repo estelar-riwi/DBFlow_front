@@ -76,7 +76,7 @@
                 </div>
             </td>
             <td class="col-priority-2">
-                <span class="engine-badge">{{ db.engine }}</span>
+                <span class="engine-badge" :class="`engine-${db.engine.toLowerCase().replace(/\s+/g, '')}`">{{ db.engine }}</span>
             </td>
             <td class="col-priority-3">
                 <div class="compact-cell">
@@ -740,7 +740,8 @@ const createDb = async () => {
       icon: 'success', 
       title: '¡Base de datos creada!', 
       text: `La base de datos "${response.databaseName}" ha sido creada exitosamente`,
-      confirmText: 'Perfecto'
+      confirmText: 'Perfecto',
+      autoClose: 3000  // Se cierra automáticamente después de 3 segundos
     })
   } catch (error) {
     console.error('Error al crear base de datos:', error)
@@ -1077,7 +1078,8 @@ const removeDatabase = async (db) => {
       icon: 'success', 
       title: '¡Base de datos eliminada!', 
       text: `La base de datos "${db.name}" ha sido eliminada exitosamente`,
-      confirmText: 'Entendido'
+      confirmText: 'Entendido',
+      autoClose: 3000  // Se cierra automáticamente después de 3 segundos
     })
   } catch (error) {
     console.error('Error al eliminar base de datos:', error)
@@ -1579,6 +1581,43 @@ h3 {
   font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* Colores específicos para cada motor de base de datos */
+.engine-badge.engine-mysql {
+  background: rgba(0, 117, 143, 0.15);
+  color: #00758F;
+  border: 1px solid rgba(0, 117, 143, 0.3);
+}
+
+.engine-badge.engine-postgresql {
+  background: rgba(51, 103, 145, 0.15);
+  color: #336791;
+  border: 1px solid rgba(51, 103, 145, 0.3);
+}
+
+.engine-badge.engine-mongodb {
+  background: rgba(71, 162, 72, 0.15);
+  color: #47A248;
+  border: 1px solid rgba(71, 162, 72, 0.3);
+}
+
+.engine-badge.engine-cassandra {
+  background: rgba(18, 135, 177, 0.15);
+  color: #1287B1;
+  border: 1px solid rgba(18, 135, 177, 0.3);
+}
+
+.engine-badge.engine-sqlserver {
+  background: rgba(139, 92, 246, 0.15);
+  color: #8B5CF6;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.engine-badge.engine-redis {
+  background: rgba(220, 47, 2, 0.15);
+  color: #DC2F02;
+  border: 1px solid rgba(220, 47, 2, 0.3);
 }
 
 /* Botones de iconos pequeños */
@@ -3218,7 +3257,5 @@ font-size: 0.95rem;
     transform: translateY(0);
   }
 }
-
-
 
 </style>
