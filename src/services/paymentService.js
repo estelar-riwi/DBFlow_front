@@ -1,6 +1,6 @@
 // ✅ Asegúrate de que esta URL y puerto coincidan con tu backend .NET
 // La URL debe ser la dirección donde corre tu API, no la del frontend.
-const API_BASE_URL = 'http://localhost:5030'; // O la URL de tu API en producción
+const API_BASE_URL = 'https://service.estelar.andrescortes.dev'; // O la URL de tu API en producción
 
 /**
  * Llama al backend para crear una preferencia de pago en Mercado Pago.
