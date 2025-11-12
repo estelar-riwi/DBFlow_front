@@ -84,6 +84,15 @@ export function showAlert({ icon = 'info', title = '', text = '', confirmText = 
 
     backdrop.appendChild(card);
 
+    // Barra de progreso para autoClose
+    let progressBar = null;
+    if (autoClose && typeof autoClose === 'number' && autoClose > 0) {
+      progressBar = document.createElement('div');
+      progressBar.className = 'custom-alert-progress-bar';
+      progressBar.style.animation = `shrinkProgressBar ${autoClose}ms linear forwards`;
+      card.appendChild(progressBar);
+    }
+
     // Auto-close si se especifica (en milisegundos)
     if (autoClose && typeof autoClose === 'number' && autoClose > 0) {
       autoCloseTimer = setTimeout(() => {

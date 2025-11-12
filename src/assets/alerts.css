@@ -218,3 +218,25 @@
   }
 }
 
+/* Barra de progreso para autoClose */
+.custom-alert-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #00bfff, #0ea5e9, #06b6d4);
+  border-radius: 0 0 16px 16px;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.6),
+              0 0 30px rgba(0, 191, 255, 0.4);
+  transform-origin: left;
+}
+
+@keyframes shrinkProgressBar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

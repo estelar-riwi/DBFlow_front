@@ -16,13 +16,14 @@
             <span>Mis Bases de Datos</span>
           </router-link>
           <router-link to="/dashboard/subscription" exact-active-class="active">
-            <span>Subscriptions</span>
+            <span>Planes</span>
           </router-link>
       </nav>
       
       <div class="sidebar-footer">
         
         <div class="sidebar-profile-area" @click="openProfileModal">
+          
           <div class="profile-avatar">
             <span>{{ userInitial }}</span> 
           </div>
@@ -34,6 +35,7 @@
             </span>
           </div>
         </div>
+
         
         <button class="btn-logout" @click="onLogoutClick" title="Cerrar sesión">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
