@@ -1,6 +1,6 @@
 <template>
-<div class="dashboard-view">
-<div class="view-header">
+<div class="dashboard-view fade-in-view">
+<div class="view-header stagger-item" style="--stagger-index: 0">
     <h1>Mis Bases de Datos</h1>
     <div class="header-actions">
         <button class="btn-debug" @click="debugAuth" title="Verificar autenticación">
@@ -14,19 +14,19 @@
     </div>
 </div>
 
-<section class="quota-section reveal-on-scroll">
+<section class="quota-section reveal-on-scroll stagger-item" style="--stagger-index: 1">
     <h3>Bases de Datos</h3>
     <div class="quota-grid">
-    <StatCard title="MYSQL" :value="`${countByEngine('MySQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mysql.svg" cardColor="#00758F" />
-    <StatCard title="POSTGRESQL" :value="`${countByEngine('PostgreSQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/postgresql.svg" cardColor="#336791" />
-    <StatCard title="MONGODB" :value="`${countByEngine('MongoDB')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mongodb.svg" cardColor="#47A248" />
-    <StatCard title="CASSANDRA" :value="`${countByEngine('Cassandra')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/cassandra.svg" cardColor="#1287B1" />
-    <StatCard title="SQL SERVER" :value="`${countByEngine('SQL Server')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/sqlserver.svg" cardColor="#8B5CF6" />
-    <StatCard title="REDIS" :value="`${countByEngine('Redis')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/redis.svg" cardColor="#DC382D" />
+    <StatCard class="stagger-child" style="--child-index: 0" title="MYSQL" :value="`${countByEngine('MySQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mysql.svg" cardColor="#00758F" />
+    <StatCard class="stagger-child" style="--child-index: 1" title="POSTGRESQL" :value="`${countByEngine('PostgreSQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/postgresql.svg" cardColor="#336791" />
+    <StatCard class="stagger-child" style="--child-index: 2" title="MONGODB" :value="`${countByEngine('MongoDB')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mongodb.svg" cardColor="#47A248" />
+    <StatCard class="stagger-child" style="--child-index: 3" title="CASSANDRA" :value="`${countByEngine('Cassandra')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/cassandra.svg" cardColor="#1287B1" />
+    <StatCard class="stagger-child" style="--child-index: 4" title="SQL SERVER" :value="`${countByEngine('SQL Server')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/sqlserver.svg" cardColor="#8B5CF6" />
+    <StatCard class="stagger-child" style="--child-index: 5" title="REDIS" :value="`${countByEngine('Redis')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/redis.svg" cardColor="#DC382D" />
     </div>
 </section>
 
-<section class="instances-section reveal-on-scroll">
+<section class="instances-section reveal-on-scroll stagger-item" style="--stagger-index: 2">
     <div class="toolbar">
     <div class="toolbar-field">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -327,7 +327,7 @@
             class="engine-card"
             :class="{ 
               'selected': newDb.engine === engine.name,
-              'disabled': engine.name !== 'MySQL' && engine.name !== 'PostgreSQL'
+              'disabled': engine.name !== 'MySQL' && engine.name !== 'PostgreSQL' && engine.name !== 'SQL Server'
             }"
             :style="{ '--engine-color': engine.color }"
             @click="selectEngine(engine.name)"
@@ -338,7 +338,7 @@
             <h3>{{ engine.name }}</h3>
             <p class="engine-desc">{{ engine.description }}</p>
             <div class="engine-meta">
-            <span v-if="engine.name === 'MySQL' || engine.name === 'PostgreSQL'" class="badge-available">✓ Disponible</span>
+            <span v-if="engine.name === 'MySQL' || engine.name === 'PostgreSQL' || engine.name === 'SQL Server'" class="badge-available">✓ Disponible</span>
             <span v-else class="badge-coming-soon">🔧 En proceso</span>
             </div>
         </div>
@@ -370,7 +370,7 @@
             <small class="form-hint">Solo se permiten letras, números y guiones bajos</small>
         </div>
 
-        <div class="connection-preview" :class="`engine-${newDb.engine?.toLowerCase()}`">
+        <div class="connection-preview" :class="`engine-${newDb.engine?.toLowerCase().replace(/\s+/g, '')}`">
             <h4>Vista Previa de Conexión</h4>
             <div class="preview-item">
             <span class="preview-label">Host:</span>
@@ -413,7 +413,11 @@ import {
   createPostgreSQLDatabase,
   getPostgreSQLCredentials,
   rotatePostgreSQLCredentials,
-  deletePostgreSQLDatabase
+  deletePostgreSQLDatabase,
+  createSQLServerDatabase,
+  getSQLServerCredentials,
+  rotateSQLServerCredentials,
+  deleteSQLServerDatabase
 } from '@/services/databaseService'
 import { showLoading, hideLoading } from '@/store/loading'
 import { showAuthStatusModal } from '@/utils/authDebug'
@@ -538,12 +542,12 @@ const engineOptions = ref([
 ])
 
 const selectEngine = (engineName) => {
-  // Solo MySQL y PostgreSQL están disponibles por ahora
-  if (engineName !== 'MySQL' && engineName !== 'PostgreSQL') {
+  // MySQL, PostgreSQL y SQL Server están disponibles
+  if (engineName !== 'MySQL' && engineName !== 'PostgreSQL' && engineName !== 'SQL Server') {
     showAlert({ 
       icon: 'info', 
       title: 'Próximamente', 
-      text: `${engineName} estará disponible próximamente. Por ahora solo MySQL y PostgreSQL están habilitados.`,
+      text: `${engineName} estará disponible próximamente. Por ahora solo MySQL, PostgreSQL y SQL Server están habilitados.`,
       confirmText: 'Entendido'
     })
     return
@@ -704,6 +708,11 @@ const createDb = async () => {
         databaseName: newDb.value.name,
         engine: newDb.value.engine
       })
+    } else if (newDb.value.engine === 'SQL Server') {
+      response = await createSQLServerDatabase({
+        databaseName: newDb.value.name
+        // No pasamos engine aquí porque databaseService.js ya lo incluye como "SQL Server"
+      })
     } else {
       // MySQL por defecto
       response = await createDatabase({
@@ -849,26 +858,29 @@ const loadDatabases = async () => {
         // ✅ El backend devuelve "engineName" en lugar de "engine"
         const engine = db.engineName || db.engine || 'MySQL';
         
-        console.log(`🔧 Engine detectado para "${db.databaseName || db.name}": ${engine}`)
+        // Normalizar 'SQLServer' a 'SQL Server' para la UI
+        const normalizedEngine = engine === 'SQLServer' ? 'SQL Server' : engine;
+        
+        console.log(`🔧 Engine detectado para "${db.databaseName || db.name}": ${engine} → ${normalizedEngine}`)
         console.log(`⚠️ ADVERTENCIA: db.engine = ${db.engine}, db.engineName = ${db.engineName}`)
         
         // Configurar host y port según el engine
         let defaultHost = 'mysql.dbflow.dev';
         let defaultPort = 3306;
         
-        if (engine === 'PostgreSQL') {
+        if (normalizedEngine === 'PostgreSQL') {
           defaultHost = 'postgres.dbflow.dev';
           defaultPort = 5432;
-        } else if (engine === 'MongoDB') {
+        } else if (normalizedEngine === 'MongoDB') {
           defaultHost = 'mongo.dbflow.dev';
           defaultPort = 27017;
-        } else if (engine === 'Redis') {
+        } else if (normalizedEngine === 'Redis') {
           defaultHost = 'redis.dbflow.dev';
           defaultPort = 6379;
-        } else if (engine === 'Cassandra') {
+        } else if (normalizedEngine === 'Cassandra') {
           defaultHost = 'cassandra.dbflow.dev';
           defaultPort = 9042;
-        } else if (engine === 'SQL Server') {
+        } else if (normalizedEngine === 'SQL Server' || normalizedEngine === 'SQLServer') {
           defaultHost = 'sqlserver.dbflow.dev';
           defaultPort = 1433;
         }
@@ -876,7 +888,7 @@ const loadDatabases = async () => {
         return {
           id: db.id,
           name: db.databaseName || db.name,
-          engine: engine, // ✅ Usar el engine exacto del backend
+          engine: normalizedEngine, // ✅ Usar el engine normalizado para la UI
           host: db.host || defaultHost,
           port: db.port || defaultPort,
           status: db.status || 'Activo',
@@ -1045,6 +1057,8 @@ const removeDatabase = async (db) => {
     // Usar la API correspondiente según el engine
     if (db.engine === 'PostgreSQL') {
       await deletePostgreSQLDatabase(db.id)
+    } else if (db.engine === 'SQLServer' || db.engine === 'SQL Server') {
+      await deleteSQLServerDatabase(db.id)
     } else {
       // MySQL por defecto
       await deleteDatabase(db.id)
@@ -1109,6 +1123,8 @@ const viewCredentials = async (db) => {
     // Usar la API correspondiente según el engine
     if (db.engine === 'PostgreSQL') {
       credentials = await getPostgreSQLCredentials(db.id)
+    } else if (db.engine === 'SQLServer' || db.engine === 'SQL Server') {
+      credentials = await getSQLServerCredentials(db.id)
     } else {
       // MySQL por defecto (usa rotación porque no tiene endpoint GET)
       credentials = await getDatabaseCredentials(db.id)
@@ -1234,6 +1250,8 @@ const rotateDbCredentials = async (db) => {
     // Usar la API correspondiente según el engine
     if (db.engine === 'PostgreSQL') {
       newCredentials = await rotatePostgreSQLCredentials(db.id)
+    } else if (db.engine === 'SQLServer' || db.engine === 'SQL Server') {
+      newCredentials = await rotateSQLServerCredentials(db.id)
     } else {
       // MySQL por defecto
       newCredentials = await rotateCredentials(db.id)
@@ -2521,6 +2539,22 @@ font-size: 0.95rem;
   color: #DC2F02;
 }
 
+.connection-preview.engine-sql.server,
+.connection-preview.engine-sqlserver {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.connection-preview.engine-sql.server h4,
+.connection-preview.engine-sqlserver h4 {
+  color: #8B5CF6;
+}
+
+.connection-preview.engine-sql.server .preview-code,
+.connection-preview.engine-sqlserver .preview-code {
+  color: #A78BFA;
+}
+
 .connection-preview h4 {
   font-size: 0.9rem;
   font-weight: 600;
@@ -3073,6 +3107,116 @@ font-size: 0.95rem;
   color: #fff;
   font-size: 0.8rem;
   line-height: 1.4;
+}
+
+/* ========================================================================= */
+/* =================== ANIMACIONES DE ENTRADA ESCALONADA =================== */
+/* ========================================================================= */
+
+/* Contenedor principal con fade-in */
+.fade-in-view {
+  animation: viewFadeIn 0.5s ease-out;
+}
+
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Elementos con animación escalonada */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: staggerFadeIn 0.6s ease-out forwards;
+  animation-delay: calc(var(--stagger-index) * 0.1s);
+}
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hijos con animación escalonada (tarjetas de stats) */
+.stagger-child {
+  opacity: 0;
+  transform: translateY(15px) scale(0.95);
+  animation: staggerChildFadeIn 0.5s ease-out forwards;
+  animation-delay: calc(0.3s + (var(--child-index) * 0.08s));
+}
+
+@keyframes staggerChildFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animación para filas de tabla */
+.db-table tbody tr {
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: tableFadeIn 0.4s ease-out forwards;
+}
+
+.db-table tbody tr:nth-child(1) { animation-delay: 0.4s; }
+.db-table tbody tr:nth-child(2) { animation-delay: 0.45s; }
+.db-table tbody tr:nth-child(3) { animation-delay: 0.5s; }
+.db-table tbody tr:nth-child(4) { animation-delay: 0.55s; }
+.db-table tbody tr:nth-child(5) { animation-delay: 0.6s; }
+.db-table tbody tr:nth-child(6) { animation-delay: 0.65s; }
+.db-table tbody tr:nth-child(7) { animation-delay: 0.7s; }
+.db-table tbody tr:nth-child(8) { animation-delay: 0.75s; }
+.db-table tbody tr:nth-child(9) { animation-delay: 0.8s; }
+.db-table tbody tr:nth-child(10) { animation-delay: 0.85s; }
+
+@keyframes tableFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animación para tarjetas móviles */
+.mobile-cards .db-card-mobile {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: cardFadeIn 0.4s ease-out forwards;
+}
+
+.mobile-cards .db-card-mobile:nth-child(1) { animation-delay: 0.4s; }
+.mobile-cards .db-card-mobile:nth-child(2) { animation-delay: 0.45s; }
+.mobile-cards .db-card-mobile:nth-child(3) { animation-delay: 0.5s; }
+.mobile-cards .db-card-mobile:nth-child(4) { animation-delay: 0.55s; }
+.mobile-cards .db-card-mobile:nth-child(5) { animation-delay: 0.6s; }
+.mobile-cards .db-card-mobile:nth-child(6) { animation-delay: 0.65s; }
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 

@@ -1,13 +1,13 @@
 <    <template>
-<div class="auth-page-wrap">
+<div class="auth-page-wrap fade-in-view">
     
     <div class="canvas-container-bg" ref="container">
     <canvas ref="canvas" class="w-full h-full"></canvas>
     </div>
     
-    <router-link to="/" class="btn-back-home">← Volver al Inicio</router-link>
+    <router-link to="/" class="btn-back-home stagger-item" style="--stagger-index: 0">← Volver al Inicio</router-link>
     
-    <div class="auth-card">
+    <div class="auth-card stagger-item" style="--stagger-index: 1">
     <div class="logo">
         <div class="logo-icon"></div>
         <strong>DBFlow Login</strong>
@@ -17,12 +17,12 @@
     <p class="auth-subtitle">Inicia sesión para gestionar tus bases de datos.</p>
 
     <form @submit.prevent="handleLogin" class="auth-form" novalidate>
-        <div class="form-group">
+        <div class="form-group stagger-child" style="--child-index: 0">
         <label for="email">Correo</label>
         <input type="email" id="email" v-model="email" required placeholder="nombre@ejemplo.com">
         </div>
         
-        <div class="form-group">
+        <div class="form-group stagger-child" style="--child-index: 1">
         <label for="password">Contraseña</label>
         <div class="password-wrapper">
             <input :type="showPassword ? 'text' : 'password'" id="password" v-model="password" required placeholder="••••••••">
@@ -38,20 +38,20 @@
         </div>
         </div>
 
-        <div class="form-extra">
+        <div class="form-extra stagger-child" style="--child-index: 2">
             <router-link to="/forgot-password" class="link-secondary link-forgot">
                 ¿Olvidaste tu contraseña?
             </router-link>
         </div>
 
-        <button type="submit" class="btn-primary btn-full-width" :disabled="isLoading">
+        <button type="submit" class="btn-primary btn-full-width stagger-child" style="--child-index: 3" :disabled="isLoading">
             {{ isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
         </button>
     </form>
     
-    <p class="auth-footer-text">
-        ¿No tienes una cuenta? 
-        <router-link to="/register" class="link-secondary">Registrarse</router-link>
+    <p class="auth-footer-text stagger-child" style="--child-index: 4">
+        ¿No tienes una cuenta?
+        <router-link to="/register" class="link-secondary">Regístrate</router-link>
     </p>
 
     </div>
@@ -350,4 +350,60 @@ onBeforeUnmount(() => {
 }
 .toggle-password svg { width: 20px; height: 20px; }
 .toggle-password:hover { background: rgba(255,255,255,0.08); }
+
+/* ========================================================================= */
+/* =================== ANIMACIONES DE ENTRADA ESCALONADA =================== */
+/* ========================================================================= */
+
+/* Contenedor principal con fade-in */
+.fade-in-view {
+  animation: viewFadeIn 0.6s ease-out;
+}
+
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Elementos con animación escalonada */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: staggerFadeIn 0.6s ease-out forwards;
+  animation-delay: calc(var(--stagger-index) * 0.15s);
+}
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hijos con animación escalonada (campos del formulario) */
+.stagger-child {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: staggerChildFadeIn 0.5s ease-out forwards;
+  animation-delay: calc(0.3s + (var(--child-index) * 0.1s));
+}
+
+@keyframes staggerChildFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>>

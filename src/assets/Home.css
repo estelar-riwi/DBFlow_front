@@ -937,6 +937,9 @@ body::before {
     z-index: 2;
     flex-shrink: 0;
     overflow: hidden;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
 }
 
 .btn-pricing::before {
@@ -1271,12 +1274,12 @@ details[open] p {
 }
 .footer-top-content {
     display: grid;
-    grid-template-columns: minmax(300px, 1.4fr) minmax(160px, 1fr) minmax(160px, 1fr);
+    grid-template-columns: minmax(300px, 1.5fr) repeat(3, minmax(160px, 1fr));
     align-items: flex-start;
     width: 100%;
     max-width: 1200px; 
     margin-bottom: 20px;
-    gap: 20px 120px;
+    gap: 20px 40px;
     padding: 30px 0;
     border-bottom: 1px solid #222;
 }
@@ -1313,6 +1316,39 @@ details[open] p {
 .footer-brand .brand-desc { max-width: 640px; line-height: 1.6; }
 .footer-brand .tagline { color: #9aa0a6; }
 .footer-brand .quote { font-style: italic; color: #888; }
+
+/* Redes sociales */
+.social-links {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-3px);
+}
+
+.social-links svg {
+    width: 20px;
+    height: 20px;
+}
+
 .footer-links {
     display: contents; /* deja que cada .footer-col ocupe su columna del grid padre */
 }
@@ -1322,12 +1358,14 @@ details[open] p {
     font-size: 1rem;
     color: white;
 }
-.footer-links a {
+.footer-links a,
+.footer-links a:visited {
     display: block;
     color: #aaa;
     text-decoration: none;
     font-size: 0.9rem;
     margin: 8px 0;
+    transition: color 0.3s ease;
 }
 .footer-links a:hover {
     color: white;
@@ -1350,10 +1388,13 @@ details[open] p {
 /* Responsive footer */
 @media (max-width: 980px) {
     .footer-top-content {
-        grid-template-columns: minmax(300px, 1fr) minmax(160px, 1fr);
+        grid-template-columns: 1fr 1fr;
+        gap: 30px 20px;
     }
-    /* Mover la tercera columna a la segunda fila */
-    .footer-col:last-child { grid-column: 2; }
+    
+    .footer-brand {
+        grid-column: 1 / -1;
+    }
 }
 
 @media (max-width: 680px) {
@@ -1362,7 +1403,14 @@ details[open] p {
         gap: 24px;
         padding: 24px 0;
     }
-    .footer-col:last-child { grid-column: auto; }
+    
+    .footer-brand {
+        grid-column: auto;
+    }
+    
+    .social-links {
+        justify-content: center;
+    }
 }
 
 /* ========================================================================= */
