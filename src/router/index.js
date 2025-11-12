@@ -80,11 +80,6 @@ const routes = [
       path: 'subscription',
       name: 'Subscription',
       component: () => import('@/views/SubscriptionView.vue') 
-      },
-      {
-        path: 'payment/:planId',
-        name: 'Payment',
-        component: () => import('@/views/PaymentView.vue')
       }
     ]
   }
