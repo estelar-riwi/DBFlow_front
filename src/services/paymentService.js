@@ -1,78 +1,56 @@
-import axios from 'axios';
-import { setUserPlan } from './subscriptionService';
-
-// URL base del backend - configurada desde variables de entorno
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5030';
-const API_URL = `${API_BASE_URL}/api/payments`;
+// ✅ Asegúrate de que esta URL y puerto coincidan con tu backend .NET
+// La URL debe ser la dirección donde corre tu API, no la del frontend.
+const API_BASE_URL = 'https://service.estelar.andrescortes.dev'; // O la URL de tu API en producción
 
 /**
- * Crea una suscripción y actualiza el plan del usuario
- * @param {string} planId - ID del plan (free, intermediate, advanced)
- * @param {string} email - Email del usuario
- * @returns {Promise<Object>} Respuesta del backend
+ * Llama al backend para crear una preferencia de pago en Mercado Pago.
+ * @param {object} preferenceData - Datos para la preferencia, como { planId, userId }.
+ * @returns {Promise<object>} La preferencia de pago creada, que incluye el initPoint.
  */
-export const createSubscription = async (planId, email) => {
+export async function createPaymentPreference(preferenceData) {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/Payments/subscription`, {
-      planId: planId,
-      email: email
-    });
-    
-    // Si el pago fue exitoso, actualizar el plan del usuario en localStorage
-    if (response.data && response.status === 200) {
-      setUserPlan(planId);
-      console.log('✅ Suscripción creada y plan actualizado:', planId);
-    }
-    
-    return response.data;
-  } catch (error) {
-    console.error('❌ Error in createSubscription:', error);
-    throw error;
-  }
-};
-
-/**
- * Confirma el pago y activa la suscripción
- * @param {string} paymentId - ID del pago
- * @param {string} planId - ID del plan
- * @returns {Promise<Object>}
- */
-export const confirmPayment = async (paymentId, planId) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/api/Payments/confirm`, {
-      paymentId: paymentId
-    });
-    
-    // Si la confirmación fue exitosa, actualizar el plan
-    if (response.data && response.status === 200) {
-      setUserPlan(planId);
-      console.log('✅ Pago confirmado y plan actualizado:', planId);
-    }
-    
-    return response.data;
-  } catch (error) {
-    console.error('❌ Error al confirmar pago:', error);
-    throw error;
-  }
-};
-
-/**
- * Obtiene el historial de suscripciones del usuario
- * @returns {Promise<Array>} Lista de suscripciones
- */
-export const getSubscriptionHistory = async () => {
-  try {
-    const token = localStorage.getItem('authToken');
-    const response = await axios.get(`${API_BASE_URL}/api/Users/Subscriptions`, {
+    const response = await fetch(`${API_BASE_URL}/api/payments/create-preference`, {
+      method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(preferenceData),
     });
-    
-    console.log('✅ Historial de suscripciones obtenido:', response.data);
-    return response.data;
+
+    // Si la respuesta no es OK (ej. 400, 500), lee el error y lánzalo
+    if (!response.ok) {
+      const errorBody = await response.json();
+      throw new Error(errorBody.error || `Error del servidor: ${response.status}`);
+    }
+
+    const preference = await response.json();
+    return preference;
+
   } catch (error) {
-    console.error('❌ Error al obtener historial de suscripciones:', error);
+    console.error('Error en el servicio createPaymentPreference:', error);
+    // Relanzamos el error para que el componente que llama pueda manejarlo y mostrarlo.
     throw error;
   }
-};
+}
+
+/**
+ * Obtiene el historial de suscripciones del usuario.
+ * (Esta es una función de ejemplo, adáptala a tu endpoint real).
+ * @returns {Promise<Array>} Una lista del historial de suscripciones.
+ */
+export async function getSubscriptionHistory() {
+  try {
+    // SIMULACIÓN: Reemplaza esto con una llamada real a tu API
+    // ej: const response = await fetch(`${API_BASE_URL}/api/subscriptions/history`);
+    console.log("Obteniendo historial de suscripciones...");
+    await new Promise(resolve => setTimeout(resolve, 800)); // Simula la latencia de red
+    return [
+        // Ejemplo de datos:
+        // { id: 1, createdAt: '2023-10-27T10:00:00Z', planId: 'free', amount: 0, status: 'completed' },
+        // { id: 2, createdAt: '2023-11-27T10:05:00Z', planId: 'intermediate', amount: 50000, status: 'active' }
+    ];
+  } catch (error) {
+    console.error('Error al obtener el historial de suscripciones:', error);
+    return []; // Devuelve un array vacío en caso de error para no romper la UI
+  }
+}
