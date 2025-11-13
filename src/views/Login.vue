@@ -5,7 +5,7 @@
     <canvas ref="canvas" class="w-full h-full"></canvas>
     </div>
     
-    <router-link to="/" class="btn-back-home stagger-item" style="--stagger-index: 0">← Volver al Inicio</router-link>
+    <router-link to="/" class="btn-back-home stagger-item" style="--stagger-index: 0">←</router-link>
     
     <div class="auth-card stagger-item" style="--stagger-index: 1">
     <div class="logo">
@@ -406,4 +406,8 @@ onBeforeUnmount(() => {
     transform: translateY(0);
   }
 }
-</style>>
+
+/* Responsive */
+@media (max-width: 480px) {
+}
+</style>

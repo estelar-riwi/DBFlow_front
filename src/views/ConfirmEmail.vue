@@ -2,10 +2,10 @@
 <div class="auth-page-wrap">
     
     <div class="canvas-container-bg" ref="container">
-    <canvas ref="canvas" class="w-full h-full"></canvas>
+      <canvas ref="canvas" class="w-full h-full"></canvas>
     </div>
     
-    <router-link to="/" class="btn-back-home">← Volver al Inicio</router-link>
+    <router-link to="/" class="btn-back-home">←</router-link>
     
     <div class="auth-card">
     <div class="logo">

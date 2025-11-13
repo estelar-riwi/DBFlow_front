@@ -2,12 +2,12 @@
 <div class="auth-page-wrap fade-in-view">
     
     <div class="canvas-container-bg" ref="container">
-    <canvas ref="canvas" class="w-full h-full"></canvas>
+      <canvas ref="canvas" class="w-full h-full"></canvas>
     </div>
     
-    <router-link to="/" class="btn-back-home stagger-item" style="--stagger-index: 0;">← Volver al Inicio</router-link>
+    <router-link to="/" class="btn-back-home stagger-item" style="--stagger-index: 0;">←</router-link>
     
-    <div class="auth-card stagger-item" style="--stagger-index: 1;">
+    <div class="auth-card stagger-item" style="--stagger-index: 1">
     
     <div class="logo">
         <div class="logo-icon"></div>
@@ -81,9 +81,9 @@
         </button>
     </form>
     
-    <p class="auth-footer-text stagger-child" style="--child-index: 4;">
+    <p class="auth-footer-text stagger-child" style="--child-index: 4">
         ¿Ya tienes una cuenta?
-        <router-link to="/login" class="link-secondary">Iniciar Sesión</router-link>
+        <router-link to="/login" class="link-secondary">Inicia Sesión</router-link>
     </p>
 
     </div>
@@ -403,12 +403,19 @@ onBeforeUnmount(() => {
 
 /* Barra de fortaleza de contraseña */
 .password-strength-container {
-    margin-top: 12px;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
 }
 
 .password-strength-bar {
     width: 100%;
-    height: 6px;
+    height: 5px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     overflow: hidden;
@@ -423,32 +430,36 @@ onBeforeUnmount(() => {
 
 .password-strength-fill.weak {
     background: linear-gradient(90deg, #ff4444, #ff6b6b);
-    box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
 }
 
 .password-strength-fill.fair {
     background: linear-gradient(90deg, #ff8800, #ffaa00);
-    box-shadow: 0 0 10px rgba(255, 136, 0, 0.5);
+    box-shadow: 0 0 8px rgba(255, 136, 0, 0.4);
 }
 
 .password-strength-fill.good {
     background: linear-gradient(90deg, #00bfff, #00d4ff);
-    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+    box-shadow: 0 0 8px rgba(0, 191, 255, 0.4);
 }
 
 .password-strength-fill.strong {
     background: linear-gradient(90deg, #00ff88, #00ffaa);
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
 }
 
 .password-strength-text {
     margin-bottom: 10px;
+    text-align: left;
+    padding-left: 2px;
 }
 
 .password-strength-text span {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     transition: color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .password-strength-text span.weak {
@@ -471,16 +482,25 @@ onBeforeUnmount(() => {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .password-requirements li {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #94a3b8;
-    margin-bottom: 6px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     transition: color 0.3s ease;
+    line-height: 1.4;
+}
+
+.password-requirements li:last-child {
+    margin-bottom: 0;
 }
 
 .password-requirements li.met {
@@ -491,10 +511,11 @@ onBeforeUnmount(() => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 16px;
-    height: 16px;
-    font-size: 0.75rem;
+    width: 14px;
+    height: 14px;
+    font-size: 0.7rem;
     font-weight: bold;
+    flex-shrink: 0;
 }
 
 .password-requirements li.met .requirement-icon {
@@ -558,6 +579,48 @@ onBeforeUnmount(() => {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .password-strength-container {
+    margin-top: 8px;
+    padding: 8px;
+  }
+  
+  .password-strength-text span {
+    font-size: 0.75rem;
+  }
+  
+  .password-requirements {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  
+  .password-requirements li {
+    font-size: 0.7rem;
+    gap: 5px;
+  }
+  
+  .requirement-icon {
+    width: 12px;
+    height: 12px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .password-strength-container {
+    padding: 6px;
+  }
+  
+  .password-requirements li {
+    font-size: 0.68rem;
+  }
+  
+  .password-strength-text span {
+    font-size: 0.72rem;
   }
 }
 </style>

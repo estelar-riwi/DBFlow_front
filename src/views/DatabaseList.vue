@@ -3,11 +3,15 @@
 <div class="view-header stagger-item" style="--stagger-index: 0">
     <h1>Mis Bases de Datos</h1>
     <div class="header-actions">
-        <button class="btn-debug" @click="debugAuth" title="Verificar autenticación">
-            <span class="desktop-text">🔍 Debug</span>
-            <span class="mobile-text">🔍</span>
-        </button>
-        <button class="btn-primary" @click="openCreateModal">
+        <div v-if="tokenTimeRemaining" class="token-timer" :class="{ 'warning': tokenTimeRemaining < 300 }" title="Tiempo de sesión restante">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+            </svg>
+            <span class="timer-label">Sesión:</span>
+            <span class="timer-value">{{ formatTokenTime(tokenTimeRemaining) }}</span>
+        </div>
+        <button v-if="hasAnyDatabase" class="btn-primary" @click="openCreateModal">
             <span class="desktop-text">Crear Base de Datos</span>
             <span class="mobile-text">+ Crear</span>
         </button>
@@ -16,13 +20,32 @@
 
 <section class="quota-section reveal-on-scroll stagger-item" style="--stagger-index: 1">
     <h3>Bases de Datos</h3>
-    <div class="quota-grid">
-    <StatCard class="stagger-child" style="--child-index: 0" title="MYSQL" :value="`${countByEngine('MySQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mysql.svg" cardColor="#00758F" />
-    <StatCard class="stagger-child" style="--child-index: 1" title="POSTGRESQL" :value="`${countByEngine('PostgreSQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/postgresql.svg" cardColor="#336791" />
-    <StatCard class="stagger-child" style="--child-index: 2" title="MONGODB" :value="`${countByEngine('MongoDB')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mongodb.svg" cardColor="#47A248" />
-    <StatCard class="stagger-child" style="--child-index: 3" title="CASSANDRA" :value="`${countByEngine('Cassandra')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/cassandra.svg" cardColor="#1287B1" />
-    <StatCard class="stagger-child" style="--child-index: 4" title="SQL SERVER" :value="`${countByEngine('SQL Server')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/sqlserver.svg" cardColor="#8B5CF6" />
-    <StatCard class="stagger-child" style="--child-index: 5" title="REDIS" :value="`${countByEngine('Redis')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/redis.svg" cardColor="#DC382D" />
+    
+    <!-- Mensaje cuando no hay bases de datos -->
+    <div v-if="!hasAnyDatabase" class="empty-databases-message">
+        <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h4>No tienes bases de datos creadas</h4>
+        <p>Crea tu primera base de datos para comenzar</p>
+        <button class="btn-create-first" @click="openCreateModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Crear Base de Datos
+        </button>
+    </div>
+    
+    <!-- Grid de contadores -->
+    <div v-else class="quota-grid">
+    <StatCard v-if="countByEngine('MySQL') > 0" class="stagger-child" style="--child-index: 0" title="MYSQL" :value="`${countByEngine('MySQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mysql.svg" cardColor="#00758F" />
+    <StatCard v-if="countByEngine('PostgreSQL') > 0" class="stagger-child" style="--child-index: 1" title="POSTGRESQL" :value="`${countByEngine('PostgreSQL')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/postgresql.svg" cardColor="#336791" />
+    <StatCard v-if="countByEngine('MongoDB') > 0" class="stagger-child" style="--child-index: 2" title="MONGODB" :value="`${countByEngine('MongoDB')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/mongodb.svg" cardColor="#47A248" />
+    <StatCard v-if="countByEngine('Cassandra') > 0" class="stagger-child" style="--child-index: 3" title="CASSANDRA" :value="`${countByEngine('Cassandra')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/cassandra.svg" cardColor="#1287B1" />
+    <StatCard v-if="countByEngine('SQL Server') > 0" class="stagger-child" style="--child-index: 4" title="SQL SERVER" :value="`${countByEngine('SQL Server')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/sqlserver.svg" cardColor="#8B5CF6" />
+    <StatCard v-if="countByEngine('Redis') > 0" class="stagger-child" style="--child-index: 5" title="REDIS" :value="`${countByEngine('Redis')} / ${databaseLimit}`" subtitle="Instancias usadas" logo="/logos/redis.svg" cardColor="#DC382D" />
     </div>
 </section>
 
@@ -327,7 +350,7 @@
             class="engine-card"
             :class="{ 
               'selected': newDb.engine === engine.name,
-              'disabled': engine.name !== 'MySQL' && engine.name !== 'PostgreSQL' && engine.name !== 'SQL Server'
+              'disabled': engine.name !== 'MySQL' && engine.name !== 'PostgreSQL' && engine.name !== 'SQL Server' && engine.name !== 'MongoDB'
             }"
             :style="{ '--engine-color': engine.color }"
             @click="selectEngine(engine.name)"
@@ -338,7 +361,7 @@
             <h3>{{ engine.name }}</h3>
             <p class="engine-desc">{{ engine.description }}</p>
             <div class="engine-meta">
-            <span v-if="engine.name === 'MySQL' || engine.name === 'PostgreSQL' || engine.name === 'SQL Server'" class="badge-available">✓ Disponible</span>
+            <span v-if="engine.name === 'MySQL' || engine.name === 'PostgreSQL' || engine.name === 'SQL Server' || engine.name === 'MongoDB'" class="badge-available">✓ Disponible</span>
             <span v-else class="badge-coming-soon">🔧 En proceso</span>
             </div>
         </div>
@@ -399,7 +422,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import StatCard from '../components/StatCard.vue'
 import { showAlert } from '@/utils/notify'
@@ -417,11 +440,13 @@ import {
   createSQLServerDatabase,
   getSQLServerCredentials,
   rotateSQLServerCredentials,
-  deleteSQLServerDatabase
+  deleteSQLServerDatabase,
+  createMongoDBDatabase,
+  getMongoDBCredentials,
+  rotateMongoDBCredentials,
+  deleteMongoDBDatabase
 } from '@/services/databaseService'
 import { showLoading, hideLoading } from '@/store/loading'
-import { showAuthStatusModal } from '@/utils/authDebug'
-import { debugToken } from '@/utils/tokenDebug'
 import { logoutAndRedirect } from '@/services/authService'
 import { getUserPlan, syncUserPlan } from '@/services/subscriptionService'
 import { getDatabaseLimit, canCreateDatabase } from '@/config/plans'
@@ -432,6 +457,7 @@ const filterEngine = ref('')
 const databases = ref([])
 const userPlan = ref(getUserPlan()) // Plan del usuario
 const databaseLimit = ref(getDatabaseLimit(userPlan.value)) // Límite según el plan
+const tokenTimeRemaining = ref(0)
 
 const databasesCount = ref({
   mysql: 0,
@@ -448,6 +474,16 @@ const eng = filterEngine.value
 return databases.value
     .filter(db => (eng ? db.engine === eng : true))
     .filter(db => (term ? db.name.toLowerCase().includes(term) : true))
+})
+
+// Verificar si hay alguna base de datos con instancias
+const hasAnyDatabase = computed(() => {
+  return countByEngine('MySQL') > 0 || 
+         countByEngine('PostgreSQL') > 0 || 
+         countByEngine('MongoDB') > 0 || 
+         countByEngine('Cassandra') > 0 || 
+         countByEngine('SQL Server') > 0 || 
+         countByEngine('Redis') > 0
 })
 
 const countByEngine = (eng) => {
@@ -542,12 +578,12 @@ const engineOptions = ref([
 ])
 
 const selectEngine = (engineName) => {
-  // MySQL, PostgreSQL y SQL Server están disponibles
-  if (engineName !== 'MySQL' && engineName !== 'PostgreSQL' && engineName !== 'SQL Server') {
+  // MySQL, PostgreSQL, SQL Server y MongoDB están disponibles
+  if (engineName !== 'MySQL' && engineName !== 'PostgreSQL' && engineName !== 'SQL Server' && engineName !== 'MongoDB') {
     showAlert({ 
       icon: 'info', 
       title: 'Próximamente', 
-      text: `${engineName} estará disponible próximamente. Por ahora solo MySQL, PostgreSQL y SQL Server están habilitados.`,
+      text: `${engineName} estará disponible próximamente. Por ahora solo MySQL, PostgreSQL, SQL Server y MongoDB están habilitados.`,
       confirmText: 'Entendido'
     })
     return
@@ -657,12 +693,53 @@ const openCreateModal = () => {
   showCreate.value = true
 }
 
-// Función de debug para verificar autenticación
-const debugAuth = () => {
-  // Mostrar el modal profesional de estado de autenticación
-  showAuthStatusModal();
+// Función para formatear el tiempo restante del token
+const formatTokenTime = (seconds) => {
+  if (seconds <= 0) return '0m 0s'
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = seconds % 60
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`
+  }
+  return `${minutes}m ${secs}s`
 }
 
+// Función para calcular el tiempo restante del token
+const updateTokenTime = () => {
+  const token = localStorage.getItem('authToken')
+  if (!token) {
+    tokenTimeRemaining.value = 0
+    return
+  }
+  
+  try {
+    // Decodificar el token JWT (sin verificar, solo para leer el payload)
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+    
+    const payload = JSON.parse(jsonPayload)
+    const exp = payload.exp * 1000 // Convertir a milisegundos
+    const now = Date.now()
+    const remaining = Math.max(0, Math.floor((exp - now) / 1000))
+    
+    tokenTimeRemaining.value = remaining
+    
+    // Si el token expiró, cerrar sesión
+    if (remaining <= 0) {
+      logoutAndRedirect()
+    }
+  } catch (error) {
+    console.error('Error al decodificar token:', error)
+    tokenTimeRemaining.value = 0
+  }
+}
+
+// Función de debug para verificar autenticación
 const createDb = async () => {
   if (!newDb.value.name || !newDb.value.engine) {
     await showAlert({ 
@@ -713,6 +790,11 @@ const createDb = async () => {
         databaseName: newDb.value.name
         // No pasamos engine aquí porque databaseService.js ya lo incluye como "SQL Server"
       })
+    } else if (newDb.value.engine === 'MongoDB') {
+      response = await createMongoDBDatabase({
+        databaseName: newDb.value.name,
+        engine: newDb.value.engine
+      })
     } else {
       // MySQL por defecto
       response = await createDatabase({
@@ -741,7 +823,7 @@ const createDb = async () => {
       title: '¡Base de datos creada!', 
       text: `La base de datos "${response.databaseName}" ha sido creada exitosamente`,
       confirmText: 'Perfecto',
-      autoClose: 3000  // Se cierra automáticamente después de 3 segundos
+      autoClose: 1000  // Se cierra automáticamente después de 1 segundo
     })
   } catch (error) {
     console.error('Error al crear base de datos:', error)
@@ -1060,6 +1142,8 @@ const removeDatabase = async (db) => {
       await deletePostgreSQLDatabase(db.id)
     } else if (db.engine === 'SQLServer' || db.engine === 'SQL Server') {
       await deleteSQLServerDatabase(db.id)
+    } else if (db.engine === 'MongoDB') {
+      await deleteMongoDBDatabase(db.id)
     } else {
       // MySQL por defecto
       await deleteDatabase(db.id)
@@ -1079,7 +1163,7 @@ const removeDatabase = async (db) => {
       title: '¡Base de datos eliminada!', 
       text: `La base de datos "${db.name}" ha sido eliminada exitosamente`,
       confirmText: 'Entendido',
-      autoClose: 3000  // Se cierra automáticamente después de 3 segundos
+      autoClose: 1000  // Se cierra automáticamente después de 1 segundo
     })
   } catch (error) {
     console.error('Error al eliminar base de datos:', error)
@@ -1127,6 +1211,8 @@ const viewCredentials = async (db) => {
       credentials = await getPostgreSQLCredentials(db.id)
     } else if (db.engine === 'SQLServer' || db.engine === 'SQL Server') {
       credentials = await getSQLServerCredentials(db.id)
+    } else if (db.engine === 'MongoDB') {
+      credentials = await getMongoDBCredentials(db.id)
     } else {
       // MySQL por defecto (usa rotación porque no tiene endpoint GET)
       credentials = await getDatabaseCredentials(db.id)
@@ -1254,6 +1340,8 @@ const rotateDbCredentials = async (db) => {
       newCredentials = await rotatePostgreSQLCredentials(db.id)
     } else if (db.engine === 'SQLServer' || db.engine === 'SQL Server') {
       newCredentials = await rotateSQLServerCredentials(db.id)
+    } else if (db.engine === 'MongoDB') {
+      newCredentials = await rotateMongoDBCredentials(db.id)
     } else {
       // MySQL por defecto
       newCredentials = await rotateCredentials(db.id)
@@ -1317,6 +1405,15 @@ onMounted(async () => {
   await loadDatabases()
   await loadDatabasesCount()
   
+  // Inicializar el temporizador del token
+  updateTokenTime()
+  const tokenInterval = setInterval(updateTokenTime, 1000)
+  
+  // Guardar el interval para limpiarlo después
+  onUnmounted(() => {
+    clearInterval(tokenInterval)
+  })
+  
   // Observer para animaciones
   const observer = new IntersectionObserver(
     (entries) => {
@@ -1379,6 +1476,61 @@ onMounted(async () => {
 .header-actions {
     display: flex;
     gap: 12px;
+    align-items: center;
+}
+
+.token-timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  font-family: 'Roboto Mono', monospace;
+  transition: all 0.3s ease;
+}
+
+.token-timer svg {
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+}
+
+.token-timer .timer-label {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.token-timer .timer-value {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.token-timer.warning {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.token-timer.warning svg {
+  color: #ef4444;
+}
+
+.token-timer.warning .timer-label,
+.token-timer.warning .timer-value {
+  color: #ef4444;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /* Mostrar texto completo en desktop, texto corto en móvil */
@@ -1458,6 +1610,125 @@ onMounted(async () => {
 
 .quota-section { 
   margin-bottom: 40px; 
+}
+
+.empty-databases-message {
+  background: #0f0f10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 64px 32px;
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+
+.empty-databases-message .empty-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-databases-message .empty-icon svg {
+  width: 40px;
+  height: 40px;
+  color: #64748b;
+}
+
+.empty-databases-message h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  border: none;
+  padding: 0;
+}
+
+.empty-databases-message p {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-bottom: 32px;
+}
+
+.btn-create-first {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Roboto Mono', monospace;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2),
+              0 0 40px rgba(255, 255, 255, 0.1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2),
+                0 0 40px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
+                0 0 60px rgba(255, 255, 255, 0.2),
+                0 0 90px rgba(255, 255, 255, 0.1);
+  }
+}
+
+.btn-create-first svg {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-create-first:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
+              0 0 60px rgba(255, 255, 255, 0.2),
+              0 0 90px rgba(255, 255, 255, 0.1);
+}
+
+.btn-create-first:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .empty-databases-message {
+    padding: 48px 24px;
+  }
+  
+  .empty-databases-message .empty-icon {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .empty-databases-message .empty-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .empty-databases-message h4 {
+    font-size: 1.25rem;
+  }
+  
+  .empty-databases-message p {
+    font-size: 0.9rem;
+  }
 }
 
 .quota-grid {
@@ -2056,6 +2327,20 @@ font-size: 0.95rem;
   .header-actions {
     display: flex;
     gap: 8px;
+  }
+  
+  .token-timer {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .token-timer svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .token-timer .timer-label {
+    display: none; /* Ocultar "Sesión:" en móviles */
   }
   
   .toolbar-field {

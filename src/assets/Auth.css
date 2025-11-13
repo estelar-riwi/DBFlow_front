@@ -59,7 +59,8 @@
     
     position: relative;
     z-index: 10; 
-    overflow: hidden;
+    overflow: visible;
+    box-sizing: border-box;
     
     /* 🚨 CLAVE: Eliminamos el fondo y el blur */
     background: none; 
@@ -114,8 +115,15 @@
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 24px; 
+    gap: 20px; 
     text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group label {
@@ -229,17 +237,19 @@
 @media (max-width: 480px) {
     .auth-page-wrap {
         padding: 12px;
+        align-items: flex-start;
+        padding-top: 60px;
     }
     
     .auth-card {
         max-width: 100%;
-        padding: 28px 20px;
+        padding: 24px 18px;
         border-radius: 12px;
     }
     
     .logo {
         font-size: 1.2rem;
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
     
     .auth-title {
@@ -248,11 +258,11 @@
     
     .auth-subtitle {
         font-size: 0.85rem;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
     }
     
     .auth-form {
-        gap: 18px;
+        gap: 16px;
     }
     
     .auth-form input {
@@ -263,6 +273,7 @@
     .btn-full-width {
         padding: 12px 20px;
         font-size: 0.9rem;
+        margin-top: 8px;
     }
     
     .btn-back-home {
