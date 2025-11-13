@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5088', // ⚠️ Cambia al puerto de tu backend
+  baseURL: 'https://service.estelar.andrescortes.dev', // ⚠️ Cambia al puerto de tu backend
   headers: {
     'Content-Type': 'application/json',
   },
