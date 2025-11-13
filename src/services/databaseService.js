@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // URL base - En desarrollo usa el proxy de Vite, en producción usa la variable de entorno
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5030'; //'https://service.estelar.andrescortes.dev';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://service.estelar.andrescortes.dev';
 
 console.log('🌐 API_BASE_URL configurada:', API_BASE_URL);
 console.log('🏭 Modo:', import.meta.env.MODE);
