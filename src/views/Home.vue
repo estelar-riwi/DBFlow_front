@@ -379,6 +379,7 @@ function resizeCanvas(c) {
   
   const ctx = c.getContext('2d')
   ctx && ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  
   return ctx
 }
 
