@@ -2,12 +2,12 @@
 <div class="auth-page-wrap fade-in-view">
     
     <div class="canvas-container-bg" ref="container">
-    <canvas ref="canvas" class="w-full h-full"></canvas>
+      <canvas ref="canvas" class="w-full h-full"></canvas>
     </div>
     
-    <router-link to="/" class="btn-back-home stagger-item" style="--stagger-index: 0;">← Volver al Inicio</router-link>
+    <router-link to="/" class="btn-back-home stagger-item" style="--stagger-index: 0;">←</router-link>
     
-    <div class="auth-card stagger-item" style="--stagger-index: 1;">
+    <div class="auth-card stagger-item" style="--stagger-index: 1">
     
     <div class="logo">
         <div class="logo-icon"></div>
@@ -81,9 +81,9 @@
         </button>
     </form>
     
-    <p class="auth-footer-text stagger-child" style="--child-index: 4;">
+    <p class="auth-footer-text stagger-child" style="--child-index: 4">
         ¿Ya tienes una cuenta?
-        <router-link to="/login" class="link-secondary">Iniciar Sesión</router-link>
+        <router-link to="/login" class="link-secondary">Inicia Sesión</router-link>
     </p>
 
     </div>
@@ -187,6 +187,47 @@ const handleRegister = async () => {
     await showAlert({ icon: 'error', title: 'Error', text: 'Error al conectar con el servidor', confirmText: 'Aceptar' });
     } finally {
         isLoading.value = false;
+    }
+};
+
+// Manejar registro/login con Google
+const handleGoogleLogin = async (response) => {
+    console.log('🔐 Respuesta de Google:', response);
+    
+    try {
+        showLoading('Procesando con Google...');
+        
+        const result = await handleGoogleCallback(response);
+        
+        hideLoading();
+        
+        if (result.success) {
+            await showAlert({ 
+                icon: 'success', 
+                title: 'Bienvenido', 
+                text: 'Registro/Inicio de sesión con Google exitoso',
+                autoClose: 1500 
+            });
+            
+            await new Promise(resolve => setTimeout(resolve, 1700));
+            router.push('/dashboard');
+        } else {
+            await showAlert({ 
+                icon: 'error', 
+                title: 'Error', 
+                text: result.message || 'Error al procesar con Google',
+                confirmText: 'Aceptar'
+            });
+        }
+    } catch (error) {
+        console.error('Error con Google:', error);
+        hideLoading();
+        await showAlert({ 
+            icon: 'error', 
+            title: 'Error', 
+            text: 'Error al conectar con el servidor',
+            confirmText: 'Aceptar'
+        });
     }
 };
 
@@ -403,12 +444,19 @@ onBeforeUnmount(() => {
 
 /* Barra de fortaleza de contraseña */
 .password-strength-container {
-    margin-top: 12px;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
 }
 
 .password-strength-bar {
     width: 100%;
-    height: 6px;
+    height: 5px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     overflow: hidden;
@@ -423,32 +471,36 @@ onBeforeUnmount(() => {
 
 .password-strength-fill.weak {
     background: linear-gradient(90deg, #ff4444, #ff6b6b);
-    box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
 }
 
 .password-strength-fill.fair {
     background: linear-gradient(90deg, #ff8800, #ffaa00);
-    box-shadow: 0 0 10px rgba(255, 136, 0, 0.5);
+    box-shadow: 0 0 8px rgba(255, 136, 0, 0.4);
 }
 
 .password-strength-fill.good {
     background: linear-gradient(90deg, #00bfff, #00d4ff);
-    box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+    box-shadow: 0 0 8px rgba(0, 191, 255, 0.4);
 }
 
 .password-strength-fill.strong {
     background: linear-gradient(90deg, #00ff88, #00ffaa);
-    box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
 }
 
 .password-strength-text {
     margin-bottom: 10px;
+    text-align: left;
+    padding-left: 2px;
 }
 
 .password-strength-text span {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     transition: color 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .password-strength-text span.weak {
@@ -471,16 +523,25 @@ onBeforeUnmount(() => {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .password-requirements li {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #94a3b8;
-    margin-bottom: 6px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     transition: color 0.3s ease;
+    line-height: 1.4;
+}
+
+.password-requirements li:last-child {
+    margin-bottom: 0;
 }
 
 .password-requirements li.met {
@@ -491,10 +552,11 @@ onBeforeUnmount(() => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 16px;
-    height: 16px;
-    font-size: 0.75rem;
+    width: 14px;
+    height: 14px;
+    font-size: 0.7rem;
     font-weight: bold;
+    flex-shrink: 0;
 }
 
 .password-requirements li.met .requirement-icon {
@@ -558,6 +620,156 @@ onBeforeUnmount(() => {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Divisor y Google Login */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 28px 0 24px 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.auth-divider span {
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+.google-login-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+/* Personalizar el botón de Google - Estilo Glassmorphism */
+.google-login-container :deep(button),
+.google-login-container :deep(div[role="button"]),
+.google-login-container :deep(.nsm7Bb-HzV7m-LgbsSe) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  color: #e2e8f0 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  font-family: 'Roboto Mono', monospace !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1),
+              0 4px 6px rgba(0, 0, 0, 0.2) !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 0 24px !important;
+  line-height: 52px !important;
+}
+
+.google-login-container :deep(button:hover),
+.google-login-container :deep(div[role="button"]:hover),
+.google-login-container :deep(.nsm7Bb-HzV7m-LgbsSe:hover) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.2),
+              0 6px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.google-login-container :deep(button:active),
+.google-login-container :deep(div[role="button"]:active),
+.google-login-container :deep(.nsm7Bb-HzV7m-LgbsSe:active) {
+  transform: translateY(0) !important;
+}
+
+/* Icono de Google */
+.google-login-container :deep(button svg),
+.google-login-container :deep(button img) {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+/* Texto del botón */
+.google-login-container :deep(button span) {
+  color: #e2e8f0 !important;
+  font-weight: 600 !important;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .google-login-container :deep(button),
+  .google-login-container :deep(div[role="button"]),
+  .google-login-container :deep(.nsm7Bb-HzV7m-LgbsSe) {
+    font-size: 0.9rem !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    padding: 0 16px !important;
+  }
+  
+  .auth-divider {
+    font-size: 0.75rem;
+    margin: 16px 0;
+  }
+  
+  .password-strength-container {
+    margin-top: 8px;
+    padding: 8px;
+  }
+  
+  .password-strength-text span {
+    font-size: 0.75rem;
+  }
+  
+  .password-requirements {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  
+  .password-requirements li {
+    font-size: 0.7rem;
+    gap: 5px;
+  }
+  
+  .requirement-icon {
+    width: 12px;
+    height: 12px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .password-strength-container {
+    padding: 6px;
+  }
+  
+  .password-requirements li {
+    font-size: 0.68rem;
+  }
+  
+  .password-strength-text span {
+    font-size: 0.72rem;
   }
 }
 </style>

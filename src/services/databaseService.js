@@ -552,3 +552,160 @@ export async function deleteSQLServerDatabase(databaseId) {
     throw error;
   }
 }
+
+/* ========================================================================= */
+/* =================== FUNCIONES MONGODB =================================== */
+/* ========================================================================= */
+
+/**
+ * Crea una nueva base de datos MongoDB
+ * @param {Object} databaseData - Datos de la base de datos
+ * @param {string} databaseData.databaseName - Nombre de la base de datos
+ * @returns {Promise<Object>} Respuesta con id, host, port, username, password, databaseName
+ */
+export async function createMongoDBDatabase(databaseData) {
+  console.log('🍃 ========== CREANDO BASE DE DATOS MONGODB ==========');
+  console.log('📝 Datos recibidos:', databaseData);
+  
+  const userId = getUserId();
+  const token = getAuthToken();
+  
+  console.log('🔑 Token disponible:', token ? 'SÍ (' + token.substring(0, 20) + '...)' : '❌ NO');
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  const payload = {
+    userId: userId,
+    databaseName: databaseData.databaseName || databaseData.database_name,
+    engine: databaseData.engine || 'MongoDB'
+  };
+  
+  console.log('📤 Enviando petición POST /api/Databases/MongoDB');
+  console.log('📦 Payload JSON:', JSON.stringify(payload, null, 2));
+  console.log('👤 UserId:', userId);
+  console.log('🌐 URL completa:', `${API_BASE_URL}/api/Databases/MongoDB`);
+  
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/Databases/MongoDB`, payload);
+    console.log('✅ RESPUESTA DEL BACKEND:', response.data);
+    console.log('🔍 Engine en la respuesta:', response.data.engine);
+    console.log('🔍 Tipo de engine:', typeof response.data.engine);
+    console.log('🍃 ========== FIN CREACIÓN MONGODB ==========');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al crear base de datos MongoDB:');
+    console.error('Status:', error.response?.status);
+    console.error('Status Text:', error.response?.statusText);
+    console.error('Error data:', error.response?.data);
+    console.error('Payload enviado:', payload);
+    throw error;
+  }
+}
+
+/**
+ * Obtiene las credenciales de una base de datos MongoDB específica
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<Object>} Credenciales: { id, host, port, username, password, databaseName }
+ */
+export async function getMongoDBCredentials(databaseId) {
+  console.log('🔐 Obteniendo credenciales de MongoDB para base de datos ID:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/MongoDB/${databaseId}/Credentials`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/api/Databases/MongoDB/${databaseId}/Credentials`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Credenciales MongoDB obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener credenciales MongoDB:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
+}
+
+/**
+ * Rota las credenciales de una base de datos MongoDB (genera nueva contraseña)
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<Object>} Nuevas credenciales: { id, host, port, username, password, databaseName }
+ */
+export async function rotateMongoDBCredentials(databaseId) {
+  console.log('🔄 Rotando credenciales MongoDB para base de datos:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/MongoDB/${databaseId}/RotateCredentials`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/api/Databases/MongoDB/${databaseId}/RotateCredentials`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Credenciales MongoDB rotadas exitosamente:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al rotar credenciales MongoDB:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
+}
+
+/**
+ * Elimina una base de datos MongoDB
+ * @param {number} databaseId - ID de la base de datos
+ * @returns {Promise<void>}
+ */
+export async function deleteMongoDBDatabase(databaseId) {
+  console.log('🗑️ Eliminando base de datos MongoDB:', databaseId);
+  console.log('🌐 URL:', `${API_BASE_URL}/api/Databases/MongoDB/${databaseId}`);
+  
+  const token = getAuthToken();
+  
+  if (!token) {
+    throw new Error('No hay token de autenticación. Por favor, inicia sesión nuevamente.');
+  }
+  
+  try {
+    const response = await axios.delete(
+      `${API_BASE_URL}/api/Databases/MongoDB/${databaseId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
+    );
+    console.log('✅ Base de datos MongoDB eliminada exitosamente:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al eliminar base de datos MongoDB:');
+    console.error('Status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
+    console.error('Database ID:', databaseId);
+    throw error;
+  }
+}

@@ -15,6 +15,7 @@ if ('scrollRestoration' in window.history) {
 }
 
 const app = createApp(App)
+
 app.use(router)
 
 router.isReady().then(() => {
