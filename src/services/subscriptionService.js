@@ -6,7 +6,7 @@ import axios from 'axios'
 import { updateUserInfo, getCurrentUser, getAuthToken } from './authService'
 
 // URL base - En desarrollo usa el proxy de Vite, en producción usa la variable de entorno
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5030'; //'https://service.estelar.andrescortes.dev';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://service.estelar.andrescortes.dev';
 
 /**
  * Obtiene el plan actual del usuario desde localStorage
