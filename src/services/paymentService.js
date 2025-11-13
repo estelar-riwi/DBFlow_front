@@ -1,83 +1,34 @@
-// En: /src/services/paymentService.js
+import api from './api'; // 👈 IMPORTANTE
 
-// --- CONFIGURACIÓN DE LA API ---
-const API_BASE_URL = 'http://localhost:5030'; // O tu URL de producción
-
-/**
- * Crea una preferencia de pago y redirige a Checkout Pro de Mercado Pago.
- * Es la función principal que usa el componente de suscripción.
- * @param {object} checkoutData - Datos del checkout { planId, userId, email }
- */
-export async function initiateCheckoutPro(checkoutData) {
+// ✅ Iniciar el Checkout Pro
+export const initiateCheckoutPro = async ({ planId, userId, email }) => {
+  // 🔴 IMPORTANTE: Para pruebas en Sandbox, Mercado Pago requiere un email de prueba.
+  const testUserEmail = 'test_user_12345678@testuser.com';
+  const finalEmail = import.meta.env.DEV ? testUserEmail : email;
   try {
-    console.log('📤 Enviando datos al backend para Checkout Pro:', checkoutData);
-    
-    // Asume que el backend espera un endpoint como '/api/payments/checkout-pro'
-    const response = await fetch(`${API_BASE_URL}/api/payments/checkout-pro`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      },
-      body: JSON.stringify(checkoutData),
-    });
+        const response = await api.post('/payments/checkout-pro', { planId, userId, email: finalEmail });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error del servidor: ${response.status}`);
+    if (response.data?.initPoint || response.data?.InitPoint) {
+      const redirectUrl = response.data.initPoint || response.data.InitPoint;
+      console.log('🔗 Redirigiendo a Mercado Pago:', redirectUrl);
+      window.location.href = redirectUrl;
+    } else {
+      console.error('⚠️ No se recibió un initPoint válido:', response.data);
+      throw new Error('No se recibió un enlace de pago válido.');
     }
-
-    const data = await response.json();
-    
-    if (!data.initPoint) {
-      throw new Error('No se recibió la URL de pago del servidor.');
-    }
-
-    console.log('✅ Checkout Pro iniciado, redirigiendo a:', data.initPoint);
-    
-    // Guardar el plan pendiente antes de redirigir
-    localStorage.setItem('pending_plan', checkoutData.planId);
-    
-    // Redirigir al usuario a la página de pago de Mercado Pago
-    window.location.href = data.initPoint;
-    
   } catch (error) {
-    console.error('❌ Error en initiateCheckoutPro:', error);
-    // Relanzamos el error para que el componente que llama pueda manejarlo.
+    console.error('❌ Error iniciando Checkout Pro:', error);
     throw error;
   }
-}
+};
 
-/**
- * Obtiene el historial de suscripciones del usuario.
- * @returns {Promise<Array>} Una lista del historial de suscripciones.
- */
-export async function getSubscriptionHistory() {
+// (Opcional)
+export const getSubscriptionHistory = async () => {
   try {
-    console.log("Obteniendo historial de suscripciones...");
-    
-    // --- SIMULACIÓN ---
-    // En un futuro, aquí harás una llamada real a tu API:
-    // const response = await fetch(`${API_BASE_URL}/api/subscriptions/history`, {
-    //   headers: {
-    //     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-    //   }
-    // });
-    // if (!response.ok) throw new Error('No se pudo cargar el historial.');
-    // return await response.json();
-    
-    // Por ahora, usamos datos de ejemplo simulando una espera.
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return [
-        // { id: 1, createdAt: '2023-10-27T10:00:00Z', planId: 'free', amount: 0, status: 'completed' },
-        // { id: 2, createdAt: '2023-11-27T10:05:00Z', planId: 'intermediate', amount: 50000, status: 'active' }
-    ];
+    const response = await api.get('/payments/history');
+    return response.data || [];
   } catch (error) {
-    console.error('❌ Error al obtener el historial de suscripciones:', error);
-    return []; // Devuelve un array vacío en caso de error para no romper la UI.
+    console.error('❌ Error obteniendo historial de suscripción:', error);
+    return [];
   }
-}
-
-// NOTA: La función 'createPaymentPreference' ha sido eliminada
-// porque 'initiateCheckoutPro' es la que se está utilizando y
-// tener ambas causaba el error de declaración duplicada.
+};
