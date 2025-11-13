@@ -190,47 +190,6 @@ const handleRegister = async () => {
     }
 };
 
-// Manejar registro/login con Google
-const handleGoogleLogin = async (response) => {
-    console.log('🔐 Respuesta de Google:', response);
-    
-    try {
-        showLoading('Procesando con Google...');
-        
-        const result = await handleGoogleCallback(response);
-        
-        hideLoading();
-        
-        if (result.success) {
-            await showAlert({ 
-                icon: 'success', 
-                title: 'Bienvenido', 
-                text: 'Registro/Inicio de sesión con Google exitoso',
-                autoClose: 1500 
-            });
-            
-            await new Promise(resolve => setTimeout(resolve, 1700));
-            router.push('/dashboard');
-        } else {
-            await showAlert({ 
-                icon: 'error', 
-                title: 'Error', 
-                text: result.message || 'Error al procesar con Google',
-                confirmText: 'Aceptar'
-            });
-        }
-    } catch (error) {
-        console.error('Error con Google:', error);
-        hideLoading();
-        await showAlert({ 
-            icon: 'error', 
-            title: 'Error', 
-            text: 'Error al conectar con el servidor',
-            confirmText: 'Aceptar'
-        });
-    }
-};
-
 // --- LÓGICA DE PARTÍCULAS (Interactiva y Rápida) ---
 const canvas = ref(null);
 const container = ref(null);
