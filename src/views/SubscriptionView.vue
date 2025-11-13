@@ -7,6 +7,7 @@
       <div>
         <h1>Plan y Facturación</h1>
         <p class="view-subtitle">Administra tu suscripción y consulta tu historial de pagos.</p>
+        <p v-if="userEmail" class="user-email">Usuario: {{ userEmail }}</p>
       </div>
     </div>
 
@@ -22,14 +23,20 @@
         :subtitle="currentPlan.dbsPerEngineText"
       >
         <template #icon>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v18l7-5 7 5V3z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v18l7-5 7 5V3z"/>
+          </svg>
         </template>
       </StatCard>
+
       <StatCard 
         class="stagger-child" style="--child-index: 1"
         title="Próximo Cobro" value="N/A" subtitle="Sin fecha">
         <template #icon>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="6" width="18" height="13" rx="2" stroke-width="1.5"/><path d="M3 10h18" stroke-width="1.5"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="6" width="18" height="13" rx="2" stroke-width="1.5"/>
+            <path d="M3 10h18" stroke-width="1.5"/>
+          </svg>
         </template>
       </StatCard>
     </div>
@@ -54,14 +61,21 @@
             {{ plan.price.toLocaleString('es-CO') }} COP<small>/mes</small>
           </span>
         </div>
+
         <p class="plan-description">{{ plan.dbsPerEngineText }}</p>
         <ul class="plan-features">
           <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-8.8"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-8.8"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
             {{ plan.dbsPerEngineText }}
           </li>
           <li>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-8.8"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-8.8"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
             Soporte Básico
           </li>
         </ul>
@@ -79,9 +93,10 @@
     <!-- =================================== -->
     <!--      Historial de Facturación       -->
     <!-- =================================== -->
-    <h3>Historial de Facturación</h3>
+    <!--<h3>Historial de Facturación</h3>-->
     <div class="db-table-container reveal-on-scroll">
-      <table class="db-table">
+      
+     <!-- <table class="db-table">
         <thead>
           <tr>
             <th>Fecha</th>
@@ -92,14 +107,10 @@
         </thead>
         <tbody>
           <tr v-if="loadingHistory">
-            <td colspan="4" class="table-state-cell">
-              <div>Cargando historial...</div>
-            </td>
+            <td colspan="4" class="table-state-cell">PCargando historial...</td>
           </tr>
           <tr v-else-if="subscriptionHistory.length === 0">
-            <td colspan="4" class="table-state-cell">
-              <div>No hay historial de suscripciones</div>
-            </td>
+            <td colspan="4" class="table-state-cell">No hay historial de suscripciones</td>
           </tr>
           <tr v-else v-for="sub in subscriptionHistory" :key="sub.id">
             <td>{{ formatDate(sub.startDate || sub.createdAt) }}</td>
@@ -107,222 +118,139 @@
             <td>{{ formatAmount(sub.amount) }}</td>
             <td>
               <span class="status-dot" :class="getStatusClass(sub.status)"></span>
-              <span class="badge" :class="getBadgeClass(sub.status)">{{ getStatusText(sub.status) }}</span>
+              <span class="badge" :class="getBadgeClass(sub.status)">
+                {{ getStatusText(sub.status) }}
+              </span>
             </td>
           </tr>
         </tbody>
-      </table>
+      </table>-->
     </div>
   </div>
 </template>
 
 <script setup>
-// En: /src/views/SubscriptionView.vue
-
-// --- IMPORTACIONES ---
 import { ref, onMounted } from 'vue';
 import StatCard from '@/components/StatCard.vue';
 import { showAlert } from '@/utils/notify';
 import { getUserPlan, setUserPlan } from '@/services/subscriptionService';
 import { getAllPlans, getPlanConfig } from '@/config/plans';
 import { getCurrentUser } from '@/services/authService';
-
-// --- CORRECCIÓN: Se importan AMBAS funciones desde el MISMO archivo para evitar duplicados ---
 import { getSubscriptionHistory, initiateCheckoutPro } from '@/services/paymentService';
 
-
-// --- ESTADO REACTIVO DEL COMPONENTE ---
+// --- ESTADO REACTIVO ---
 const isProcessing = ref(false);
 const selectedPlanId = ref(null);
 const subscriptionHistory = ref([]);
 const loadingHistory = ref(false);
+const userEmail = ref('');
 
-
-// --- INICIALIZACIÓN DE PLANES ---
+// --- PLANES ---
 const userPlanId = ref(getUserPlan());
 const currentPlanConfig = getPlanConfig(userPlanId.value);
+
 const currentPlan = ref({
   id: currentPlanConfig.id,
   name: currentPlanConfig.displayName,
   price: currentPlanConfig.price,
-  priceText: currentPlanConfig.price === 0 ? 'Gratuito' : `$${currentPlanConfig.price.toLocaleString('es-CO')} COP/mes`,
+  priceText: currentPlanConfig.price === 0 
+    ? 'Gratuito' 
+    : `$${currentPlanConfig.price.toLocaleString('es-CO')} COP/mes`,
   dbsPerEngine: currentPlanConfig.databaseLimit,
   dbsPerEngineText: `Hasta ${currentPlanConfig.databaseLimit} DBs por motor`,
 });
 
-const allPlansConfig = getAllPlans();
-const availablePlans = ref(allPlansConfig.map(plan => ({
-  id: plan.id,
-  name: plan.displayName,
-  price: plan.price,
-  priceText: plan.price === 0 ? 'Gratuito' : `${plan.price.toLocaleString('es-CO')} COP`,
-  dbsPerEngine: plan.databaseLimit,
-  dbsPerEngineText: `Hasta ${plan.databaseLimit} bases de datos por motor`,
-  available: true,
-  features: plan.features
-})));
+const availablePlans = ref(
+  getAllPlans().map(plan => ({
+    id: plan.id,
+    name: plan.displayName,
+    price: plan.price,
+    priceText: plan.price === 0 
+      ? 'Gratuito' 
+      : `${plan.price.toLocaleString('es-CO')} COP`,
+    dbsPerEngine: plan.databaseLimit,
+    dbsPerEngineText: `Hasta ${plan.databaseLimit} bases de datos por motor`,
+    available: true,
+    features: plan.features,
+  }))
+);
 
+// --- MÉTODOS ---
 
-// --- LÓGICA DE NEGOCIO (MÉTODOS PRINCIPALES) ---
+// 🧾 Iniciar proceso de pago (Checkout Pro)
 const initiateCheckout = async (plan) => {
   if (isProcessing.value) return;
-
   isProcessing.value = true;
   selectedPlanId.value = plan.id;
-  
+
   try {
     const currentUser = getCurrentUser();
+
     if (!currentUser || !currentUser.UserId) {
       throw new Error('Usuario no autenticado. Por favor, inicia sesión nuevamente.');
     }
-    
+
     const userId = currentUser.UserId;
-    const userEmail = currentUser.Email;
-    
-    console.log('📝 Iniciando Checkout Pro para usuario:', userId, 'Email:', userEmail, 'Plan:', plan.id);
-    
-    // Llamada a la función importada
-    await initiateCheckoutPro({
-      planId: plan.id,
-      userId: userId,
-      email: userEmail,
-    });
-    
+    const email = currentUser.Email;
+    userEmail.value = email;
+
+    console.log('📝 Iniciando Checkout Pro →', { userId, email, planId: plan.id });
+
+    // Llamada al backend para generar la preferencia de pago
+    await initiateCheckoutPro({ planId: plan.id, userId, email });
   } catch (error) {
-    console.error('❌ Error al iniciar checkout:', error);
+    console.error('❌ Error al iniciar Checkout Pro:', error);
     showAlert({
       icon: 'error',
-      title: 'Error de Pago',
-      text: error.message || 'No se pudo iniciar el proceso de pago. Inténtalo de nuevo más tarde.',
+      title: 'Error en el pago',
+      text: error.message || 'No se pudo iniciar el proceso de pago.',
     });
     isProcessing.value = false;
     selectedPlanId.value = null;
   }
 };
 
-const loadSubscriptionHistory = async () => {
+// 📜 Cargar historial de suscripciones
+/*const loadSubscriptionHistory = async () => {
   loadingHistory.value = true;
+
   try {
-    const history = await getSubscriptionHistory();
+    const currentUser = getCurrentUser();
+    if (!currentUser || !currentUser.UserId) {
+      throw new Error('No se encontró el usuario en sesión.');
+    }
+
+    console.log('📦 Cargando historial de suscripciones para:', currentUser.UserId);
+
+    const history = await getSubscriptionHistory(currentUser.UserId);
     subscriptionHistory.value = Array.isArray(history) ? history : [];
   } catch (error) {
     console.error('❌ Error al cargar historial:', error);
-    subscriptionHistory.value = [];
   } finally {
     loadingHistory.value = false;
   }
-};
+};*/
 
-
-// --- CICLO DE VIDA (LIFECYCLE HOOKS) ---
+// --- CICLO DE VIDA ---
 onMounted(async () => {
-  // 1. Cargar datos iniciales
-  await loadSubscriptionHistory();
+  const currentUser = getCurrentUser();
 
-  // 2. Inicializar animaciones de scroll
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-      }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
-
-  // 3. Procesar el retorno desde la pasarela de pago
-  const urlParams = new URLSearchParams(window.location.search);
-  const paymentStatus = urlParams.get('status');
-  const pendingPlanId = localStorage.getItem('pending_plan');
-  
-  if (paymentStatus === 'approved' && pendingPlanId) {
-    const planConfig = getPlanConfig(pendingPlanId);
-
-    if (planConfig) {
-      setUserPlan(pendingPlanId);
-      
-      currentPlan.value = {
-        id: planConfig.id,
-        name: planConfig.displayName,
-        price: planConfig.price,
-        priceText: planConfig.price === 0 ? 'Gratuito' : `$${planConfig.price.toLocaleString('es-CO')} COP/mes`,
-        dbsPerEngine: planConfig.databaseLimit,
-        dbsPerEngineText: `Hasta ${planConfig.databaseLimit} DBs por motor`,
-      };
-      userPlanId.value = pendingPlanId;
-      
-      showAlert({ 
-        icon: 'success', 
-        title: '¡Pago exitoso!', 
-        text: `Tu plan ha sido actualizado a ${planConfig.displayName}.`,
-        confirmText: 'Genial'
-      });
-
-      await loadSubscriptionHistory();
-    } else {
-      console.error(`Error crítico: No se encontró la configuración para el plan con ID '${pendingPlanId}' después del pago.`);
-      showAlert({ 
-        icon: 'error', 
-        title: 'Error al actualizar tu plan', 
-        text: 'El pago fue exitoso, pero tuvimos un problema al actualizar tu plan. Por favor, contacta a soporte.',
-      });
-    }
-    
-    localStorage.removeItem('pending_plan');
-    window.history.replaceState({}, document.title, window.location.pathname);
-
-  } else if (paymentStatus) {
-    if(paymentStatus === 'pending') showAlert({ icon: 'info', title: 'Pago Pendiente', text: 'Te notificaremos cuando el pago se haya completado.' });
-    if(paymentStatus === 'rejected') showAlert({ icon: 'error', title: 'Pago Rechazado', text: 'Tu pago fue rechazado. Intenta con otro medio de pago.' });
-      
-    localStorage.removeItem('pending_plan');
-    window.history.replaceState({}, document.title, window.location.pathname);
+  if (currentUser && currentUser.Email) {
+    userEmail.value = currentUser.Email;
   }
+
+  await loadSubscriptionHistory();
 });
-
-
-// --- FUNCIONES AUXILIARES (HELPERS) ---
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
-};
-
-const formatAmount = (amount) => {
-  if (amount === 0 || amount === null || amount === undefined) return '$0 COP';
-  return `$${amount.toLocaleString('es-CO')} COP`;
-};
-
-const getPlanName = (planId) => {
-  const plan = getPlanConfig(planId);
-  return plan ? plan.displayName : planId || 'Desconocido';
-};
-
-const getStatusText = (status) => {
-  const statusMap = { 'active': 'Activo', 'cancelled': 'Cancelado', 'expired': 'Expirado', 'pending': 'Pendiente', 'approved': 'Aprobado', 'completed': 'Completado' };
-  return statusMap[status?.toLowerCase()] || status || 'Desconocido';
-};
-
-const getStatusClass = (status) => {
-  const statusLower = status?.toLowerCase();
-  if (statusLower === 'active' || statusLower === 'approved' || statusLower === 'completed') return 'status-active';
-  if (statusLower === 'pending') return 'status-pending';
-  if (statusLower === 'cancelled' || statusLower === 'expired') return 'status-cancelled';
-  return '';
-};
-
-const getBadgeClass = (status) => {
-  const statusLower = status?.toLowerCase();
-  if (statusLower === 'active' || statusLower === 'approved' || statusLower === 'completed') return 'badge-success';
-  if (statusLower === 'pending') return 'badge-warning';
-  if (statusLower === 'cancelled' || statusLower === 'expired') return 'badge-error';
-  return '';
-};
 </script>
 
+
 <style scoped>
-/* =================================== */
-/*      Layout General y Títulos       */
-/* =================================== */
+.user-email {
+  color: #a0aec0;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  font-family: 'Roboto Mono', monospace;
+}
 .plan-facturacion-view {
   padding: 20px;
   min-height: 100vh;
