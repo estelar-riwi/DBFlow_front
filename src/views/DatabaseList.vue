@@ -549,15 +549,6 @@ const engineOptions = ref([
     color: '#47A248'
   },
   {
-    name: 'Cassandra',
-    description: 'Base de datos distribuida altamente escalable',
-    logo: '/logos/cassandra.svg',
-    defaultPort: 9042,
-    host: 'cassandra.dbflow.dev',
-    connectionString: 'cassandra://cassandra.dbflow.dev:9042/{dbname}',
-    color: '#1287B1'
-  },
-  {
     name: 'SQL Server',
     description: 'Sistema de gestión de bases de datos de Microsoft',
     logo: '/logos/sqlserver.svg',
@@ -565,6 +556,15 @@ const engineOptions = ref([
     host: 'sqlserver.dbflow.dev',
     connectionString: 'Server=sqlserver.dbflow.dev,1433;Database={dbname};User Id=username;Password=password;',
     color: '#8B5CF6'
+  },
+  {
+    name: 'Cassandra',
+    description: 'Base de datos distribuida altamente escalable',
+    logo: '/logos/cassandra.svg',
+    defaultPort: 9042,
+    host: 'cassandra.dbflow.dev',
+    connectionString: 'cassandra://cassandra.dbflow.dev:9042/{dbname}',
+    color: '#1287B1'
   },
   {
     name: 'Redis',
@@ -823,7 +823,7 @@ const createDb = async () => {
       title: '¡Base de datos creada!', 
       text: `La base de datos "${response.databaseName}" ha sido creada exitosamente`,
       confirmText: 'Perfecto',
-      autoClose: 1000  // Se cierra automáticamente después de 1 segundo
+      autoClose: 2000  // Se cierra automáticamente después de 1 segundo
     })
   } catch (error) {
     console.error('Error al crear base de datos:', error)
@@ -1163,7 +1163,7 @@ const removeDatabase = async (db) => {
       title: '¡Base de datos eliminada!', 
       text: `La base de datos "${db.name}" ha sido eliminada exitosamente`,
       confirmText: 'Entendido',
-      autoClose: 1000  // Se cierra automáticamente después de 1 segundo
+      autoClose: 2000  // Se cierra automáticamente después de 2 segundos
     })
   } catch (error) {
     console.error('Error al eliminar base de datos:', error)

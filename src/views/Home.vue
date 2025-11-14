@@ -379,6 +379,7 @@ function resizeCanvas(c) {
   
   const ctx = c.getContext('2d')
   ctx && ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  
   return ctx
 }
 
@@ -462,8 +463,14 @@ function animateLoop() {
   const ctx = c.getContext('2d')
   if (!ctx) return
 
-  ctx.fillStyle = 'rgba(0,0,0,0.05)' // Efecto de estela
-  ctx.fillRect(0,0, cw, ch)
+  // Limpieza completa en el primer frame
+  if (frameCount === 0) {
+    ctx.fillStyle = 'rgba(0,0,0,1)'
+    ctx.fillRect(0, 0, cw, ch)
+  } else {
+    ctx.fillStyle = 'rgba(0,0,0,0.05)' // Efecto de estela
+    ctx.fillRect(0, 0, cw, ch)
+  }
 
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i]
@@ -619,6 +626,13 @@ onMounted(() => {
   if (!c) return
   const ctx = resizeCanvas(c)
   if (!ctx) return;
+  
+  // Resetear estado y limpiar canvas completamente
+  frameCount = 0
+  particles = []
+  ctx.fillStyle = 'rgba(0,0,0,1)'
+  ctx.fillRect(0, 0, cw, ch)
+  
   generateParticlesFromText(c, pixelSteps)
   animateLoop()
 
