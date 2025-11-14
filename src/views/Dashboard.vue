@@ -73,11 +73,7 @@
     </transition>
 
     <main class="main-content">
-      <transition name="page-fade" mode="out-in">
-        <router-view v-slot="{ Component }">
-          <component :is="Component" :key="$route.fullPath" />
-        </router-view>
-      </transition>
+      <router-view v-if="isRouterViewVisible" />
     </main>
 
     <transition name="modal-fade">
@@ -214,8 +210,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { RouterLink, RouterView, useRouter } from 'vue-router'; 
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'; 
 import { showAlert } from '@/utils/notify';
 import { logoutAndRedirect, getCurrentUser, updateProfile, changePassword, checkEmailVerificationStatus, resendVerificationEmail } from '@/services/authService';
 import { showLoading, hideLoading } from '@/store/loading';
@@ -297,6 +293,15 @@ const closeProfileModal = () => {
 };
 
 const router = useRouter();
+const route = useRoute();
+
+// Forzar la recarga del router-view para evitar problemas de renderizado
+const isRouterViewVisible = ref(true);
+watch(() => route.path, async () => {
+  isRouterViewVisible.value = false;
+  await nextTick();
+  isRouterViewVisible.value = true;
+});
 
 // Función para cerrar el banner de verificación
 const dismissEmailBanner = () => {
@@ -385,6 +390,24 @@ const checkEmailVerification = async () => {
   }
 };
 
+// Función para actualizar los datos del usuario re-leyendo desde el servicio
+const updateUserData = () => {
+  const user = getCurrentUser();
+  let userName = 'Usuario';
+  if (user) {
+    userName = user.UserName || user.userName || user.username || user.Name || user.name || 
+               user['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || 
+               user.given_name;
+    if (!userName || userName.includes('@')) {
+      const emailPrefix = (user.Email || user.email).split('@')[0];
+      userName = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    }
+  }
+  profileName.value = userName;
+  currentPlan.value = getUserPlan();
+  console.log('🔄 Datos de usuario actualizados en Dashboard');
+};
+
 // Verificar si hay un email pendiente de verificación al cargar
 onMounted(() => {
   const pendingEmailStored = localStorage.getItem('pendingEmailVerification');
@@ -399,8 +422,9 @@ onMounted(() => {
     checkEmailVerification();
   }
   
-  // Sincronizar plan del usuario
+  // Sincronizar plan del usuario y escuchar cambios
   syncUserPlan();
+  window.addEventListener('userUpdated', updateUserData);
 });
 
 // Limpiar el intervalo cuando el componente se desmonte
@@ -409,6 +433,8 @@ onBeforeUnmount(() => {
     clearInterval(emailCheckInterval);
     emailCheckInterval = null;
   }
+  // Limpiar el listener de actualización de usuario
+  window.removeEventListener('userUpdated', updateUserData);
 });
 
 async function onLogoutClick() {

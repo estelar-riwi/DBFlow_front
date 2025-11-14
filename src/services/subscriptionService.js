@@ -5,6 +5,13 @@
 import axios from 'axios'
 import { updateUserInfo, getCurrentUser, getAuthToken } from './authService'
 
+// Mapeo de PlanID (backend) a Plan ID (frontend)
+const PLAN_ID_MAP = {
+  1: 'free',
+  2: 'intermediate',
+  3: 'advanced'
+};
+
 // URL base - En desarrollo usa el proxy de Vite, en producción usa la variable de entorno
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://service.estelar.andrescortes.dev';
 
@@ -99,9 +106,9 @@ export async function syncUserPlan() {
       return
     }
 
-    // Intentar sincronizar desde el backend
+    // Intentar sincronizar desde el backend usando el nuevo endpoint
     const response = await axios.get(
-      `${API_BASE_URL}/api/Users/${userId}`,
+      `${API_BASE_URL}/api/Users/Subscriptions`,
       {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -109,13 +116,20 @@ export async function syncUserPlan() {
       }
     )
 
-    if (response.data.subscriptionType) {
-      localStorage.setItem('user_plan', response.data.subscriptionType)
+    // La respuesta es un array, tomamos la primera suscripción activa
+    if (response.data && response.data.length > 0) {
+      const subscription = response.data[0];
+      const planName = subscription.planName.toLowerCase(); // ej: "Intermediate" -> "intermediate"
+      
+      localStorage.setItem('user_plan', planName);
       updateUserInfo({
-        subscriptionType: response.data.subscriptionType,
-        subscriptionStatus: response.data.subscriptionStatus || 'active'
-      })
-      console.log('✅ Plan sincronizado desde el backend:', response.data.subscriptionType)
+        subscriptionType: planName,
+        subscriptionStatus: subscription.isActive ? 'active' : 'inactive'
+      });
+
+      console.log('✅ Plan sincronizado desde /api/Users/Subscriptions:', planName);
+      // Notificar a la app que el usuario se actualizó
+      window.dispatchEvent(new CustomEvent('userUpdated'));
     }
 
     return response.data

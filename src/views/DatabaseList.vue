@@ -457,6 +457,13 @@ const filterEngine = ref('')
 const databases = ref([])
 const userPlan = ref(getUserPlan()) // Plan del usuario
 const databaseLimit = ref(getDatabaseLimit(userPlan.value)) // Límite según el plan
+
+// Función para actualizar el plan y el límite
+const updateUserPlan = () => {
+  userPlan.value = getUserPlan()
+  databaseLimit.value = getDatabaseLimit(userPlan.value)
+  console.log('🔄 Plan actualizado en DatabaseList:', userPlan.value)
+}
 const tokenTimeRemaining = ref(0)
 
 const databasesCount = ref({
@@ -1372,6 +1379,8 @@ const rotateDbCredentials = async (db) => {
 }
 
 onMounted(async () => {
+  // Escuchar actualizaciones del plan
+  window.addEventListener('userUpdated', updateUserPlan)
   console.log('🚀 DatabaseList montado');
   
   // Verificar si hay token antes de hacer cualquier cosa
@@ -1411,6 +1420,8 @@ onMounted(async () => {
   
   // Guardar el interval para limpiarlo después
   onUnmounted(() => {
+  // Limpiar el listener de actualización del plan
+  window.removeEventListener('userUpdated', updateUserPlan)
     clearInterval(tokenInterval)
   })
   
