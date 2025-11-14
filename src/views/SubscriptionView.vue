@@ -96,35 +96,7 @@
     <!--<h3>Historial de Facturación</h3>-->
     <div class="db-table-container reveal-on-scroll">
       
-     <!-- <table class="db-table">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Plan</th>
-            <th>Monto</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="loadingHistory">
-            <td colspan="4" class="table-state-cell">PCargando historial...</td>
-          </tr>
-          <tr v-else-if="subscriptionHistory.length === 0">
-            <td colspan="4" class="table-state-cell">No hay historial de suscripciones</td>
-          </tr>
-          <tr v-else v-for="sub in subscriptionHistory" :key="sub.id">
-            <td>{{ formatDate(sub.startDate || sub.createdAt) }}</td>
-            <td>{{ getPlanName(sub.planId) }}</td>
-            <td>{{ formatAmount(sub.amount) }}</td>
-            <td>
-              <span class="status-dot" :class="getStatusClass(sub.status)"></span>
-              <span class="badge" :class="getBadgeClass(sub.status)">
-                {{ getStatusText(sub.status) }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>-->
+  
     </div>
   </div>
 </template>
