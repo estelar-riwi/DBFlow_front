@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ec975d1-fbd3-4923-9a05-d15f436786a0" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/services/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/api.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/paymentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/paymentService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/SubscriptionView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/SubscriptionView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,6 +52,7 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/snap/rider/665/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -64,6 +66,8 @@
       <workItem from="1762999828982" duration="39000" />
       <workItem from="1762999896071" duration="301000" />
       <workItem from="1763000231978" duration="1109000" />
+      <workItem from="1763084506892" duration="1668000" />
+      <workItem from="1763150775503" duration="683000" />
     </task>
     <servers />
   </component>
