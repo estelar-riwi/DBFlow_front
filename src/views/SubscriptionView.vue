@@ -55,6 +55,9 @@
         <button v-if="currentPlan.id === plan.id" class="btn-secondary" disabled>
           Plan Actual
         </button>
+        <button v-else-if="plan.id === 'free' && currentPlan.id !== 'free'" class="btn-secondary" disabled>
+          No disponible
+        </button>
         <button v-else class="btn-primary" @click.prevent="initiateCheckout(plan)" :disabled="isProcessing">
           <span v-if="isProcessing && selectedPlanId === plan.id">Redirigiendo...</span>
           <span v-else>Seleccionar Plan</span>
