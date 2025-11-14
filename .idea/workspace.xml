@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ec975d1-fbd3-4923-9a05-d15f436786a0" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/databaseService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/databaseService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/subscriptionService.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/subscriptionService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/Dashboard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/Dashboard.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/DatabaseList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/DatabaseList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/SubscriptionView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/SubscriptionView.vue" afterDir="false" />
-    </list>
+    <list default="true" id="5ec975d1-fbd3-4923-9a05-d15f436786a0" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -71,7 +64,7 @@
       <workItem from="1762999896071" duration="301000" />
       <workItem from="1763000231978" duration="1109000" />
       <workItem from="1763084506892" duration="1668000" />
-      <workItem from="1763150775503" duration="3050000" />
+      <workItem from="1763150775503" duration="6069000" />
     </task>
     <task id="LOCAL-00001" summary="Feat: Pasarela de pagos">
       <option name="closed" value="true" />
@@ -81,7 +74,23 @@
       <option name="project" value="LOCAL" />
       <updated>1763152046144</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Fix: Vistas y conexión con el back">
+      <option name="closed" value="true" />
+      <created>1763155064435</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1763155064435</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Fix: Redirección de la página">
+      <option name="closed" value="true" />
+      <created>1763161128604</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1763161128604</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -92,7 +101,9 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Feat: Pasarela de pagos" />
-    <option name="LAST_COMMIT_MESSAGE" value="Feat: Pasarela de pagos" />
+    <MESSAGE value="Fix: Vistas y conexión con el back" />
+    <MESSAGE value="Fix: Redirección de la página" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix: Redirección de la página" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
