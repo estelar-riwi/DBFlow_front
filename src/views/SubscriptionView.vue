@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import StatCard from '@/components/StatCard.vue';
 import { showAlert } from '@/utils/notify';
 import { getUserPlan, setUserPlan } from '@/services/subscriptionService';
@@ -119,7 +119,7 @@ const userEmail = ref('');
 
 // --- PLANES ---
 const userPlanId = ref(getUserPlan());
-const currentPlanConfig = getPlanConfig(userPlanId.value);
+const currentPlanConfig = getPlanConfig(userPlanId.value) || getPlanConfig('free');
 
 const currentPlan = ref({
   id: currentPlanConfig.id,
@@ -146,6 +146,22 @@ const availablePlans = ref(
     features: plan.features,
   }))
 );
+
+const updatePlanInfo = () => {
+  userPlanId.value = getUserPlan();
+  const newPlanConfig = getPlanConfig(userPlanId.value);
+  currentPlan.value = {
+    id: newPlanConfig.id,
+    name: newPlanConfig.displayName,
+    price: newPlanConfig.price,
+    priceText: newPlanConfig.price === 0 
+      ? 'Gratuito' 
+      : `$${newPlanConfig.price.toLocaleString('es-CO')} COP/mes`,
+    dbsPerEngine: newPlanConfig.databaseLimit,
+    dbsPerEngineText: `Hasta ${newPlanConfig.databaseLimit} DBs por motor`,
+  };
+  console.log('🔄 Plan actualizado en SubscriptionView:', currentPlan.value.name);
+};
 
 // --- MÉTODOS ---
 
@@ -205,6 +221,7 @@ const initiateCheckout = async (plan) => {
 
 // --- CICLO DE VIDA ---
 onMounted(async () => {
+  window.addEventListener('userUpdated', updatePlanInfo);
   const currentUser = getCurrentUser();
 
   if (currentUser && currentUser.Email) {
@@ -212,6 +229,10 @@ onMounted(async () => {
   }
 
   await loadSubscriptionHistory();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('userUpdated', updatePlanInfo);
 });
 </script>
 

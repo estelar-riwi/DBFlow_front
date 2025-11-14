@@ -185,7 +185,17 @@ export async function getAllDatabases() {
   }
   
   console.log('\n📋 ========== FIN OBTENCIÓN BASES DE DATOS ==========');
-  return response.data;
+
+  // Mapear la respuesta para que coincida con lo que el frontend espera
+  const mappedDatabases = response.data.map(db => ({
+    ...db,
+    id: db.id, // Asegurarse de que el id esté presente
+    name: db.databaseName, // Mapear databaseName a name
+    engine: db.engineName, // Mapear engineName a engine
+    status: db.status ? 'Activo' : 'Inactivo' // Mapear status booleano a string
+  }));
+
+  return mappedDatabases;
 }
 
 /**
