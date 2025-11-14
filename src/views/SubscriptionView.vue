@@ -11,35 +11,7 @@
       </div>
     </div>
 
-    <!-- =================================== -->
-    <!--      Sección del Plan Actual        -->
-    <!-- =================================== -->
-    <h3>Tu Plan Actual</h3>
-    <div class="current-plan-display">
-      <StatCard
-        class="stagger-child" style="--child-index: 0"
-        :title="currentPlan.name"
-        :value="currentPlan.price === 0 ? '$0 COP' : `$${currentPlan.price.toLocaleString('es-CO')} COP/mes`"
-        :subtitle="currentPlan.dbsPerEngineText"
-      >
-        <template #icon>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v18l7-5 7 5V3z"/>
-          </svg>
-        </template>
-      </StatCard>
-
-      <StatCard 
-        class="stagger-child" style="--child-index: 1"
-        title="Próximo Cobro" value="N/A" subtitle="Sin fecha">
-        <template #icon>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="3" y="6" width="18" height="13" rx="2" stroke-width="1.5"/>
-            <path d="M3 10h18" stroke-width="1.5"/>
-          </svg>
-        </template>
-      </StatCard>
-    </div>
+    <!-- Sección de Plan Actual removida (tarjetas) -->
 
     <!-- =================================== -->
     <!--      Sección para Cambiar de Plan   -->
@@ -103,7 +75,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import StatCard from '@/components/StatCard.vue';
+// StatCard removed from this view because the plan cards are not displayed here
 import { showAlert } from '@/utils/notify';
 import { getUserPlan, setUserPlan } from '@/services/subscriptionService';
 import { getAllPlans, getPlanConfig } from '@/config/plans';

@@ -72,6 +72,29 @@
       </div>
     </transition>
 
+    <!-- Banner para usuarios recién registrados -->
+    <transition name="banner-slide">
+      <div v-if="showNewUserBanner" class="new-user-banner">
+        <div class="banner-content">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="banner-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+          </svg>
+          <div class="banner-text">
+            <strong>¡Bienvenido a DBFlow!</strong>
+            <span>Explora nuestros planes y elige el que mejor se adapte a tus necesidades.</span>
+          </div>
+          <button class="banner-action" @click="goToPlans" title="Ver planes">
+            Ver Planes
+          </button>
+          <button class="banner-close" @click="dismissNewUserBanner" title="Cerrar">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </transition>
+
     <main class="main-content">
       <router-view v-if="isRouterViewVisible" />
     </main>
@@ -225,6 +248,9 @@ const isModalOpen = ref(false);
 const showEmailVerificationBanner = ref(false);
 const pendingEmail = ref('');
 
+// 🆕 Banner para usuarios recién registrados
+const showNewUserBanner = ref(false);
+
 // Obtener datos del usuario actual desde localStorage
 const user = getCurrentUser();
 
@@ -307,6 +333,19 @@ watch(() => route.path, async () => {
 const dismissEmailBanner = () => {
   showEmailVerificationBanner.value = false;
   localStorage.removeItem('pendingEmailVerification');
+};
+
+// 🆕 Función para cerrar el banner de usuario nuevo
+const dismissNewUserBanner = () => {
+  showNewUserBanner.value = false;
+  // Marcar que ya se mostró el banner
+  localStorage.removeItem('newUserFlag');
+};
+
+// 🆕 Función para ir a los planes
+const goToPlans = () => {
+  router.push('/dashboard/subscription');
+  dismissNewUserBanner();
 };
 
 // Función para reenviar el email de verificación
@@ -739,6 +778,26 @@ onMounted(async () => {
     currentPlan.value = getUserPlan();
     userSubscription.value = currentPlan.value;
     console.log('📋 Plan sincronizado en Dashboard:', currentPlan.value);
+    
+    // 🆕 Verificar si es un usuario recién registrado
+    const isNewUser = localStorage.getItem('newUserFlag') === 'true';
+    if (isNewUser) {
+      showNewUserBanner.value = true;
+      console.log('🎉 Mostrando banner de bienvenida para usuario nuevo');
+    }
+    
+    // Verificar si hay un email pendiente de verificación
+    const pendingEmailStored = localStorage.getItem('pendingEmailVerification');
+    if (pendingEmailStored) {
+      pendingEmail.value = pendingEmailStored;
+      showEmailVerificationBanner.value = true;
+      
+      // Iniciar verificación periódica cada 10 segundos
+      emailCheckInterval = setInterval(checkEmailVerification, 10000);
+      
+      // Verificar inmediatamente al cargar
+      checkEmailVerification();
+    }
     
     const c = canvas.value;
     if (!c) return;
