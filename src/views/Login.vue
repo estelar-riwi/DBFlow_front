@@ -93,6 +93,10 @@ const handleLogin = async () => {
             const tokenGuardado = localStorage.getItem('authToken');
             console.log('🔍 Verificación post-login - Token guardado:', tokenGuardado ? 'SÍ' : 'NO');
             
+            // 🆕 Si existe el flag de usuario nuevo, se mantiene para que aparezca el banner en el Dashboard
+            const isNewUser = localStorage.getItem('newUserFlag') === 'true';
+            console.log('👤 ¿Usuario nuevo?:', isNewUser);
+            
             // Alerta de éxito que se cierra automáticamente en 1.5 segundos
             showAlert({ 
                 icon: 'success', 

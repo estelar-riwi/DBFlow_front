@@ -10,7 +10,14 @@ const routes = [
   {
     path: '/', 
     name: 'Home',
-    component: Home 
+    component: Home,
+    beforeEnter: (to, from, next) => {
+      if (isAuthenticated()) {
+        next({ name: 'Dashboard' });
+      } else {
+        next();
+      }
+    }
   },
   {
     path: '/login', 
