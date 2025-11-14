@@ -163,6 +163,11 @@ const handleRegister = async () => {
         if (result.success) {
             // Ocultar loading antes de mostrar el modal de éxito
             try { hideLoading(); } catch (e) {}
+            
+            // 🆕 Marcar como usuario recién registrado
+            localStorage.setItem('newUserFlag', 'true');
+            localStorage.setItem('registrationTime', Date.now().toString());
+            
             // Alerta de éxito que se cierra automáticamente en 1.5 segundos
             showAlert({ 
                 icon: 'success', 
