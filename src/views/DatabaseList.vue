@@ -823,7 +823,7 @@ const createDb = async () => {
       title: '¡Base de datos creada!', 
       text: `La base de datos "${response.databaseName}" ha sido creada exitosamente`,
       confirmText: 'Perfecto',
-      autoClose: 1000  // Se cierra automáticamente después de 1 segundo
+      autoClose: 2000  // Se cierra automáticamente después de 1 segundo
     })
   } catch (error) {
     console.error('Error al crear base de datos:', error)
@@ -1163,7 +1163,7 @@ const removeDatabase = async (db) => {
       title: '¡Base de datos eliminada!', 
       text: `La base de datos "${db.name}" ha sido eliminada exitosamente`,
       confirmText: 'Entendido',
-      autoClose: 1000  // Se cierra automáticamente después de 1 segundo
+      autoClose: 2000  // Se cierra automáticamente después de 2 segundos
     })
   } catch (error) {
     console.error('Error al eliminar base de datos:', error)
