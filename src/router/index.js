@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { isAuthenticated } from '@/services/authService';
 import { syncUserPlan } from '@/services/subscriptionService';
 import { setDataReady } from '@/store/appState';
+import { showLoading, hideLoading } from '@/store/loading';
 // 1. Importa tus vistas
 import Home from '@/views/Home.vue' 
 import Dashboard from '@/views/Dashboard.vue' // Layout Principal
@@ -111,6 +112,7 @@ const router = createRouter({
 
 // Guardia global: protege rutas con meta.requiresAuth
 router.beforeEach(async (to, from, next) => {
+  showLoading('Cargando...');
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
   if (requiresAuth) {
@@ -133,6 +135,10 @@ router.beforeEach(async (to, from, next) => {
   } else {
     next();
   }
+});
+
+router.afterEach(() => {
+  hideLoading();
 });
 
 export default router
