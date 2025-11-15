@@ -464,7 +464,9 @@ const updateUserPlan = () => {
   databaseLimit.value = getDatabaseLimit(userPlan.value)
   console.log('🔄 Plan actualizado en DatabaseList:', userPlan.value)
 }
+
 const tokenTimeRemaining = ref(0)
+let tokenInterval = null;
 
 const databasesCount = ref({
   mysql: 0,
@@ -1379,9 +1381,25 @@ const rotateDbCredentials = async (db) => {
 }
 
 onMounted(async () => {
-  // Escuchar actualizaciones del plan
-  window.addEventListener('userUpdated', updateUserPlan)
-  console.log('🚀 DatabaseList montado');
+  // Cargar las bases de datos al montar el componente
+  loadDatabases();
+
+  // Escuchar actualizaciones del plan para recargar datos si es necesario
+  const handleUserUpdate = () => {
+    updateUserPlan();
+    loadDatabases();
+  };
+  window.addEventListener('userUpdated', handleUserUpdate);
+
+  // Actualizar el contador del token cada segundo
+  updateTokenTime();
+  tokenInterval = setInterval(updateTokenTime, 1000);
+
+  // Limpiar el intervalo y el listener al desmontar
+  onUnmounted(() => {
+    clearInterval(tokenInterval);
+    window.removeEventListener('userUpdated', handleUserUpdate);
+  });
   
   // Verificar si hay token antes de hacer cualquier cosa
   const token = localStorage.getItem('authToken');
@@ -1414,10 +1432,7 @@ onMounted(async () => {
   await loadDatabases()
   await loadDatabasesCount()
   
-  // Inicializar el temporizador del token
-  updateTokenTime()
-  const tokenInterval = setInterval(updateTokenTime, 1000)
-  
+    
   // Guardar el interval para limpiarlo después
   onUnmounted(() => {
   // Limpiar el listener de actualización del plan
