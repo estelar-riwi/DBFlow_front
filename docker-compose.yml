@@ -1,16 +1,55 @@
 version: '3.8'
+
 services:
+  # --- Servicio del Frontend ---
   frontend:
     image: riwi_frontend_app
     container_name: crudcloud_front_container
-    restart: always
     build:
       context: .
       dockerfile: Dockerfile
+    restart: always
 
+  # --- Servicio del Backend ---
+  backend:
+    build:
+      context: ../CrudCloud_Backend
+      dockerfile: Dockerfile
+    image: crudcloud_back
+    container_name: crudcloud_api
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - SmtpSettings__Server=smtp.gmail.com
+      - SmtpSettings__Port=587
+      - SmtpSettings__SenderName=CrudCloud
+      - SmtpSettings__SenderEmail=jhonatanmorales99@gmail.com
+      - SmtpSettings__Username=jhonatanmorales99@gmail.com
+      - SmtpSettings__Password=tkhjlibjeluicrdh
+      # - DiscordWebhookSettings__UserActivityUrl=...
+      # - DiscordWebhookSettings__ErrorUrl=...
+
+  # --- Servicio de la Base de Datos (MySQL) ---
+  db:
+    image: mysql:8.0 # Es mejor fijar la versión
+    container_name: CrudCloud_DB
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # --- Servicio de Nginx (Reverse Proxy Principal) ---
   nginx:
-    image: nginx:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     container_name: nginx_proxy
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -20,5 +59,8 @@ services:
       - /var/lib/letsencrypt:/var/lib/letsencrypt
     depends_on:
       - frontend
-    restart: always
+      - backend
 
+# --- Volúmenes para persistencia de datos ---
+volumes:
+  mysql_data:
