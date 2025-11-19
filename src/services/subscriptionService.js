@@ -131,7 +131,6 @@ export async function syncUserPlan() {
       // Notificar a la app que el usuario se actualizó
       window.dispatchEvent(new CustomEvent('userUpdated'));
     }
-
     return response.data
   } catch (error) {
     // Si el endpoint no existe (404) o hay error, usar el plan actual del localStorage
@@ -144,6 +143,7 @@ export async function syncUserPlan() {
     return null
   }
 }
+
 
 /**
  * Verifica si el usuario tiene un plan activo (no gratuito)

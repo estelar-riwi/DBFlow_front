@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { isAuthenticated } from '@/services/authService';
+import { syncUserPlan } from '@/services/subscriptionService';
+import { setDataReady } from '@/store/appState';
+import { showLoading, hideLoading } from '@/store/loading';
 // 1. Importa tus vistas
 import Home from '@/views/Home.vue' 
 import Dashboard from '@/views/Dashboard.vue' // Layout Principal
@@ -10,7 +13,15 @@ const routes = [
   {
     path: '/', 
     name: 'Home',
-    component: Home 
+    component: Home,
+    beforeEnter: (to, from, next) => {
+      if (isAuthenticated()) {
+        // Redirigir directamente a la vista de la lista de bases de datos
+        next({ name: 'DatabaseList' });
+      } else {
+        next();
+      }
+    }
   },
   {
     path: '/login', 
@@ -100,10 +111,23 @@ const router = createRouter({
 })
 
 // Guardia global: protege rutas con meta.requiresAuth
-router.beforeEach((to, from, next) => {
-  if (to.meta && to.meta.requiresAuth) {
+router.beforeEach(async (to, from, next) => {
+  showLoading('Cargando...');
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+  if (requiresAuth) {
     if (isAuthenticated()) {
-      next();
+      setDataReady(false); // Indicar que los datos aún no están listos
+      try {
+        // Espera a que el plan del usuario se sincronice antes de continuar
+        await syncUserPlan();
+        setDataReady(true); // Indicar que los datos ya están listos
+        next();
+      } catch (error) {
+        console.error('Error sincronizando el plan, redirigiendo a login:', error);
+        setDataReady(false);
+        next({ name: 'Login', query: { redirect: to.fullPath } });
+      }
     } else {
       // Redirigir al login y preservar la ruta destino para volver luego
       next({ name: 'Login', query: { redirect: to.fullPath } });
@@ -111,6 +135,10 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
+});
+
+router.afterEach(() => {
+  hideLoading();
 });
 
 export default router

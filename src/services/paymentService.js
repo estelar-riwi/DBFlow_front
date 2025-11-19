@@ -2,11 +2,8 @@ import api from './api'; // 👈 IMPORTANTE
 
 // ✅ Iniciar el Checkout Pro
 export const initiateCheckoutPro = async ({ planId, userId, email }) => {
-  // 🔴 IMPORTANTE: Para pruebas en Sandbox, Mercado Pago requiere un email de prueba.
-  const testUserEmail = 'test_user_12345678@testuser.com';
-  const finalEmail = import.meta.env.DEV ? testUserEmail : email;
-  try {
-        const response = await api.post('/api/Payments/checkout-pro', { planId, userId, email: finalEmail });
+    try {
+        const response = await api.post('/api/Payments/checkout-pro', { planId, userId, email });
 
     if (response.data?.initPoint || response.data?.InitPoint) {
       const redirectUrl = response.data.initPoint || response.data.InitPoint;

@@ -102,7 +102,10 @@
     </transition>
 
     <main class="main-content">
-      <router-view v-if="isRouterViewVisible" />
+      <router-view v-if="isDataReady" />
+      <div v-else class="loading-placeholder">
+        <!-- Opcional: puedes poner un spinner o mensaje de carga aquí -->
+      </div>
     </main>
 
     <transition name="modal-fade">
@@ -244,6 +247,7 @@ import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router';
 import { showAlert } from '@/utils/notify';
 import { logoutAndRedirect, getCurrentUser, updateProfile, changePassword, checkEmailVerificationStatus, resendVerificationEmail } from '@/services/authService';
 import { showLoading, hideLoading } from '@/store/loading';
+import { isDataReady } from '@/store/appState';
 import { getUserPlan, syncUserPlan } from '@/services/subscriptionService';
 import { getPlanConfig } from '@/config/plans';
 
@@ -467,8 +471,7 @@ onMounted(() => {
     checkEmailVerification();
   }
   
-  // Sincronizar plan del usuario y escuchar cambios
-  syncUserPlan();
+  // Escuchar cambios en el plan del usuario
   window.addEventListener('userUpdated', updateUserData);
 });
 
