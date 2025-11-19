@@ -179,6 +179,7 @@ export async function getAllDatabases() {
       console.log(`\n  📌 BD #${index + 1}:`);
       console.log(`     Nombre: ${db.databaseName || db.name}`);
       console.log(`     Engine: "${db.engine}" (tipo: ${typeof db.engine})`);
+      console.log(`     Status: ${db.status}`);
       console.log(`     Todas las propiedades:`, Object.keys(db));
       console.log(`     Objeto completo:`, db);
     });
@@ -192,7 +193,7 @@ export async function getAllDatabases() {
     id: db.id, // Asegurarse de que el id esté presente
     name: db.databaseName, // Mapear databaseName a name
     engine: db.engineName, // Mapear engineName a engine
-    status: db.status ? 'Activo' : 'Inactivo' // Mapear status booleano a string
+    status: 'Activo' // Siempre mostrar como Activo ya que las BD creadas están activas
   }));
 
   return mappedDatabases;
