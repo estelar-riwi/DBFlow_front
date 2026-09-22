@@ -11,3 +11,9 @@ Thumbs.db
 
 # entorno
 .env
+.env.production
+.env.local
+
+# IDE
+.idea/
+.vscode/

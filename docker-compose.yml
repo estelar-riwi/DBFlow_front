@@ -24,9 +24,9 @@ services:
       - SmtpSettings__Server=smtp.gmail.com
       - SmtpSettings__Port=587
       - SmtpSettings__SenderName=CrudCloud
-      - SmtpSettings__SenderEmail=jhonatanmorales99@gmail.com
-      - SmtpSettings__Username=jhonatanmorales99@gmail.com
-      - SmtpSettings__Password=tkhjlibjeluicrdh
+      - SmtpSettings__SenderEmail=${SMTP_SENDER_EMAIL}
+      - SmtpSettings__Username=${SMTP_USERNAME}
+      - SmtpSettings__Password=${SMTP_PASSWORD}
       # - DiscordWebhookSettings__UserActivityUrl=...
       # - DiscordWebhookSettings__ErrorUrl=...
 
